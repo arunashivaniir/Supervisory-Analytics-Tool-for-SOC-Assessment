@@ -1,6 +1,8 @@
 import random
 from datetime import datetime, timedelta
 
+from sentinel_generator.soc_behavior import get_soc_behavior
+
 
 ALERT_TYPES = [
 
@@ -12,16 +14,6 @@ ALERT_TYPES = [
     "PRIVILEGE_ESCALATION",
     "DDoS",
     "CONFIGURATION_CHANGE"
-
-]
-
-
-SEVERITY = [
-
-    "LOW",
-    "MEDIUM",
-    "HIGH",
-    "CRITICAL"
 
 ]
 
@@ -47,19 +39,59 @@ STATUS = [
 ]
 
 
-def generate_alerts(assets, analysts, count=200):
+def generate_alerts(
+        entities,
+        assets,
+        analysts,
+        count=200
+):
 
 
     alerts = []
 
 
+    # Map CSE -> SOC behaviour profile
+
+    entity_profiles = {}
+
+    for entity in entities:
+
+        entity_profiles[
+            entity["cse_id"]
+        ] = entity["soc_profile"]
+
+
+
     for i in range(count):
 
 
-        asset = random.choice(assets)
+        # Select asset
 
-        analyst = random.choice(analysts)
+        asset = random.choice(
+            assets
+        )
 
+
+        # Select analyst
+
+        analyst = random.choice(
+            analysts
+        )
+
+
+        # Get SOC behaviour
+
+        soc_profile = entity_profiles[
+            asset["cse_id"]
+        ]
+
+
+        behaviour = get_soc_behavior(
+            soc_profile
+        )
+
+
+        # Generate severity
 
         severity = random.choices(
 
@@ -81,22 +113,41 @@ def generate_alerts(assets, analysts, count=200):
 
 
 
-        created_time = datetime.now() - timedelta(
+        created_time = (
+            datetime.now()
+            -
+            timedelta(
+                minutes=random.randint(
+                    10,
+                    5000
+                )
+            )
+        )
 
-            minutes=random.randint(
-                10,
-                5000
+
+
+        # --------------------------------
+        # SOC Behaviour Based Response
+        # --------------------------------
+
+
+        # KPI Optimized SOC:
+        # suspiciously fast closure
+
+        if random.random() < behaviour["fast_closure_probability"]:
+
+            response_minutes = random.randint(
+                1,
+                10
             )
 
-        )
+        else:
 
+            response_minutes = random.randint(
+                30,
+                600
+            )
 
-        # Simulate SOC response delay
-
-        response_minutes = random.randint(
-            5,
-            600
-        )
 
 
         sla_limit = {
@@ -113,12 +164,50 @@ def generate_alerts(assets, analysts, count=200):
         }
 
 
+
         sla_breach = (
 
             response_minutes >
             sla_limit[severity]
 
         )
+
+
+
+        # Escalation behaviour
+
+        escalated = (
+
+            random.random()
+            <
+            behaviour["escalation_probability"]
+
+        )
+
+
+
+        # Remediation behaviour
+
+        remediation_recorded = (
+
+            random.random()
+            <
+            behaviour["remediation_probability"]
+
+        )
+
+
+
+        # Alert status
+
+        status = random.choice(
+            STATUS
+        )
+
+
+        # --------------------------------
+        # Alert Object
+        # --------------------------------
 
 
         alert = {
@@ -129,15 +218,16 @@ def generate_alerts(assets, analysts, count=200):
                 f"ALERT_{str(i+1).zfill(5)}",
 
 
-            "asset_id":
-
-                asset["asset_id"],
-
-
 
             "cse_id":
 
                 asset["cse_id"],
+
+
+
+            "asset_id":
+
+                asset["asset_id"],
 
 
 
@@ -175,15 +265,25 @@ def generate_alerts(assets, analysts, count=200):
 
 
 
+            "soc_profile":
+
+                soc_profile,
+
+
+
             "status":
 
-                random.choice(
-                    STATUS
-                ),
+                status,
 
 
 
             "response_time_minutes":
+
+                response_minutes,
+
+
+
+            "closure_time_minutes":
 
                 response_minutes,
 
@@ -194,14 +294,31 @@ def generate_alerts(assets, analysts, count=200):
                 sla_breach,
 
 
+
+            "escalated":
+
+                escalated,
+
+
+
+            "remediation_recorded":
+
+                remediation_recorded,
+
+
+
             "created_time":
 
                 created_time.isoformat()
 
+
         }
 
 
-        alerts.append(alert)
+
+        alerts.append(
+            alert
+        )
 
 
 

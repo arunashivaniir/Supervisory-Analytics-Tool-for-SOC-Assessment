@@ -2,7 +2,11 @@ import sys
 
 sys.path.append("src")
 
-
+from sentinel_generator.monitoring_generator import generate_monitoring_coverage
+from sentinel_generator.negative_space_engine import generate_negative_space_findings
+from sentinel_generator.finding_engine import generate_findings
+from sentinel_generator.anomaly_detector import train_anomaly_model
+from sentinel_generator.feature_engineering import generate_features
 from sentinel_generator.entity_generator import generate_entities
 from sentinel_generator.asset_generator import generate_assets
 from sentinel_generator.analyst_generator import generate_analysts
@@ -11,7 +15,7 @@ from sentinel_generator.exporter import export_csv
 from sentinel_generator.investigation_generator import generate_investigations
 import statistics
 from sentinel_generator.risk_scoring_engine import generate_risk_assessment
-
+from sentinel_generator.risk_explanation_engine import generate_risk_explanation
 
 def calculate_detection_score(alerts):
 
@@ -198,7 +202,9 @@ assets = generate_assets(
     entities
 )
 
-
+monitoring = generate_monitoring_coverage(
+    assets
+)
 
 # 3. Generate SOC analysts
 
@@ -211,6 +217,7 @@ analysts = generate_analysts(
 # 4. Generate alerts linked to assets and analysts
 
 alerts = generate_alerts(
+    entities,
     assets,
     analysts,
     500
@@ -231,6 +238,12 @@ assessment = generate_assessment(
 
 risk = generate_risk_assessment(
     assessment
+)
+
+
+explanation = generate_risk_explanation(
+    assessment,
+    risk
 )
 
 # 5. Export datasets
@@ -272,3 +285,52 @@ print("\nRISK ASSESSMENT")
 
 print(risk)
 
+print("\nRISK EXPLANATION")
+
+print(explanation)
+
+generate_features(
+
+    "../data/generated/alerts.csv",
+
+    "../data/generated/investigations.csv",
+
+    "../data/generated/assets.csv",
+
+    "../data/generated/features.csv"
+
+)
+
+train_anomaly_model(
+
+    "../data/generated/features.csv",
+
+    "../data/generated/isolation_forest.pkl"
+
+)
+
+generate_findings(
+
+    "../data/generated/features_anomaly.csv",
+
+    "../data/generated/supervisory_findings.csv"
+
+)
+
+export_csv(
+
+    monitoring,
+
+    "../data/generated/monitoring_coverage.csv"
+
+)
+
+generate_negative_space_findings(
+
+    "../data/generated/monitoring_coverage.csv",
+
+    "../data/generated/alerts.csv",
+
+    "../data/generated/negative_space_findings.csv"
+
+)
