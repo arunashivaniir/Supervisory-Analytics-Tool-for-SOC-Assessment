@@ -23,10 +23,18 @@ def train_anomaly_model(
     # Remove identifier
 
     X = df.drop(
+
         columns=[
-            "alert_id"
+
+            "alert_id",
+
+            "cse_id",
+
+            "asset_id"
+
         ]
-    )
+
+)
 
 
 

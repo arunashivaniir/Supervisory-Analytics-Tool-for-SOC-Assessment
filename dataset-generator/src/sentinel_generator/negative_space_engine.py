@@ -38,6 +38,8 @@ def generate_negative_space_findings(
 
         asset_id = row["asset_id"]
 
+        cse_id = row["cse_id"]
+
 
 
         asset_alerts = alerts[
@@ -86,6 +88,11 @@ def generate_negative_space_findings(
                 "asset_id":
 
                     asset_id,
+
+                
+                "cse_id":
+
+                    cse_id,
 
 
                 "finding":
@@ -136,6 +143,11 @@ def generate_negative_space_findings(
                     asset_id,
 
 
+                "cse_id":
+
+                    cse_id,
+
+
                 "finding":
 
                     "Unexpectedly Low Security Activity",
@@ -173,8 +185,6 @@ def generate_negative_space_findings(
         )
 
 
-
-        # Handle empty values
 
         if expected_monitoring in ["nan", ""]:
 
@@ -229,6 +239,11 @@ def generate_negative_space_findings(
                     asset_id,
 
 
+                "cse_id":
+
+                    cse_id,
+
+
                 "finding":
 
                     "Missing Monitoring Coverage",
@@ -254,8 +269,6 @@ def generate_negative_space_findings(
             })
 
 
-
-    # Convert findings to dataframe
 
     result = pd.DataFrame(
 

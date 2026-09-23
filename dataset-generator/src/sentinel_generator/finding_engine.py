@@ -3,17 +3,24 @@ import pandas as pd
 
 
 def generate_findings(
+
         anomaly_file,
+
         output_file
+
 ):
 
 
     df = pd.read_csv(
+
         anomaly_file
-    )
+
+    ).fillna(0)
+
 
 
     findings = []
+
 
 
     for _, row in df.iterrows():
@@ -27,10 +34,10 @@ def generate_findings(
 
 
 
-        # ---------------------------------
-        # Rule 1:
-        # Superficial Investigation
-        # ---------------------------------
+        # --------------------------------
+        # 1. Potential Superficial Investigation
+        # --------------------------------
+
 
         if (
 
@@ -48,7 +55,9 @@ def generate_findings(
 
 
             finding = (
+
                 "Potential Superficial Investigation"
+
             )
 
 
@@ -67,10 +76,11 @@ def generate_findings(
 
 
 
-        # ---------------------------------
-        # Rule 2:
-        # Fast Closure Risk
-        # ---------------------------------
+
+        # --------------------------------
+        # 2. Suspicious Fast Closure
+        # --------------------------------
+
 
         if row["fast_closure"] == 1:
 
@@ -78,7 +88,9 @@ def generate_findings(
             if finding is None:
 
                 finding = (
+
                     "Suspicious Fast Alert Closure"
+
                 )
 
 
@@ -88,14 +100,16 @@ def generate_findings(
 
             )
 
+
             severity = "HIGH"
 
 
 
-        # ---------------------------------
-        # Rule 3:
-        # Template Investigation
-        # ---------------------------------
+
+        # --------------------------------
+        # 3. Template Driven Investigation
+        # --------------------------------
+
 
         if row["template_investigation"] == 1:
 
@@ -103,7 +117,9 @@ def generate_findings(
             if finding is None:
 
                 finding = (
+
                     "Template Driven Investigation Behaviour"
+
                 )
 
 
@@ -114,17 +130,18 @@ def generate_findings(
             )
 
 
-
             if severity == "LOW":
 
                 severity = "MEDIUM"
 
 
 
-        # ---------------------------------
-        # Rule 4:
-        # Missing Escalation
-        # ---------------------------------
+
+
+        # --------------------------------
+        # 4. Missing Escalation
+        # --------------------------------
+
 
         if row["missing_escalation"] == 1:
 
@@ -132,7 +149,9 @@ def generate_findings(
             if finding is None:
 
                 finding = (
+
                     "Critical Alert Escalation Gap"
+
                 )
 
 
@@ -147,9 +166,12 @@ def generate_findings(
 
 
 
-        # ---------------------------------
-        # Add ML Anomaly Evidence
-        # ---------------------------------
+
+
+        # --------------------------------
+        # 5. ML Anomaly Evidence
+        # --------------------------------
+
 
         if row["anomaly_prediction"] == -1:
 
@@ -161,9 +183,12 @@ def generate_findings(
             )
 
 
-        # ---------------------------------
+
+
+        # --------------------------------
         # Create Finding
-        # ---------------------------------
+        # --------------------------------
+
 
         if finding is not None:
 
@@ -175,9 +200,23 @@ def generate_findings(
                     row["alert_id"],
 
 
+
+                "cse_id":
+
+                    row["cse_id"],
+
+
+
+                "asset_id":
+
+                    row["asset_id"],
+
+
+
                 "finding":
 
                     finding,
+
 
 
                 "severity":
@@ -185,9 +224,11 @@ def generate_findings(
                     severity,
 
 
+
                 "anomaly_score":
 
                     row["anomaly_score"],
+
 
 
                 "evidence":
@@ -198,18 +239,23 @@ def generate_findings(
 
 
 
-    findings_df = pd.DataFrame(
+
+    result = pd.DataFrame(
+
         findings
+
     )
 
 
-    findings_df.to_csv(
+
+    result.to_csv(
 
         output_file,
 
         index=False
 
     )
+
 
 
     print(
@@ -225,9 +271,10 @@ def generate_findings(
 
         "[+] Total findings:",
 
-        len(findings_df)
+        len(result)
 
     )
 
 
-    return findings_df
+
+    return result

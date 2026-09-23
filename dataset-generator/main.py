@@ -2,6 +2,7 @@ import sys
 
 sys.path.append("src")
 
+from sentinel_generator.entity_assessment_engine import generate_entity_assessment
 from sentinel_generator.monitoring_generator import generate_monitoring_coverage
 from sentinel_generator.negative_space_engine import generate_negative_space_findings
 from sentinel_generator.finding_engine import generate_findings
@@ -325,12 +326,22 @@ export_csv(
 
 )
 
-generate_negative_space_findings(
+negative_findings = generate_negative_space_findings(
 
     "../data/generated/monitoring_coverage.csv",
 
     "../data/generated/alerts.csv",
 
     "../data/generated/negative_space_findings.csv"
+
+)
+
+generate_entity_assessment(
+
+    "../data/generated/supervisory_findings.csv",
+
+    "../data/generated/negative_space_findings.csv",
+
+    "../data/generated/cse_assessment.csv"
 
 )

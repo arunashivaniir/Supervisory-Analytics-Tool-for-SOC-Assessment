@@ -12,6 +12,7 @@ SEVERITY_MAP = {
 }
 
 
+
 ASSET_MAP = {
 
     "TIER-3": 1,
@@ -24,35 +25,50 @@ ASSET_MAP = {
 
 
 def generate_features(
+
         alerts_file,
+
         investigations_file,
+
         assets_file,
+
         output_file
+
 ):
 
 
     print("[+] Loading datasets...")
 
 
+
     alerts = pd.read_csv(
+
         alerts_file
-    )
+
+    ).fillna("")
+
 
 
     investigations = pd.read_csv(
+
         investigations_file
-    )
+
+    ).fillna("")
+
 
 
     assets = pd.read_csv(
+
         assets_file
-    )
+
+    ).fillna("")
 
 
 
-    # -----------------------------------
-    # Merge Alert + Investigation Data
-    # -----------------------------------
+    # --------------------------------
+    # Merge Alert + Investigation
+    # --------------------------------
+
 
     data = alerts.merge(
 
@@ -60,23 +76,37 @@ def generate_features(
 
         on="alert_id",
 
-        how="left",
-
-        suffixes=(
-
-            "_alert",
-
-            "_investigation"
-
-        )
+        how="left"
 
     )
 
 
 
-    # -----------------------------------
+    # --------------------------------
+    # Restore CSE ID
+    # --------------------------------
+
+
+    if "cse_id_x" in data.columns:
+
+        data["cse_id"] = data["cse_id_x"]
+
+
+    elif "cse_id_y" in data.columns:
+
+        data["cse_id"] = data["cse_id_y"]
+
+
+    else:
+
+        data["cse_id"] = "UNKNOWN"
+
+
+
+    # --------------------------------
     # Merge Asset Information
-    # -----------------------------------
+    # --------------------------------
+
 
     data = data.merge(
 
@@ -100,9 +130,10 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Severity Encoding
-    # -----------------------------------
+    # --------------------------------
+    # Feature Creation
+    # --------------------------------
+
 
     data["severity_score"] = (
 
@@ -116,10 +147,6 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Asset Criticality Encoding
-    # -----------------------------------
-
     data["asset_criticality_score"] = (
 
         data["criticality"]
@@ -132,9 +159,10 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Fast Closure Detection
-    # -----------------------------------
+    # --------------------------------
+    # Execution Gap Features
+    # --------------------------------
+
 
     data["fast_closure"] = (
 
@@ -162,7 +190,9 @@ def generate_features(
 
             data["closure_time_minutes"]
 
-            < 10
+            <
+
+            10
 
         )
 
@@ -170,52 +200,51 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Missing Evidence
-    # -----------------------------------
-
     data["missing_evidence"] = (
 
         data["evidence_count"]
 
-        == 0
+        .fillna(0)
+
+        ==
+
+        0
 
     ).astype(int)
 
 
-
-    # -----------------------------------
-    # Missing Root Cause
-    # -----------------------------------
 
     data["missing_root_cause"] = (
 
         data["root_cause_identified"]
 
-        == False
+        .astype(str)
+
+        .str.lower()
+
+        ==
+
+        "false"
 
     ).astype(int)
 
 
-
-    # -----------------------------------
-    # Missing Remediation
-    # Use investigation data
-    # -----------------------------------
 
     data["missing_remediation"] = (
 
-        data["remediation_recorded_investigation"]
+        data["remediation_recorded_y"]
 
-        == False
+        .astype(str)
+
+        .str.lower()
+
+        ==
+
+        "false"
 
     ).astype(int)
 
 
-
-    # -----------------------------------
-    # Missing Escalation
-    # -----------------------------------
 
     data["missing_escalation"] = (
 
@@ -223,7 +252,9 @@ def generate_features(
 
             data["severity"]
 
-            == "CRITICAL"
+            ==
+
+            "CRITICAL"
 
         )
 
@@ -233,7 +264,13 @@ def generate_features(
 
             data["escalated"]
 
-            == False
+            .astype(str)
+
+            .str.lower()
+
+            ==
+
+            "false"
 
         )
 
@@ -241,57 +278,88 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Investigation Weakness
-    # -----------------------------------
+    # Investigation quality
+
+    data["investigation_quality"] = (
+
+        data["investigation_quality"]
+
+        .fillna(0)
+
+    )
+
+
 
     data["low_investigation_quality"] = (
 
         data["investigation_quality"]
 
-        < 3
+        <
+
+        3
 
     ).astype(int)
 
 
 
-    # -----------------------------------
-    # Short Investigation Time
-    # -----------------------------------
+    data["investigation_time_minutes"] = (
+
+        data["investigation_time_minutes"]
+
+        .fillna(0)
+
+    )
+
+
 
     data["short_investigation"] = (
 
         data["investigation_time_minutes"]
 
-        < 10
+        <
+
+        10
 
     ).astype(int)
 
 
 
-    # -----------------------------------
-    # Template Investigation Behaviour
-    # -----------------------------------
+    data["note_similarity"] = (
+
+        data["note_similarity"]
+
+        .fillna(0)
+
+    )
+
+
 
     data["template_investigation"] = (
 
         data["note_similarity"]
 
-        > 0.85
+        >
+
+        0.85
 
     ).astype(int)
 
 
 
-    # -----------------------------------
-    # Select ML Features
-    # -----------------------------------
+    # --------------------------------
+    # Final Feature Dataset
+    # --------------------------------
+
 
     features = data[
 
         [
 
             "alert_id",
+
+            "cse_id",
+
+            "asset_id",
 
             "severity_score",
 
@@ -331,32 +399,9 @@ def generate_features(
 
 
 
-    # -----------------------------------
-    # Convert Boolean Columns
-    # -----------------------------------
-
-    boolean_columns = [
-
-        "sla_breach"
-
-    ]
+    features = features.fillna(0)
 
 
-    for column in boolean_columns:
-
-        features[column] = (
-
-            features[column]
-
-            .astype(int)
-
-        )
-
-
-
-    # -----------------------------------
-    # Save Feature Dataset
-    # -----------------------------------
 
     features.to_csv(
 
@@ -365,6 +410,7 @@ def generate_features(
         index=False
 
     )
+
 
 
     print(
@@ -383,6 +429,7 @@ def generate_features(
         len(features)
 
     )
+
 
 
     return features
