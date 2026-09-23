@@ -1,0 +1,21 @@
+cse_id,execution_gap_count,execution_gap_score,negative_space_count,negative_space_score,total_findings,execution_risk,monitoring_risk,investigation_penalty,critical_monitoring_penalty,risk_score,risk_level,risk_drivers,review_priority
+CSE_001,5.0,30.0,4.0,20.0,9.0,21.0,16.0,5,5,47.0,MEDIUM,5 execution gap indicators | 4 monitoring coverage gaps | Investigation maturity concerns | Critical asset visibility concerns,TARGETED REVIEW
+CSE_002,1.0,5.0,1.0,5.0,2.0,3.5,4.0,0,0,7.5,LOW,1 execution gap indicators | 1 monitoring coverage gaps,ROUTINE REVIEW
+CSE_003,6.0,35.0,5.0,25.0,11.0,24.5,20.0,5,10,59.5,MEDIUM,6 execution gap indicators | 5 monitoring coverage gaps | Investigation maturity concerns | Critical asset visibility concerns,TARGETED REVIEW
+CSE_004,1.0,10.0,0.0,0.0,1.0,7.0,0.0,0,0,7.0,LOW,1 execution gap indicators,ROUTINE REVIEW
+CSE_005,8.0,55.0,4.0,20.0,12.0,38.5,16.0,5,5,64.5,HIGH,8 execution gap indicators | 4 monitoring coverage gaps | Investigation maturity concerns | Critical asset visibility concerns,IMMEDIATE REVIEW
+CSE_006,3.0,20.0,0.0,0.0,3.0,14.0,0.0,0,0,14.0,LOW,3 execution gap indicators,ROUTINE REVIEW
+CSE_007,1.0,5.0,0.0,0.0,1.0,3.5,0.0,0,0,3.5,LOW,1 execution gap indicators,ROUTINE REVIEW
+CSE_008,1.0,5.0,2.0,10.0,3.0,3.5,8.0,0,5,16.5,LOW,1 execution gap indicators | 2 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_009,1.0,5.0,2.0,10.0,3.0,3.5,8.0,0,5,16.5,LOW,1 execution gap indicators | 2 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_010,0.0,0.0,1.0,5.0,1.0,0.0,4.0,0,0,4.0,LOW,1 monitoring coverage gaps,ROUTINE REVIEW
+CSE_011,3.0,20.0,0.0,0.0,3.0,14.0,0.0,0,0,14.0,LOW,3 execution gap indicators,ROUTINE REVIEW
+CSE_012,6.0,40.0,2.0,10.0,8.0,28.0,8.0,5,5,46.0,MEDIUM,6 execution gap indicators | 2 monitoring coverage gaps | Investigation maturity concerns | Critical asset visibility concerns,TARGETED REVIEW
+CSE_013,1.0,5.0,3.0,15.0,4.0,3.5,12.0,0,5,20.5,LOW,1 execution gap indicators | 3 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_014,10.0,50.0,2.0,8.0,12.0,35.0,6.4,5,5,51.4,MEDIUM,10 execution gap indicators | 2 monitoring coverage gaps | Investigation maturity concerns | Critical asset visibility concerns,TARGETED REVIEW
+CSE_015,4.0,20.0,2.0,10.0,6.0,14.0,8.0,0,5,27.0,LOW,4 execution gap indicators | 2 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_016,3.0,15.0,2.0,10.0,5.0,10.5,8.0,0,5,23.5,LOW,3 execution gap indicators | 2 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_017,1.0,10.0,2.0,10.0,3.0,7.0,8.0,0,5,20.0,LOW,1 execution gap indicators | 2 monitoring coverage gaps | Critical asset visibility concerns,ROUTINE REVIEW
+CSE_018,3.0,20.0,0.0,0.0,3.0,14.0,0.0,0,0,14.0,LOW,3 execution gap indicators,ROUTINE REVIEW
+CSE_019,3.0,15.0,0.0,0.0,3.0,10.5,0.0,0,0,10.5,LOW,3 execution gap indicators,ROUTINE REVIEW
+CSE_020,0.0,0.0,1.0,5.0,1.0,0.0,4.0,0,0,4.0,LOW,1 monitoring coverage gaps,ROUTINE REVIEW

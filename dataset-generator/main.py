@@ -2,6 +2,7 @@ import sys
 
 sys.path.append("src")
 
+from sentinel_generator.cse_risk_profile import generate_cse_risk_profiles
 from sentinel_generator.entity_assessment_engine import generate_entity_assessment
 from sentinel_generator.monitoring_generator import generate_monitoring_coverage
 from sentinel_generator.negative_space_engine import generate_negative_space_findings
@@ -336,6 +337,7 @@ negative_findings = generate_negative_space_findings(
 
 )
 
+
 generate_entity_assessment(
 
     "../data/generated/supervisory_findings.csv",
@@ -343,5 +345,69 @@ generate_entity_assessment(
     "../data/generated/negative_space_findings.csv",
 
     "../data/generated/cse_assessment.csv"
+
+)
+
+from sentinel_generator.cse_risk_profile import generate_cse_risk_profiles
+
+generate_cse_risk_profiles(
+
+    "../data/generated/cse_assessment.csv",
+
+    "../data/generated/cse_risk_profiles.json"
+
+)
+
+from sentinel_generator.recommendation_engine import generate_recommendations
+
+generate_recommendations(
+
+    "../data/generated/cse_risk_profiles.json",
+
+    "../data/generated/supervisory_recommendations.json"
+
+)
+
+from sentinel_generator.peer_benchmarking_engine import generate_peer_benchmark
+
+generate_peer_benchmark(
+
+    "../data/generated/cse_risk_profiles.json",
+
+    "../data/generated/peer_benchmarking_results.json"
+
+)
+
+from sentinel_generator.report_generator import generate_supervisory_report
+
+generate_supervisory_report(
+
+    "../data/generated/cse_risk_profiles.json",
+
+    "../data/generated/supervisory_recommendations.json",
+
+    "../data/generated/peer_benchmarking_results.json",
+
+    "../data/generated/supervisory_findings.csv",
+
+    "../data/generated/negative_space_findings.csv",
+
+    "../data/generated/finding_validation.json",
+
+    "../data/generated/SAT_SA_Supervisory_Assessment_Report.pdf"
+
+)
+
+from sentinel_generator.validation_engine import generate_validation_report
+
+generate_validation_report(
+
+    "../data/generated/supervisory_findings.csv",
+
+    "../data/generated/features_anomaly.csv",
+
+    "../data/generated/alerts.csv",
+
+    "../data/generated/finding_validation.json"
 
 )
