@@ -1,7 +1,28 @@
-import streamlit as st
-import json
 import os
+import sys
+
+import streamlit as st
 import pandas as pd
+
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+)
+
+from utils import intelligence as intelligence_util
+from utils.portal_style import (
+    inject_css,
+    risk_pill,
+    anomaly_pill,
+    source_pill,
+    pattern_pill,
+    section_label,
+    footnote,
+)
 
 
 st.set_page_config(
@@ -10,24 +31,7 @@ st.set_page_config(
 )
 
 
-# =====================================================
-# PATH
-# =====================================================
-
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
-)
-
-
-DATA_PATH = os.path.join(
-    BASE_DIR,
-    "..",
-    "data",
-    "generated"
-)
-
+inject_css()
 
 
 # =====================================================
@@ -37,18 +41,14 @@ DATA_PATH = os.path.join(
 @st.cache_data
 def load_profiles():
 
-    with open(
-        os.path.join(
-            DATA_PATH,
-            "cse_risk_profiles.json"
-        )
-    ) as f:
+    from utils.data_loader import load_profiles as _loader
 
-        return json.load(f)
-
+    return _loader()
 
 
 profiles = load_profiles()
+
+intelligence = intelligence_util.build_intelligence()
 
 
 
@@ -91,7 +91,6 @@ selected_cse = st.selectbox(
 )
 
 
-
 entity = next(
 
     x for x in profiles
@@ -101,19 +100,25 @@ entity = next(
 )
 
 
+intel = intelligence.get(
+    selected_cse,
+    {}
+)
+
+
+st.divider()
+
+
 
 # =====================================================
 # RISK SUMMARY
 # =====================================================
 
 
-st.subheader(
-"Assessment Summary"
-)
+section_label("Entity Assessment Summary")
 
 
-
-col1,col2,col3 = st.columns(3)
+col1, col2, col3, col4, col5, col6 = st.columns(6)
 
 
 
@@ -147,6 +152,274 @@ col3.metric(
 
 
 
+col4.metric(
+
+    "Attention Score",
+
+    f"{intel.get('attention_score', 0)}/100"
+
+)
+
+
+
+col5.metric(
+
+    "Anomaly Score",
+
+    f"{intel.get('anomaly_score', 0):.2f}"
+
+)
+
+
+
+col6.metric(
+
+    "Anomaly Status",
+
+    intel.get(
+        "anomaly_status",
+        "NORMAL"
+    )
+
+)
+
+
+
+st.divider()
+
+
+
+# =====================================================
+# SAT-SA INTELLIGENCE ASSESSMENT
+# =====================================================
+
+section_label("SAT-SA Intelligence Assessment")
+
+
+intelligence_rows = []
+
+
+def _value_cell(value):
+
+    uppercase = str(value).upper()
+
+    if uppercase in (
+        "CRITICAL",
+        "HIGH",
+        "MEDIUM",
+        "LOW",
+    ):
+
+        return risk_pill(value)
+
+    if uppercase in (
+        "ANOMALOUS",
+        "NORMAL",
+    ):
+
+        return anomaly_pill(value)
+
+    if uppercase in (
+        "ML / HYBRID",
+        "RULE",
+    ):
+
+        return source_pill(value)
+
+    return str(value)
+
+
+intelligence_rows.append(
+    {
+        "Signal": "Entity Attention Score",
+        "Value": _value_cell(
+            f"{intel.get('attention_score', 0)} / 100"
+        ),
+        "Basis": "Severity-weighted alert behaviour and investigation quality indicators",
+    }
+)
+
+intelligence_rows.append(
+    {
+        "Signal": "Anomaly Score",
+        "Value": _value_cell(
+            f"{intel.get('anomaly_score', 0):.2f}"
+        ),
+        "Basis": "Isolation-forest assessment of alert behaviour versus assessed population",
+    }
+)
+
+intelligence_rows.append(
+    {
+        "Signal": "Anomaly Status",
+        "Value": _value_cell(
+            intel.get(
+                "anomaly_status",
+                "NORMAL"
+            )
+        ),
+        "Basis": "Score >= 0.70 flagged as anomalous for supervisory review",
+    }
+)
+
+intelligence_rows.append(
+    {
+        "Signal": "Anomalous Alerts",
+        "Value": _value_cell(
+            f"{intel.get('anomalous_alerts', 0)} of {intel.get('total_alerts', 0)}"
+        ),
+        "Basis": "Alerts flagged by the isolation-forest model within the entity",
+    }
+)
+
+intelligence_rows.append(
+    {
+        "Signal": "Correlated Patterns",
+        "Value": _value_cell(
+            f"{intel.get('pattern_count', 0)}"
+        ),
+        "Basis": "Distinct correlated behaviour patterns observed",
+    }
+)
+
+intelligence_rows.append(
+    {
+        "Signal": "Recommendation Source",
+        "Value": _value_cell(
+            intel.get(
+                "recommendation_source",
+                "Rule"
+            )
+        ),
+        "Basis": "ML/Hybrid where algorithm-assisted findings support the recommendation",
+    }
+)
+
+
+intel_view = pd.DataFrame(
+    intelligence_rows
+)
+
+
+st.markdown(
+    intel_view.to_html(
+        escape=False,
+        index=False,
+    ),
+    unsafe_allow_html=True,
+)
+
+
+st.divider()
+
+
+
+# =====================================================
+# CORRELATED PATTERNS
+# =====================================================
+
+section_label("Correlated Behaviour Patterns")
+
+
+patterns = intel.get(
+    "correlated_patterns",
+    []
+)
+
+
+if patterns:
+
+    pattern_rows = pd.DataFrame(
+        [
+            {
+                "Correlated Pattern": pattern_pill(pattern),
+                "Supporting Signals": count,
+            }
+            for pattern, count in patterns
+        ]
+    )
+
+    st.markdown(
+        pattern_rows.to_html(
+            escape=False,
+            index=False,
+        ),
+        unsafe_allow_html=True,
+    )
+
+    if intel.get(
+        "multi_control",
+        False
+    ):
+
+        st.warning(
+            "Multiple control weaknesses correlate within this entity. "
+            "Patterned supervisory review is recommended alongside "
+            "individual finding remediation."
+        )
+
+else:
+
+    st.info(
+        "No correlated behaviour patterns identified."
+    )
+
+
+st.divider()
+
+
+
+# =====================================================
+# SUPERVISORY RECOMMENDATIONS
+# =====================================================
+
+section_label("Supervisory Recommendations")
+
+
+recommendations = intel.get(
+    "recommendations",
+    []
+)
+
+
+if recommendations:
+
+    st.markdown(
+        f"**Recommendation Source:** "
+        f"{source_pill(intel.get('recommendation_source', 'Rule'))}",
+        unsafe_allow_html=True,
+    )
+
+    for action in recommendations:
+
+        st.markdown(
+            f"•  {action}"
+        )
+
+    reasons = intel.get(
+        "recommendation_reason",
+        []
+    )
+
+    if reasons:
+
+        st.subheader(
+            "Recommendation Basis"
+        )
+
+        for reason in reasons:
+
+            st.write(
+                "• " + reason
+            )
+
+else:
+
+    st.info(
+        "No recommendation options captured for this entity."
+    )
+
+
 st.divider()
 
 
@@ -161,7 +434,6 @@ st.subheader(
 "Capability Assessment"
 
 )
-
 
 
 capability = pd.DataFrame(
@@ -217,7 +489,6 @@ entity["capability_assessment"]
 )
 
 
-
 st.table(capability)
 
 
@@ -263,7 +534,6 @@ st.subheader(
 "Supervisory Assessment"
 
 )
-
 
 
 if entity["review_priority"] == "IMMEDIATE REVIEW":
@@ -347,4 +617,10 @@ and required security controls.
 
 unsafe_allow_html=True
 
+)
+
+
+footnote(
+    "Attention and anomaly signals complement risk scoring and are "
+    "intended to support, not replace, the examiner's judgement."
 )

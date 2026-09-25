@@ -1,7 +1,30 @@
-import streamlit as st
 import os
+import sys
 import json
 from datetime import datetime
+
+import streamlit as st
+import pandas as pd
+
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+)
+
+from utils import intelligence as intelligence_util
+from utils.portal_style import (
+    inject_css,
+    risk_pill,
+    anomaly_pill,
+    source_pill,
+    pattern_pill,
+    section_label,
+    footnote,
+)
 
 
 st.set_page_config(
@@ -10,20 +33,24 @@ st.set_page_config(
 )
 
 
+inject_css()
+
+
 # =====================================================
 # PATH
 # =====================================================
 
 BASE_DIR = os.path.dirname(
     os.path.dirname(
-        os.path.abspath(__file__)
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
     )
 )
 
 
 DATA_PATH = os.path.join(
     BASE_DIR,
-    "..",
     "data",
     "generated"
 )
@@ -33,7 +60,6 @@ DATA_PATH = os.path.join(
 # =====================================================
 # HEADER
 # =====================================================
-
 
 st.title(
     "Assessment Reports"
@@ -57,9 +83,7 @@ st.divider()
 # =====================================================
 
 
-st.subheader(
-"Report Repository"
-)
+section_label("Report Repository")
 
 
 
@@ -162,6 +186,108 @@ st.divider()
 
 
 # =====================================================
+# RECOMMENDATION REGISTER
+# =====================================================
+
+section_label("Supervisory Recommendation Register")
+
+
+intelligence = intelligence_util.build_intelligence()
+
+
+register_rows = []
+
+for entity in sorted(
+    intelligence.values(),
+    key=lambda item: (
+        -item["anomaly_score"],
+        -item["risk_score"],
+    ),
+):
+
+    register_rows.append(
+        {
+            "Entity": entity["cse_id"],
+            "Risk Level": risk_pill(entity["risk_level"]),
+            "Anomaly Status": anomaly_pill(entity["anomaly_status"]),
+            "Primary Pattern": pattern_pill(
+                entity["primary_pattern"]
+                or "None"
+            ),
+            "Recommendation Source": source_pill(
+                entity["recommendation_source"]
+            ),
+        }
+    )
+
+
+register_view = pd.DataFrame(
+    register_rows
+)
+
+
+st.markdown(
+    register_view.to_html(
+        escape=False,
+        index=False,
+    ),
+    unsafe_allow_html=True,
+)
+
+
+st.caption(
+    "Detailed recommended actions per entity are provided below."
+)
+
+
+for entity in sorted(
+    intelligence.values(),
+    key=lambda item: (
+        -item["anomaly_score"],
+        -item["risk_score"],
+    ),
+):
+
+    with st.expander(
+        f"{entity['cse_id']} — {entity['risk_level']} / "
+        f"{entity['anomaly_status']}"
+    ):
+
+        st.markdown(
+            f"**Recommendation Source:** "
+            f"{source_pill(entity['recommendation_source'])}",
+            unsafe_allow_html=True,
+        )
+
+        for action in entity.get(
+            "recommendations",
+            [],
+        ):
+
+            st.markdown(
+                f"•  {action}"
+            )
+
+        reasons = entity.get(
+            "recommendation_reason",
+            [],
+        )
+
+        if reasons:
+
+            st.markdown(
+                "**Basis:** "
+                + " ; ".join(
+                    reasons
+                )
+            )
+
+
+st.divider()
+
+
+
+# =====================================================
 # AVAILABLE REPORT TYPES
 # =====================================================
 
@@ -227,3 +353,9 @@ for report in reports:
         st.write(
             report["Purpose"]
         )
+
+
+footnote(
+    "The recommendation register consolidates anomaly, pattern and "
+    "ML/Rule signals to support report preparation."
+)

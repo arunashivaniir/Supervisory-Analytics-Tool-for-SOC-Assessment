@@ -1,6 +1,25 @@
+import os
+import sys
+
 import streamlit as st
 import pandas as pd
-import os
+
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+)
+
+from utils import intelligence as intelligence_util
+from utils.portal_style import (
+    inject_css,
+    pattern_pill,
+    section_label,
+    footnote,
+)
 
 
 st.set_page_config(
@@ -9,25 +28,7 @@ st.set_page_config(
 )
 
 
-
-# =====================================================
-# PATH
-# =====================================================
-
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
-)
-
-
-DATA_PATH = os.path.join(
-    BASE_DIR,
-    "..",
-    "data",
-    "generated"
-)
-
+inject_css()
 
 
 # =====================================================
@@ -37,17 +38,51 @@ DATA_PATH = os.path.join(
 @st.cache_data
 def load_monitoring_data():
 
-    file_path = os.path.join(
-        DATA_PATH,
-        "negative_space_findings.csv"
-    )
+    from utils.data_loader import load_monitoring_coverage as _loader
 
-    return pd.read_csv(file_path).fillna("")
+    return _loader().fillna("")
 
+
+@st.cache_data
+def load_negative_space():
+
+    from utils.data_loader import load_negative_space as _loader
+
+    return _loader().fillna("")
 
 
 coverage = load_monitoring_data()
 
+negative_space = load_negative_space()
+
+intelligence = intelligence_util.build_intelligence()
+
+
+def is_gap(row):
+
+    telemetry = str(
+        row.get(
+            "telemetry_available",
+            ""
+        )
+    ).upper()
+
+    actual = str(
+        row.get(
+            "actual_monitoring",
+            ""
+        )
+    ).strip()
+
+    return telemetry == "NO" or actual == ""
+
+
+gaps = coverage[
+    coverage.apply(
+        is_gap,
+        axis=1,
+    )
+]
 
 
 # =====================================================
@@ -76,72 +111,41 @@ st.divider()
 # =====================================================
 
 
-st.subheader(
-"Coverage Assessment Summary"
-)
+section_label("Coverage Assessment Summary")
 
 
+total_assets = len(coverage)
 
-total_gaps = len(coverage)
+total_gaps = len(gaps)
 
-
-if "asset_id" in coverage.columns:
-
-    affected_assets = coverage["asset_id"].nunique()
-
-else:
-
-    affected_assets = 0
+affected_cses = gaps["cse_id"].nunique() if total_gaps else 0
 
 
-
-col1,col2,col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 
 
 
 col1.metric(
-    "Monitoring Coverage Gaps",
-    total_gaps
+    "Assets Assessed",
+    total_assets
 )
 
 
 col2.metric(
-    "Affected Assets",
-    affected_assets
+    "Coverage Gaps",
+    total_gaps
 )
 
 
 col3.metric(
-    "Assessment Status",
-    "REVIEW REQUIRED"
+    "Affected Assets",
+    total_assets - total_gaps
 )
 
 
-
-st.divider()
-
-
-
-# =====================================================
-# OBSERVATION SUMMARY
-# =====================================================
-
-
-st.subheader(
-"Supervisory Observation"
-)
-
-
-
-st.info(
-"""
-Monitoring coverage assessment identified assets where
-expected security visibility controls require validation.
-
-Entities should review whether appropriate telemetry,
-detection controls, and monitoring capabilities are
-available for critical assets.
-"""
+col4.metric(
+    "Entities Affected",
+    affected_cses
 )
 
 
@@ -154,64 +158,165 @@ st.divider()
 # COVERAGE REGISTER
 # =====================================================
 
-
-st.subheader(
-"Monitoring Coverage Register"
-)
+section_label("Monitoring Coverage Register")
 
 
+coverage_display = coverage.copy()
 
-display_columns = []
+if "criticality" in coverage.columns:
 
+    coverage_display["criticality"] = coverage_display[
+        "criticality"
+    ].astype(str)
 
-possible_columns = [
-
-"cse_id",
-
-"asset_id",
-
-"finding",
-
-"severity",
-
-"evidence"
-
+coverage_columns = [
+    col
+    for col in (
+        "asset_id",
+        "cse_id",
+        "criticality",
+        "expected_monitoring",
+        "actual_monitoring",
+        "telemetry_available",
+    )
+    if col in coverage.columns
 ]
 
 
+st.dataframe(
 
-for col in possible_columns:
+    coverage_display[coverage_columns],
 
-    if col in coverage.columns:
+    hide_index=True,
 
-        display_columns.append(col)
+    use_container_width=True,
+
+    column_config={
+        "asset_id": "Asset",
+        "cse_id": "Entity",
+        "criticality": "Criticality",
+        "expected_monitoring": "Expected Coverage",
+        "actual_monitoring": "Actual Coverage",
+        "telemetry_available": "Telemetry",
+    }
+
+)
 
 
+st.markdown(
+    f"### Coverage Gap Register ({total_gaps} assets)"
+)
 
-if display_columns:
+st.warning(
+    "Assets listed below lack required telemetry or actual monitoring "
+    "coverage against their expected detection use cases."
+)
 
 
-    st.dataframe(
+if total_gaps:
 
-        coverage[display_columns],
+    gap_display = gaps[coverage_columns]
 
-        hide_index=True,
+    if "cse_id" in gap_display.columns:
 
-        use_container_width=True
+        gap_display["entity_pattern"] = gap_display[
+            "cse_id"
+        ].map(
+            lambda cse: intelligence.get(
+                cse,
+                {},
+            ).get(
+                "primary_pattern",
+                "None",
+            )
+        )
 
+        gap_columns = coverage_columns + [
+            "entity_pattern"
+        ]
+
+    else:
+
+        gap_columns = coverage_columns
+
+    gap_display = gap_display[gap_columns]
+
+    if "entity_pattern" in gap_display.columns:
+
+        gap_display["entity_pattern"] = gap_display[
+            "entity_pattern"
+        ].map(
+            lambda value: pattern_pill(value)
+        )
+
+    st.markdown(
+        gap_display.to_html(
+            escape=False,
+            index=False,
+        ),
+        unsafe_allow_html=True,
     )
 
+    st.info(
+        "Coverage gaps correlate with the "
+        "**VISIBILITY_AND_RESPONSE_GAP** supervisory pattern where "
+        "detection use cases are mapped but telemetry is unavailable."
+    )
 
 else:
 
+    st.success(
+        "No monitoring coverage gaps identified."
+    )
+
+
+
+st.divider()
+
+
+
+# =====================================================
+# NEGATIVE SPACE REGISTER
+# =====================================================
+
+section_label("Negative Space Observations")
+
+
+if not negative_space.empty:
+
+    st.write(
+        "Assets presenting negative-space observations (expected "
+        "activity with no corresponding detection record)."
+    )
+
+    ns_columns = []
+
+    for col in (
+        "cse_id",
+        "asset_id",
+        "finding",
+        "severity",
+        "evidence",
+    ):
+
+        if col in negative_space.columns:
+
+            ns_columns.append(col)
+
     st.dataframe(
 
-        coverage,
+        negative_space[ns_columns],
 
         hide_index=True,
 
-        use_container_width=True
+        use_container_width=True,
 
+    )
+
+else:
+
+    st.write(
+        "No negative-space observations recorded."
     )
 
 
@@ -228,7 +333,6 @@ st.divider()
 st.subheader(
 "Asset Coverage Review"
 )
-
 
 
 if "asset_id" in coverage.columns:
@@ -254,14 +358,15 @@ if "asset_id" in coverage.columns:
     ]
 
 
-
-    st.write(
+    st.dataframe(
 
         asset_data.to_dict(
-
             orient="records"
+        ),
 
-        )
+        hide_index=True,
+
+        use_container_width=True,
 
     )
 
@@ -291,7 +396,6 @@ st.subheader(
 )
 
 
-
 st.markdown(
 """
 • Validate monitoring coverage for identified assets
@@ -302,4 +406,10 @@ st.markdown(
 
 • Ensure visibility gaps are tracked through remediation process
 """
+)
+
+
+footnote(
+    "Coverage analysis is combined with correlated pattern intelligence "
+    "to prioritise telemetry remediation across entities."
 )

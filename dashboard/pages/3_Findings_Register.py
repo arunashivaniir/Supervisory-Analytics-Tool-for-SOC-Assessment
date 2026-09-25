@@ -1,7 +1,25 @@
-import streamlit as st
-import json
 import os
+import sys
+
+import streamlit as st
 import pandas as pd
+
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+)
+
+from utils import intelligence as intelligence_util
+from utils.portal_style import (
+    inject_css,
+    pattern_pill,
+    section_label,
+    footnote,
+)
 
 
 st.set_page_config(
@@ -10,25 +28,7 @@ st.set_page_config(
 )
 
 
-
-# =====================================================
-# PATH
-# =====================================================
-
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
-)
-
-
-DATA_PATH = os.path.join(
-    BASE_DIR,
-    "..",
-    "data",
-    "generated"
-)
-
+inject_css()
 
 
 # =====================================================
@@ -38,23 +38,23 @@ DATA_PATH = os.path.join(
 @st.cache_data
 def load_validation():
 
-    with open(
-        os.path.join(
-            DATA_PATH,
-            "finding_validation.json"
-        )
-    ) as f:
+    from utils.data_loader import load_validation as _loader
 
-        return json.load(f)
-
+    return _loader()
 
 
 validation = load_validation()
 
 
-
 findings_df = pd.DataFrame(validation)
 
+
+# attach correlated pattern label (text based, shared mapping)
+findings_df["correlated_pattern"] = findings_df[
+    "finding"
+].map(
+    intelligence_util.correlate_finding_pattern
+)
 
 
 # =====================================================
@@ -84,9 +84,7 @@ st.divider()
 # =====================================================
 
 
-st.subheader(
-"Findings Summary"
-)
+section_label("Findings Summary")
 
 
 total = len(findings_df)
@@ -110,8 +108,7 @@ review = len(
 )
 
 
-
-col1,col2,col3 = st.columns(3)
+col1, col2, col3 = st.columns(3)
 
 
 
@@ -148,7 +145,6 @@ st.subheader(
 )
 
 
-
 severity_table = (
 
 findings_df
@@ -181,6 +177,50 @@ st.divider()
 
 
 # =====================================================
+# CORRELATED PATTERN SUMMARY
+# =====================================================
+
+section_label("Findings by Correlated Pattern")
+
+
+pattern_summary = findings_df[
+    "correlated_pattern"
+].value_counts()
+
+pattern_table = pattern_summary.reset_index()
+
+pattern_table.columns = [
+    "Correlated Pattern",
+    "Finding Count"
+]
+
+pattern_table["Correlated Pattern"] = pattern_table[
+    "Correlated Pattern"
+].map(
+    lambda value: pattern_pill(value)
+)
+
+
+st.markdown(
+    pattern_table.to_html(
+        escape=False,
+        index=False,
+    ),
+    unsafe_allow_html=True,
+)
+
+
+st.caption(
+    "Pattern labels are derived from the correlated finding "
+    "behaviour observed for each validated finding."
+)
+
+
+st.divider()
+
+
+
+# =====================================================
 # FINDINGS REGISTER
 # =====================================================
 
@@ -188,7 +228,6 @@ st.divider()
 st.subheader(
 "Finding Register"
 )
-
 
 
 display_columns = [
@@ -200,6 +239,8 @@ display_columns = [
 "finding",
 
 "severity",
+
+"correlated_pattern",
 
 "confidence_score",
 
@@ -215,7 +256,17 @@ findings_df[display_columns],
 
 use_container_width=True,
 
-hide_index=True
+hide_index=True,
+
+column_config={
+    "finding_id": "Finding ID",
+    "alert_id": "Alert Reference",
+    "finding": "Finding",
+    "severity": "Severity",
+    "correlated_pattern": "Correlated Pattern",
+    "confidence_score": "Confidence (%)",
+    "validation_status": "Validation Status",
+}
 
 )
 
@@ -257,7 +308,6 @@ selected_id
 ].iloc[0]
 
 
-
 st.markdown(
 
 f"""
@@ -287,6 +337,11 @@ f"""
 **Validation Status**
 
 {finding['validation_status']}
+
+
+**Correlated Pattern**
+
+{finding['correlated_pattern']}
 
 """
 )
@@ -344,3 +399,9 @@ rule-based supervisory indicators.
 """
 
     )
+
+
+footnote(
+    "Correlated patterns group related findings across control areas "
+    "to support supervisory pattern review."
+)

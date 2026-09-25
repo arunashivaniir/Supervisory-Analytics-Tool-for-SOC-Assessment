@@ -1,46 +1,37 @@
+import os
+import sys
+
 import streamlit as st
 import pandas as pd
-import json
-import os
 
+sys.path.insert(
+    0,
+    os.path.dirname(
+        os.path.dirname(
+            os.path.abspath(__file__)
+        )
+    ),
+)
 
-# =====================================================
-# PAGE CONFIG
-# =====================================================
+from utils import intelligence as intelligence_util
+from utils.portal_style import (
+    inject_css,
+    risk_pill,
+    anomaly_pill,
+    source_pill,
+    pattern_pill,
+    section_label,
+    footnote,
+)
+
 
 st.set_page_config(
-
     page_title="SAT-SA Assessment Overview",
-
     layout="wide"
-
 )
 
 
-
-# =====================================================
-# DATA PATH
-# =====================================================
-
-BASE_DIR = os.path.dirname(
-    os.path.dirname(
-        os.path.abspath(__file__)
-    )
-)
-
-
-DATA_PATH = os.path.join(
-
-    BASE_DIR,
-
-    "..",
-
-    "data",
-
-    "generated"
-
-)
-
+inject_css()
 
 
 # =====================================================
@@ -50,27 +41,24 @@ DATA_PATH = os.path.join(
 @st.cache_data
 def load_profiles():
 
-    with open(
+    from utils.data_loader import load_profiles as _loader
 
-        os.path.join(
-            DATA_PATH,
-            "cse_risk_profiles.json"
-        )
-
-    ) as f:
-
-        return json.load(f)
-
+    return _loader()
 
 
 profiles = load_profiles()
+
+intelligence = intelligence_util.build_intelligence()
+
+intelligence_df = intelligence_util.intelligence_dataframe()
+
+snapshot = intelligence_util.snapshot()
 
 
 
 # =====================================================
 # HEADER
 # =====================================================
-
 
 st.markdown(
 """
@@ -86,9 +74,7 @@ st.markdown(
 )
 
 
-
 st.divider()
-
 
 
 # =====================================================
@@ -152,16 +138,12 @@ targeted_entities = [
 ]
 
 
-
 # =====================================================
 # ASSESSMENT SUMMARY
 # =====================================================
 
 
-st.subheader(
-"Assessment Summary"
-)
-
+section_label("Assessment Summary")
 
 
 summary = pd.DataFrame(
@@ -210,7 +192,6 @@ len(low_entities)
 )
 
 
-
 st.table(summary)
 
 
@@ -225,7 +206,6 @@ st.subheader(
 )
 
 
-
 if len(high_entities) > 0:
 
     posture = "HIGH RISK"
@@ -237,7 +217,6 @@ elif len(medium_entities) > 0:
 else:
 
     posture = "LOW RISK"
-
 
 
 if posture == "HIGH RISK":
@@ -255,7 +234,6 @@ else:
     st.success(posture)
 
 
-
 st.write(
 
 """
@@ -267,6 +245,154 @@ quality concerns, and monitoring coverage observations.
 
 )
 
+
+st.divider()
+
+
+
+# =====================================================
+# SAT-SA INTELLIGENCE SIGNAL
+# =====================================================
+
+section_label("SAT-SA Intelligence Signal")
+
+
+col1, col2, col3, col4 = st.columns(4)
+
+
+col1.metric(
+    "Anomalous Entities",
+    f"{snapshot['anomalous']} of {snapshot['entities']}"
+)
+
+col2.metric(
+    "Supervisory Findings",
+    snapshot["total_findings"]
+)
+
+col3.metric(
+    "Monitoring Coverage Gaps",
+    snapshot["total_gaps"]
+)
+
+col4.metric(
+    "ML / Hybrid Recommendations",
+    snapshot["ml_hybrid"]
+)
+
+
+st.subheader(
+    "Entity Intelligence Register"
+)
+
+
+register_display = intelligence_df.copy()
+
+register_display["Risk Level"] = register_display[
+    "Risk Level"
+].map(
+    lambda value: risk_pill(value)
+)
+
+register_display["Anomaly Status"] = register_display[
+    "Anomaly Status"
+].map(
+    lambda value: anomaly_pill(value)
+)
+
+register_display["Recommendation"] = register_display[
+    "Recommendation"
+].map(
+    lambda value: source_pill(value)
+)
+
+register_display["Primary Pattern"] = register_display[
+    "Primary Pattern"
+].map(
+    lambda value: pattern_pill(value)
+)
+
+
+st.markdown(
+    register_display.to_html(
+        escape=False,
+        index=False,
+    ),
+    unsafe_allow_html=True,
+)
+
+
+st.caption(
+    "Table ordered by anomaly score, then risk score. "
+    "Attention score reflects severity-weighted alert and "
+    "investigation quality signals on a 0-100 scale."
+)
+
+
+st.divider()
+
+
+# =====================================================
+# ANOMALY WATCHLIST
+# =====================================================
+
+section_label("Anomaly Watchlist")
+
+
+anomalous_entities = [
+
+    e for e in intelligence.values()
+
+    if e["anomaly_status"] == "ANOMALOUS"
+
+]
+
+
+if anomalous_entities:
+
+    watchlist = pd.DataFrame(
+        [
+            {
+                "Entity": e["cse_id"],
+                "Sector": e["sector"],
+                "Risk Level": risk_pill(e["risk_level"]),
+                "Attention Score": e["attention_score"],
+                "Anomaly Score": e["anomaly_score"],
+                "Anomaly Status": anomaly_pill(e["anomaly_status"]),
+                "Anomalous Alerts": f"{e['anomalous_alerts']} / {e['total_alerts']}",
+                "Primary Pattern": pattern_pill(
+                    e["primary_pattern"]
+                ),
+            }
+            for e in sorted(
+                anomalous_entities,
+                key=lambda item: (
+                    -item["anomaly_score"],
+                    -item["risk_score"],
+                ),
+            )
+        ]
+    )
+
+    st.markdown(
+        watchlist.to_html(
+            escape=False,
+            index=False,
+        ),
+        unsafe_allow_html=True,
+    )
+
+    st.info(
+        "Entities on the anomaly watchlist exhibited alert behaviour "
+        "deviating from the assessed population and warrant prioritised "
+        "supervisory review."
+    )
+
+else:
+
+    st.success(
+        "No entity currently exceeds the anomaly threshold."
+    )
 
 
 st.divider()
@@ -283,7 +409,6 @@ st.subheader(
 "Entity Risk Classification"
 
 )
-
 
 
 risk_table = pd.DataFrame(
@@ -320,7 +445,6 @@ len(low_entities)
 )
 
 
-
 st.table(risk_table)
 
 
@@ -335,7 +459,6 @@ st.subheader(
 "Priority Review Queue"
 
 )
-
 
 
 priority_data = []
@@ -369,7 +492,7 @@ for entity in sorted(
 
         "Risk Level":
 
-        entity["overall_risk"]["level"],
+        risk_pill(entity["overall_risk"]["level"]),
 
 
         "Risk Score":
@@ -389,15 +512,22 @@ for entity in sorted(
 
 if len(priority_data) > 0:
 
+    priority_frame = pd.DataFrame(
+        priority_data
+    )
 
-    st.dataframe(
+    priority_frame["Risk Level"] = priority_frame[
+        "Risk Level"
+    ].map(
+        lambda value: risk_pill(value)
+    )
 
-        pd.DataFrame(priority_data),
-
-        hide_index=True,
-
-        use_container_width=True
-
+    st.markdown(
+        priority_frame.to_html(
+            escape=False,
+            index=False,
+        ),
+        unsafe_allow_html=True,
     )
 
 else:
@@ -424,7 +554,6 @@ st.subheader(
 "Key Control Observations"
 
 )
-
 
 
 st.markdown(
@@ -475,17 +604,23 @@ st.subheader(
 )
 
 
-
 st.info(
 
 """
 The SAT-SA assessment provides an entity-level view of
-SOC operational maturity, control effectiveness, and
-potential supervisory focus areas.
+SOC operational maturity, control effectiveness, anomaly
+signals, and potential supervisory focus areas.
 
 Entities identified under higher risk categories should
 undergo detailed validation of security monitoring,
 investigation practices, and response processes.
 """
 
+)
+
+
+footnote(
+    "SAT-SA intelligence integrates supervised risk scoring with "
+    "anomaly detection and correlated pattern signals; it assists, "
+    "and does not replace, human examiners."
 )
