@@ -1296,9 +1296,16 @@ class TestCapabilityPatternDiscovery:
 
         result = SATSAPipeline().run(NOISY_DATASET)
 
-        # The main mapping pass still resolves exactly the three concepts it
+        # The main mapping pass still resolves exactly the concepts it
         # always did, so semantic_mapping, mapping_report and dataset_context
-        # are untouched by the capability layer.
+        # are untouched by the capability layer. Phase 1 deliberately
+        # extends the main pass with identifier/timestamp recall: the noisy
+        # dataset's genuine alert_id and closed_time columns now appear as
+        # ALERT_ID and CLOSED_AT in the legacy list (verified: alert_id
+        # holds ALRT001-style identifiers; closed_time is duration-valued,
+        # so the decision layer holds it AMBIGUOUS and validation flags
+        # the values rather than trusting them). The capability layer
+        # itself still adds nothing here.
         concepts = {
             item["canonical_concept"]
             for item in result["semantic_mapping"]
@@ -1308,6 +1315,8 @@ class TestCapabilityPatternDiscovery:
             "SECURITY_SEVERITY",
             "ASSET_IDENTIFIER",
             "INVESTIGATION_EVIDENCE",
+            "ALERT_ID",
+            "CLOSED_AT",
         }
 
     def test_dataset_context_keeps_its_own_vocabulary(self):

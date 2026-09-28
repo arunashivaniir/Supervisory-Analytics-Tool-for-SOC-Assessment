@@ -2,6 +2,19 @@ import json
 import copy
 
 
+# Timestamp concepts the actor-column guard applies to. RESOLUTION_TIME
+# keeps its original dedicated rules below; the Phase 1 timestamp
+# concepts share the generalized *_by rejection.
+TIMESTAMP_CONCEPTS = frozenset({
+    "RESOLUTION_TIME",
+    "EVENT_TIMESTAMP",
+    "TRIGGERED_AT",
+    "ACKNOWLEDGED_AT",
+    "CLOSED_AT",
+    "WORKFLOW_EVENT_AT",
+})
+
+
 class SchemaMapper:
 
 
@@ -133,6 +146,26 @@ class SchemaMapper:
 
 
 
+        # Actor columns (closed_by, resolved_by, opened_by, ...) name a
+        # person, never an instant. They must not become any timestamp
+        # concept, however time-shaped the rest of the name looks. This
+        # extends the closed_by rule above to the Phase 1 timestamp
+        # concepts; the RESOLUTION_TIME rules are unchanged.
+
+        if (
+
+            concept in TIMESTAMP_CONCEPTS
+
+            and
+
+            source_column.lower().endswith("_by")
+
+        ):
+
+            return False
+
+
+
         return True
 
 
@@ -140,15 +173,40 @@ class SchemaMapper:
     def map_record(
             self,
             record,
-            semantic_mapping
+            semantic_mapping,
+            decisions=None
     ):
+
+        """
+        Project one record onto the canonical schema.
+
+        ``semantic_mapping`` is the legacy winner list
+        ``[{source_column, canonical_concept, confidence}]`` and behaves
+        exactly as before when ``decisions`` is None. When schema-level
+        ``decisions`` (see ``framework.canonical.decisions``) are supplied,
+        entries decided AMBIGUOUS or INVALID are not applied: a field the
+        schema pass could not decide is left unmapped rather than guessed.
+        """
 
 
         canonical_data = self.create_empty_schema()
 
 
 
-        for mapping in semantic_mapping:
+        if decisions is not None:
+
+            usable = [
+                item for item in semantic_mapping
+                if self._decision_allows(item, decisions)
+            ]
+
+        else:
+
+            usable = semantic_mapping
+
+
+
+        for mapping in usable:
 
 
 
@@ -183,15 +241,12 @@ class SchemaMapper:
 
 
 
-            if source_column not in record:
+            value, found = self._read_record(record, source_column)
+
+
+            if not found:
 
                 continue
-
-
-
-            value = record[
-                source_column
-            ]
 
 
 
@@ -266,3 +321,71 @@ class SchemaMapper:
 
 
         return canonical_data
+
+
+    def _decision_allows(
+            self,
+            mapping,
+            decisions
+    ):
+
+        """
+        Whether a schema-level decision permits applying a mapping entry.
+
+        Entries without a recorded decision are allowed (legacy callers
+        pass none at all); recorded AMBIGUOUS and INVALID entries are
+        blocked. Matching is on the lowercased source column, the same
+        key the inference pass reports.
+        """
+
+        wanted = mapping.get("source_column")
+
+        for decision in decisions:
+
+            if decision.get("source_column") != wanted:
+                continue
+
+            if decision.get("canonical_concept") != mapping.get(
+                "canonical_concept"
+            ):
+                continue
+
+            return bool(decision.get("applied", True))
+
+        return True
+
+
+    def _read_record(
+            self,
+            record,
+            source_column
+    ):
+
+        """
+        Read a source column from a record, tolerating header case.
+
+        ``SemanticInference`` reports lowercased column names while
+        records keep the submission's original spelling, so an exact
+        lookup is tried first and a case-insensitive one second.
+        Ambiguous duplicates (two keys differing only by case) resolve
+        to the exact spelling when present, else the first in record
+        order — and the collision is the ingestion layer's to report,
+        not this mapper's to guess further on.
+        """
+
+        if source_column in record:
+
+            return record[source_column], True
+
+
+        lowered = source_column.lower()
+
+
+        for key in record:
+
+            if isinstance(key, str) and key.lower() == lowered:
+
+                return record[key], True
+
+
+        return None, False

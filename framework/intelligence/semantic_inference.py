@@ -119,6 +119,118 @@ class SemanticInference:
 
 
 
+    def infer_with_candidates(
+            self,
+            profiler_output
+    ):
+
+        """
+        Score every concept for every column, once per schema.
+
+        Returns ``{lowercased column name: [{concept, confidence}]}``
+        with all candidates at or above the 0.45 apply threshold, best
+        first. ``infer()`` is the winner of this table under the same
+        strict-greater comparison, so both agree on every column.
+        """
+
+
+        table = {}
+
+
+        for column in profiler_output.get(
+            "columns",
+            []
+        ):
+
+
+            lowered = column.get(
+                "column_name",
+                ""
+            ).lower() if isinstance(
+                column.get(
+                    "column_name",
+                    ""
+                ),
+                str
+            ) else ""
+
+
+
+            category = column.get(
+                "category",
+                ""
+            )
+
+
+
+            sample_values = [
+
+                str(value).upper()
+
+                for value in column.get(
+                    "sample_values",
+                    []
+                )
+
+            ]
+
+
+
+            scored = []
+
+
+            for concept, rules in self.patterns.items():
+
+
+                confidence = self.calculate_score(
+
+                    lowered,
+
+                    category,
+
+                    sample_values,
+
+                    rules
+
+                )
+
+
+                if confidence >= 0.45:
+
+
+                    scored.append({
+
+                        "concept":
+
+                            concept,
+
+
+                        "confidence":
+
+                            round(
+                                confidence,
+                                2
+                            )
+
+                    })
+
+
+
+            scored.sort(
+                key=lambda item: item["confidence"],
+                reverse=True
+            )
+
+
+            table[lowered] = scored
+
+
+
+        return table
+
+
+
+
 
     def calculate_score(
 

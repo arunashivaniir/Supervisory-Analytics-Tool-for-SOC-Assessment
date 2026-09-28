@@ -242,6 +242,193 @@
         "canonical_path":
         "classification_context.security_label"
 
+    },
+
+
+    "ALERT_ID": {
+
+        "canonical_path":
+        "alert_context.alert_id"
+
+    },
+
+
+    "EVENT_ID": {
+
+        "canonical_path":
+        "alert_context.event_id"
+
+    },
+
+
+    "TRIGGERED_AT": {
+
+        "_comment": [
+            "Pipeline 1 name for the alert trigger instant. Shares the",
+            "alert_context.timestamp slot with the legacy EVENT_TIMESTAMP",
+            "concept; the mapping-decision layer merges same-slot candidates",
+            "instead of treating them as a collision."
+        ],
+
+        "canonical_path":
+        "alert_context.timestamp"
+
+    },
+
+
+    "ALERT_NAME": {
+
+        "canonical_path":
+        "alert_context.alert_name"
+
+    },
+
+
+    "NETWORK_ZONE": {
+
+        "canonical_path":
+        "asset_context.network_zone"
+
+    },
+
+
+    "SOURCE_SYSTEM": {
+
+        "canonical_path":
+        "alert_context.source_system"
+
+    },
+
+
+    "CASE_ID": {
+
+        "canonical_path":
+        "case_context.case_id"
+
+    },
+
+
+    "CASE_ALERT_ID": {
+
+        "_comment": [
+            "The alert identifier as carried on a case row (the join key to",
+            "Pipeline 1). Only matches case-qualified spellings; a bare",
+            "alert_id column maps to ALERT_ID."
+        ],
+
+        "canonical_path":
+        "case_context.alert_id"
+
+    },
+
+
+    "ACKNOWLEDGED_AT": {
+
+        "canonical_path":
+        "case_context.acknowledged_at"
+
+    },
+
+
+    "CLOSED_AT": {
+
+        "canonical_path":
+        "case_context.closed_at"
+
+    },
+
+
+    "ANALYST_ID": {
+
+        "canonical_path":
+        "case_context.analyst_id"
+
+    },
+
+
+    "ESCALATION_LEVEL": {
+
+        "canonical_path":
+        "case_context.escalation_level"
+
+    },
+
+
+    "CLOSURE_DISPOSITION": {
+
+        "canonical_path":
+        "case_context.closure_disposition"
+
+    },
+
+
+    "INVESTIGATION_NOTES": {
+
+        "canonical_path":
+        "case_context.investigation_notes"
+
+    },
+
+
+    "WORKFLOW_CASE_ID": {
+
+        "_comment": [
+            "The case identifier as carried on a workflow-event row. Only",
+            "matches workflow-qualified spellings; a bare case_id column",
+            "maps to CASE_ID. Both slots are consulted when joining."
+        ],
+
+        "canonical_path":
+        "workflow_context.case_id"
+
+    },
+
+
+    "WORKFLOW_EVENT_AT": {
+
+        "canonical_path":
+        "workflow_context.event_at"
+
+    },
+
+
+    "WORKFLOW_EVENT_TYPE": {
+
+        "canonical_path":
+        "workflow_context.event_type"
+
+    },
+
+
+    "WORKFLOW_ACTOR": {
+
+        "canonical_path":
+        "workflow_context.actor"
+
+    },
+
+
+    "WORKFLOW_TIER": {
+
+        "canonical_path":
+        "workflow_context.tier"
+
+    },
+
+
+    "ASSET_TYPE": {
+
+        "canonical_path":
+        "asset_context.asset_type"
+
+    },
+
+
+    "EXPECTED_TELEMETRY": {
+
+        "canonical_path":
+        "monitoring_context.expected_telemetry"
+
     }
 
 }

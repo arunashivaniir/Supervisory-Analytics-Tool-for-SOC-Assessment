@@ -37,6 +37,7 @@ TRANSPORTED_KEYS: tuple = (
     "ingestion",
     "semantic_mapping",
     "mapping_report",
+    "canonical_package",
     "dataset_context",
     "assessment",
     "capability_assessment",

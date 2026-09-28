@@ -11,6 +11,13 @@
 # framework/profiling/dataset_profiler.py.
 pandas>=3.0.6
 
+# Local analytical engine. Used by the scalable data-access path:
+# framework/ingestion/scan.py, framework/profiling/scan_profiler.py.
+# Embedded and offline: no service, no network, files are scanned in place.
+# Verified against 1.5.6; the floor is the first 1.x line carrying the
+# read_csv/read_json/DESCRIBE APIs this code calls.
+duckdb>=1.0.0
+
 # The offline anomaly model. framework/ml/anomaly/imports this lazily, inside
 # a guard, so the rest of the tool still runs -- and the suite still passes --
 # when scikit-learn is not installed; the anomaly layer then reports itself as

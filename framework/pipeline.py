@@ -9,6 +9,8 @@ from framework.intelligence.semantic_inference import SemanticInference
 
 from framework.mapping.schema_mapper import SchemaMapper
 
+from framework.canonical.package import build_canonical_package
+
 from framework.features.adaptive_feature_engine import AdaptiveFeatureEngine
 
 from framework.intelligence.mapping_report import MappingReport
@@ -139,6 +141,18 @@ class SATSAPipeline:
     def run(self, dataset_file, evidence_id=None):
 
 
+        # Execution-path selection happens before any loader touches the
+        # file: the large path must never materialize rows to decide it
+        # does not need them. Small files take the record flow below,
+        # unchanged; large files take _run_large_scan.
+
+        from framework.ingestion.paths import select_execution_mode
+
+        if select_execution_mode(dataset_file) == "large":
+
+            return self._run_large_scan(dataset_file, evidence_id)
+
+
         print("[+] Loading dataset")
 
 
@@ -183,6 +197,37 @@ class SATSAPipeline:
                 profile,
                 semantic_results
             )
+
+
+
+            # Canonical package (Phase 1): schema-level mapping decisions
+            # with ambiguity protection, pipeline role detection,
+            # alert/case/workflow relationship summary, validation and
+            # provenance. Written to its own result key; no pre-existing
+            # value is read or altered. The mapping decisions are also
+            # handed to the per-record projection below so ambiguous
+            # fields stay unmapped instead of guessed.
+
+            canonical_package = build_canonical_package(
+
+                dataset_file,
+
+                profile,
+
+                self.semantic_engine,
+
+                self.mapper.mappings,
+
+                ingestion.records,
+
+                guard=self.mapper.validate_mapping
+
+            )
+
+
+            canonical_decisions = canonical_package[
+                "mapping_decisions"
+            ]
 
 
 
@@ -324,7 +369,8 @@ class SATSAPipeline:
 
                 mapped = self.mapper.map_record(
                     record,
-                    semantic_results
+                    semantic_results,
+                    canonical_decisions
                 )
 
 
@@ -388,6 +434,14 @@ class SATSAPipeline:
 
 
                 "mapping_report": mapping_report,
+
+
+                # Added by the canonical package layer (Phase 1).
+                # Schema-level mapping decisions with states, detected
+                # pipeline role, relationship summary, validation issues
+                # and provenance. Reads the profile and the records; alters
+                # no analytical result.
+                "canonical_package": canonical_package,
 
 
                 "dataset_context": dataset_context,
@@ -488,9 +542,222 @@ class SATSAPipeline:
 
 
 
+    def _run_large_scan(self, dataset_file, evidence_id=None):
+
+        """
+        Large-data execution: profile, map, validate and relate a
+        submission by analytical scan, with bounded Python memory.
+
+        Produces the profile, semantic mapping, mapping report, dataset
+        context and canonical package over the full data. Record-level
+        stages (canonical records, features, scopes, signal engines,
+        entity assessment) are marked DEFERRED with the reason instead
+        of faked: their scalable implementations arrive in Phase 3.
+        An empty finding is worse than an honest boundary.
+        """
+
+
+        from framework.ingestion.scan import open_scan
+        from framework.profiling.scan_profiler import profile_scan
+        from framework.canonical.package import (
+            build_canonical_package_scan,
+        )
+
+
+        print("[+] Opening analytical scan (large-data path)")
+
+
+        scan = open_scan(dataset_file)
+
+
+        try:
+
+
+            print("[+] Profiling dataset by scan")
+
+
+            profile = profile_scan(scan)
+
+
+            print("[+] Running semantic inference")
+
+
+            semantic_results = self.semantic_engine.infer(
+                profile
+            )
+
+
+            print("[+] Understanding dataset context")
+
+
+            dataset_context = self.context_analyzer.analyze(
+                profile,
+                semantic_results
+            )
+
+
+            mapping_report = self.mapping_report.generate(
+                profile,
+                semantic_results
+            )
+
+
+            print("[+] Building canonical package by scan")
+
+
+            canonical_package = build_canonical_package_scan(
+
+                dataset_file,
+
+                profile,
+
+                self.semantic_engine,
+
+                self.mapper.mappings,
+
+                scan,
+
+                guard=self.mapper.validate_mapping
+
+            )
+
+
+            record_count = scan.count()
+
+
+            result = {
+
+
+                "dataset": dataset_file,
+
+
+                "profile": profile,
+
+
+                "semantic_mapping": semantic_results,
+
+
+                "mapping_report": mapping_report,
+
+
+                "canonical_package": canonical_package,
+
+
+                "dataset_context": dataset_context,
+
+
+                "canonical_records": [],
+
+
+                "feature_analysis": [],
+
+
+                "supervisory_findings": self._deferred(
+                    "supervisory_findings"
+                ),
+
+
+                "entity_assessment": self._deferred(
+                    "entity_assessment"
+                ),
+
+
+                "ingestion": {
+                    "source": dataset_file,
+                    "source_type": scan.source_type,
+                    "record_count": record_count,
+                    "column_count": len(scan.columns),
+                    "columns": list(scan.columns),
+                    "is_empty": record_count == 0,
+                    "warnings": [],
+                    "metadata": {
+                        "execution_mode": "large_scan",
+                        "size_bytes": scan.size_bytes,
+                        "loader": (
+                            "analytical scan "
+                            "(no record materialization)"
+                        ),
+                    },
+                    "profiling_target": dataset_file,
+                },
+
+
+                "assessment": self._deferred("assessment"),
+
+
+                "capability_assessment": self._deferred(
+                    "capability_assessment"
+                ),
+
+
+                "execution_gap_findings": self._deferred(
+                    "execution_gap_findings"
+                ),
+
+
+                "negative_space_findings": self._deferred(
+                    "negative_space_findings"
+                ),
+
+
+                "operational_pattern_findings": self._deferred(
+                    "operational_pattern_findings"
+                ),
+
+
+                "anomaly_findings": self._deferred(
+                    "anomaly_findings"
+                )
+
+            }
+
+
+            if evidence_id:
+
+
+                result["evidence_id"] = evidence_id
+
+
+            return result
+
+
+        finally:
+
+            scan.close()
+
+
+
+
+    @staticmethod
+    def _deferred(section):
+
+        """
+        The honest boundary between Phase 2 and Phase 3: this section
+        needs record-level analytics that are not yet scalable, so it
+        is marked deferred with the reason rather than filled with a
+        sample, a zero, or any other number that would read as a result.
+        """
+
+        return {
+
+            "status": "DEFERRED",
+
+            "section": section,
+
+            "reason": (
+                "Large-data execution produced the profile, canonical "
+                "mapping, validation and relationships above without "
+                "materializing rows. Record-level analytics for this "
+                "section arrive in Phase 3; nothing here was estimated "
+                "from a sample."
+            )
+
+        }
+
+
+
 
 def print_summary(result):
-
 
     print(
         "\n========== SAT-SA SUPERVISORY SUMMARY ==========\n"

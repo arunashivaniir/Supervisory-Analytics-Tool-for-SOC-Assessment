@@ -12,11 +12,17 @@
 
         "alert_id": null,
 
+        "event_id": null,
+
+        "alert_name": null,
+
         "severity": null,
 
         "category": null,
 
-        "timestamp": null
+        "timestamp": null,
+
+        "source_system": null
 
     },
 
@@ -47,13 +53,51 @@
     },
 
 
+    "case_context": {
+
+        "case_id": null,
+
+        "alert_id": null,
+
+        "acknowledged_at": null,
+
+        "closed_at": null,
+
+        "analyst_id": null,
+
+        "escalation_level": null,
+
+        "closure_disposition": null,
+
+        "investigation_notes": null
+
+    },
+
+
+    "workflow_context": {
+
+        "case_id": null,
+
+        "event_at": null,
+
+        "event_type": null,
+
+        "actor": null,
+
+        "tier": null
+
+    },
+
+
     "asset_context": {
 
         "asset_id": null,
 
         "asset_type": null,
 
-        "criticality": null
+        "criticality": null,
+
+        "network_zone": null
 
     },
 
@@ -62,7 +106,9 @@
 
         "telemetry_available": null,
 
-        "coverage_status": null
+        "coverage_status": null,
+
+        "expected_telemetry": null
 
     },
 
