@@ -1,0 +1,145 @@
+{
+    "entity_context": {
+
+        "entity_id": null,
+
+        "entity_name": null
+
+    },
+
+
+    "alert_context": {
+
+        "alert_id": null,
+
+        "severity": null,
+
+        "category": null,
+
+        "timestamp": null
+
+    },
+
+
+    "investigation_context": {
+
+        "available": false,
+
+        "notes": null,
+
+        "root_cause_identified": false,
+
+        "evidence_available": false,
+
+        "remediation_identified": false
+
+    },
+
+
+    "response_context": {
+
+        "acknowledgement_time": null,
+
+        "resolution_time": null,
+
+        "escalation_status": null
+
+    },
+
+
+    "asset_context": {
+
+        "asset_id": null,
+
+        "asset_type": null,
+
+        "criticality": null
+
+    },
+
+
+    "monitoring_context": {
+
+        "telemetry_available": null,
+
+        "coverage_status": null
+
+    },
+
+
+    "network_context": {
+
+        "protocol": null,
+
+        "service": null,
+
+        "connection_state": null,
+
+        "source_packets": null,
+
+        "destination_packets": null,
+
+        "source_bytes": null,
+
+        "destination_bytes": null,
+
+        "traffic_rate": null,
+
+        "connection_duration": null
+
+    },
+
+
+    "network_behavior_context": {
+
+        "packet_loss_source": null,
+
+        "packet_loss_destination": null,
+
+        "source_jitter": null,
+
+        "destination_jitter": null,
+
+        "source_ttl": null,
+
+        "destination_ttl": null,
+
+        "source_window_size": null,
+
+        "destination_window_size": null,
+
+        "tcp_connection_time": null,
+
+        "tcp_handshake_time": null,
+
+        "flow_statistics": null
+
+    },
+
+
+    "application_context": {
+
+        "transaction_depth": null,
+
+        "response_body_length": null,
+
+        "application_method": null
+
+    },
+
+
+    "classification_context": {
+
+        "security_label": null
+
+    },
+
+
+    "metadata": {
+
+        "source_dataset": null,
+
+        "assessment_confidence": null
+
+    }
+}

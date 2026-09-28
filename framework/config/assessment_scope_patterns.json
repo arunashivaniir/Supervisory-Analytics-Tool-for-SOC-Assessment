@@ -1,0 +1,216 @@
+{
+    "_comment": [
+        "Assessment scope patterns: which source columns identify an assessed",
+        "entity (CSE) and which describe an assessment period.",
+        "",
+        "These are scored by the EXISTING framework.intelligence.semantic_inference",
+        ".SemanticInference engine, so entity/period discovery uses exactly the same",
+        "keyword / negative-keyword / category / value-pattern mechanism as every",
+        "other concept in the framework. No second matching engine is introduced and",
+        "no column name is hardcoded in Python.",
+        "",
+        "Each key below is an independent axis and is scored on its own, so a column",
+        "is never forced to be both an identifier and a name. Add customer-specific",
+        "column names to 'keywords' here rather than editing framework code.",
+        "",
+        "'settings' configures the resolution policy and is consumed by",
+        "framework.assessment.scope.AssessmentScopeBuilder. It is not a scoring axis."
+    ],
+
+
+    "settings": {
+
+        "min_column_confidence": 0.45,
+
+        "entity_identifier_concepts": ["ENTITY_IDENTITY"],
+        "entity_name_concepts": ["ENTITY_NAME"],
+        "period_concepts": ["ASSESSMENT_PERIOD"],
+        "timestamp_concepts": ["TIME_REFERENCE"],
+
+        "derive_period_from_timestamps": true,
+
+        "_period_granularity": [
+            "none   - never derive a period; a dataset without an explicit period",
+            "         column always reports UNKNOWN_PERIOD",
+            "range  - one period per distinct period label; when no label exists, one",
+            "         period spanning the observed timestamp range (never assumes a",
+            "         calendar year)",
+            "year   - bucket records into calendar years",
+            "quarter- bucket records into calendar quarters, e.g. 2026-Q1",
+            "month  - bucket records into calendar months, e.g. 2026-01"
+        ],
+        "period_granularity": "range",
+
+        "_accepted_entity_resolver_tiers": [
+            "framework.entity.entity_resolver.EntityResolver tiers accepted as proof",
+            "that a real entity exists. Only the explicit-entity tier is accepted:",
+            "the organizational and asset tiers describe where a record sits inside a",
+            "CSE, not which CSE it belongs to, and accepting them would invent one",
+            "entity per department or per host."
+        ],
+        "accepted_entity_resolver_tiers": ["explicit"]
+    },
+
+
+    "entity_identifier": {
+
+        "ENTITY_IDENTITY": {
+
+            "keywords": [
+                "cse",
+                "entity",
+                "entity_id",
+                "organization",
+                "organisation",
+                "org_id",
+                "company",
+                "company_id",
+                "customer",
+                "customer_id",
+                "tenant",
+                "tenant_id",
+                "account",
+                "account_id",
+                "client",
+                "client_id",
+                "member"
+            ],
+
+            "negative_keywords": [
+                "user",
+                "owner",
+                "host",
+                "hostname",
+                "device",
+                "asset",
+                "node",
+                "server",
+                "count",
+                "type",
+                "status",
+                "field",
+                "path",
+                "size",
+                "score",
+                "ip",
+                "address",
+                "email",
+                "analyst",
+                "reviewer"
+            ],
+
+            "expected_categories": [
+                "identifier_like",
+                "categorical"
+            ]
+        }
+    },
+
+
+    "entity_display_name": {
+
+        "ENTITY_NAME": {
+
+            "keywords": [
+                "cse_name",
+                "entity_name",
+                "organization_name",
+                "organisation_name",
+                "org_name",
+                "company_name",
+                "customer_name",
+                "tenant_name",
+                "account_name",
+                "client_name"
+            ],
+
+            "negative_keywords": [
+                "user",
+                "owner",
+                "host",
+                "analyst",
+                "reviewer",
+                "email"
+            ],
+
+            "expected_categories": [
+                "categorical",
+                "identifier_like"
+            ]
+        }
+    },
+
+
+    "period_label": {
+
+        "ASSESSMENT_PERIOD": {
+
+            "keywords": [
+                "assessment_period",
+                "reporting_period",
+                "review_period",
+                "audit_period",
+                "period",
+                "cycle",
+                "fiscal",
+                "window",
+                "quarter",
+                "term"
+            ],
+
+            "negative_keywords": [
+                "duration",
+                "elapsed",
+                "timeout",
+                "count",
+                "timestamp",
+                "periodicity"
+            ],
+
+            "expected_categories": [
+                "categorical",
+                "identifier_like",
+                "numeric"
+            ]
+        }
+    },
+
+
+    "timestamp": {
+
+        "TIME_REFERENCE": {
+
+            "keywords": [
+                "created_time",
+                "created_at",
+                "created",
+                "event_time",
+                "event_timestamp",
+                "detected_at",
+                "observed_at",
+                "collected_at",
+                "timestamp",
+                "date",
+                "time",
+                "_at"
+            ],
+
+            "negative_keywords": [
+                "closed",
+                "resolved",
+                "resolution",
+                "elapsed",
+                "duration",
+                "timeout",
+                "lifetime",
+                "age"
+            ],
+
+            "expected_categories": [
+                "identifier_like",
+                "datetime",
+                "categorical"
+            ]
+        }
+    }
+}

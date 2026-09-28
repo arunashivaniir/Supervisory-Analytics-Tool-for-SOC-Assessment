@@ -1,0 +1,139 @@
+cse,period,alert_id,severity,asset_name,analyst_findings
+OP-A01,Period-1,OP-A-000,CRITICAL,NODE-00,Kerberos ticket anomaly traced to a single service account case 000
+OP-A01,Period-1,OP-A-001,HIGH,NODE-01,Unsigned driver loaded from a writable share on the jump host case 001
+OP-A01,Period-1,OP-A-002,MEDIUM,NODE-02,SMB write-ahead log copied to an unmanaged removable volume case 002
+OP-A01,Period-1,OP-A-003,LOW,NODE-03,Beaconing interval jittered then stabilised after egress block case 003
+OP-A01,Period-1,OP-A-004,CRITICAL,NODE-04,OAuth consent granted to an unverified publisher application case 004
+OP-A01,Period-1,OP-A-005,HIGH,NODE-05,Named pipe created in a directory writable by a low privilege group case 005
+OP-A01,Period-1,OP-A-006,MEDIUM,NODE-06,Registry run key pointed at a script staged in the recycle bin case 006
+OP-A01,Period-1,OP-A-007,LOW,NODE-07,Certificate private key exported from the signing workstation case 007
+OP-A01,Period-1,OP-A-008,CRITICAL,NODE-08,Lateral RDP session from a host outside the management VLAN case 008
+OP-A01,Period-1,OP-A-009,HIGH,NODE-09,DNS TXT record used to stage a payload over three resolvers case 009
+OP-A01,Period-1,OP-A-010,MEDIUM,NODE-10,Archive password protected then extracted by a separate job case 010
+OP-A01,Period-1,OP-A-011,LOW,NODE-11,Scheduled task created to run as a service account on logon case 011
+OP-A01,Period-1,OP-A-012,CRITICAL,NODE-12,Kerberos ticket anomaly traced to a single service account case 012
+OP-A01,Period-1,OP-A-013,HIGH,NODE-13,Unsigned driver loaded from a writable share on the jump host case 013
+OP-A01,Period-1,OP-A-014,MEDIUM,NODE-14,SMB write-ahead log copied to an unmanaged removable volume case 014
+OP-A01,Period-1,OP-A-015,LOW,NODE-15,Beaconing interval jittered then stabilised after egress block case 015
+OP-A01,Period-1,OP-A-016,CRITICAL,NODE-16,OAuth consent granted to an unverified publisher application case 016
+OP-A01,Period-1,OP-A-017,HIGH,NODE-17,Named pipe created in a directory writable by a low privilege group case 017
+OP-A01,Period-1,OP-A-018,MEDIUM,NODE-18,Registry run key pointed at a script staged in the recycle bin case 018
+OP-A01,Period-1,OP-A-019,LOW,NODE-19,Certificate private key exported from the signing workstation case 019
+OP-B02,Period-1,OP-B-000,CRITICAL,NODE-77,Named pipe created in a directory writable by a low privilege group case B000
+OP-B02,Period-1,OP-B-001,HIGH,NODE-77,Registry run key pointed at a script staged in the recycle bin case B001
+OP-B02,Period-1,OP-B-002,CRITICAL,NODE-77,Certificate private key exported from the signing workstation case B002
+OP-B02,Period-1,OP-B-003,HIGH,NODE-77,Lateral RDP session from a host outside the management VLAN case B003
+OP-B02,Period-1,OP-B-004,CRITICAL,NODE-77,DNS TXT record used to stage a payload over three resolvers case B004
+OP-B02,Period-1,OP-B-005,HIGH,NODE-77,Archive password protected then extracted by a separate job case B005
+OP-B02,Period-1,OP-B-006,CRITICAL,NODE-77,Scheduled task created to run as a service account on logon case B006
+OP-B02,Period-1,OP-B-007,HIGH,NODE-77,Kerberos ticket anomaly traced to a single service account case B007
+OP-B02,Period-1,OP-B-008,CRITICAL,NODE-77,Unsigned driver loaded from a writable share on the jump host case B008
+OP-B02,Period-1,OP-B-009,HIGH,NODE-77,SMB write-ahead log copied to an unmanaged removable volume case B009
+OP-B02,Period-1,OP-B-010,CRITICAL,NODE-77,Beaconing interval jittered then stabilised after egress block case B010
+OP-B02,Period-1,OP-B-011,HIGH,NODE-77,OAuth consent granted to an unverified publisher application case B011
+OP-B02,Period-1,OP-B-012,CRITICAL,NODE-77,Named pipe created in a directory writable by a low privilege group case B012
+OP-B02,Period-1,OP-B-013,HIGH,NODE-77,Registry run key pointed at a script staged in the recycle bin case B013
+OP-B02,Period-1,OP-B-014,CRITICAL,NODE-94,Certificate private key exported from the signing workstation case B014
+OP-B02,Period-1,OP-B-015,HIGH,NODE-95,Lateral RDP session from a host outside the management VLAN case B015
+OP-B02,Period-1,OP-B-016,CRITICAL,NODE-96,DNS TXT record used to stage a payload over three resolvers case B016
+OP-B02,Period-1,OP-B-017,HIGH,NODE-97,Archive password protected then extracted by a separate job case B017
+OP-B02,Period-1,OP-B-018,CRITICAL,NODE-98,Scheduled task created to run as a service account on logon case B018
+OP-B02,Period-1,OP-B-019,HIGH,NODE-99,Kerberos ticket anomaly traced to a single service account case B019
+OP-C03,Period-1,OP-C-000,CRITICAL,NODE-00,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-001,HIGH,NODE-01,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-002,MEDIUM,NODE-02,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-003,CRITICAL,NODE-03,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-004,HIGH,NODE-04,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-005,MEDIUM,NODE-05,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-006,CRITICAL,NODE-06,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-007,HIGH,NODE-07,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-008,MEDIUM,NODE-08,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-009,CRITICAL,NODE-09,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-010,HIGH,NODE-10,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-011,MEDIUM,NODE-11,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-012,CRITICAL,NODE-12,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-013,HIGH,NODE-13,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-014,MEDIUM,NODE-14,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-C03,Period-1,OP-C-015,CRITICAL,NODE-15,Host isolated and malware binary quarantined pending review of the file hash and network indicators
+OP-D04,Period-1,OP-D-000,CRITICAL,NODE-90,Short note 0
+OP-D04,Period-1,OP-D-001,CRITICAL,NODE-90,Short note 1
+OP-D04,Period-1,OP-D-002,CRITICAL,NODE-90,Short note 2
+OP-D04,Period-1,OP-D-003,CRITICAL,NODE-91,Short note 3
+OP-F06,Period-1,OP-F-1-000,CRITICAL,NODE-55,Certificate private key exported from the signing workstation period1 F000
+OP-F06,Period-1,OP-F-1-001,HIGH,NODE-55,Lateral RDP session from a host outside the management VLAN period1 F001
+OP-F06,Period-1,OP-F-1-002,CRITICAL,NODE-55,DNS TXT record used to stage a payload over three resolvers period1 F002
+OP-F06,Period-1,OP-F-1-003,HIGH,NODE-55,Archive password protected then extracted by a separate job period1 F003
+OP-F06,Period-1,OP-F-1-004,CRITICAL,NODE-55,Scheduled task created to run as a service account on logon period1 F004
+OP-F06,Period-1,OP-F-1-005,HIGH,NODE-55,Kerberos ticket anomaly traced to a single service account period1 F005
+OP-F06,Period-1,OP-F-1-006,CRITICAL,NODE-55,Unsigned driver loaded from a writable share on the jump host period1 F006
+OP-F06,Period-1,OP-F-1-007,HIGH,NODE-55,SMB write-ahead log copied to an unmanaged removable volume period1 F007
+OP-F06,Period-1,OP-F-1-008,CRITICAL,NODE-55,Beaconing interval jittered then stabilised after egress block period1 F008
+OP-F06,Period-1,OP-F-1-009,HIGH,NODE-55,OAuth consent granted to an unverified publisher application period1 F009
+OP-F06,Period-1,OP-F-1-010,CRITICAL,NODE-55,Named pipe created in a directory writable by a low privilege group period1 F010
+OP-F06,Period-1,OP-F-1-011,HIGH,NODE-55,Registry run key pointed at a script staged in the recycle bin period1 F011
+OP-F06,Period-1,OP-F-1-012,CRITICAL,NODE-55,Certificate private key exported from the signing workstation period1 F012
+OP-F06,Period-1,OP-F-1-013,HIGH,NODE-13,Lateral RDP session from a host outside the management VLAN period1 F013
+OP-F06,Period-1,OP-F-1-014,CRITICAL,NODE-14,DNS TXT record used to stage a payload over three resolvers period1 F014
+OP-F06,Period-1,OP-F-1-015,HIGH,NODE-15,Archive password protected then extracted by a separate job period1 F015
+OP-F06,Period-1,OP-F-1-016,CRITICAL,NODE-16,Scheduled task created to run as a service account on logon period1 F016
+OP-F06,Period-1,OP-F-1-017,HIGH,NODE-17,Kerberos ticket anomaly traced to a single service account period1 F017
+OP-F06,Period-1,OP-F-1-018,CRITICAL,NODE-18,Unsigned driver loaded from a writable share on the jump host period1 F018
+OP-F06,Period-1,OP-F-1-019,HIGH,NODE-19,SMB write-ahead log copied to an unmanaged removable volume period1 F019
+OP-F06,Period-2,OP-F-2-000,CRITICAL,NODE-00,DNS TXT record used to stage a payload over three resolvers period2 F000
+OP-F06,Period-2,OP-F-2-001,HIGH,NODE-01,Archive password protected then extracted by a separate job period2 F001
+OP-F06,Period-2,OP-F-2-002,MEDIUM,NODE-02,Scheduled task created to run as a service account on logon period2 F002
+OP-F06,Period-2,OP-F-2-003,CRITICAL,NODE-03,Kerberos ticket anomaly traced to a single service account period2 F003
+OP-F06,Period-2,OP-F-2-004,HIGH,NODE-04,Unsigned driver loaded from a writable share on the jump host period2 F004
+OP-F06,Period-2,OP-F-2-005,MEDIUM,NODE-05,SMB write-ahead log copied to an unmanaged removable volume period2 F005
+OP-F06,Period-2,OP-F-2-006,CRITICAL,NODE-06,Beaconing interval jittered then stabilised after egress block period2 F006
+OP-F06,Period-2,OP-F-2-007,HIGH,NODE-07,OAuth consent granted to an unverified publisher application period2 F007
+OP-F06,Period-2,OP-F-2-008,MEDIUM,NODE-08,Named pipe created in a directory writable by a low privilege group period2 F008
+OP-F06,Period-2,OP-F-2-009,CRITICAL,NODE-09,Registry run key pointed at a script staged in the recycle bin period2 F009
+OP-F06,Period-2,OP-F-2-010,HIGH,NODE-10,Certificate private key exported from the signing workstation period2 F010
+OP-F06,Period-2,OP-F-2-011,MEDIUM,NODE-11,Lateral RDP session from a host outside the management VLAN period2 F011
+OP-F06,Period-2,OP-F-2-012,CRITICAL,NODE-12,DNS TXT record used to stage a payload over three resolvers period2 F012
+OP-F06,Period-2,OP-F-2-013,HIGH,NODE-13,Archive password protected then extracted by a separate job period2 F013
+OP-F06,Period-2,OP-F-2-014,MEDIUM,NODE-14,Scheduled task created to run as a service account on logon period2 F014
+OP-F06,Period-2,OP-F-2-015,CRITICAL,NODE-15,Kerberos ticket anomaly traced to a single service account period2 F015
+OP-F06,Period-2,OP-F-2-016,HIGH,NODE-16,Unsigned driver loaded from a writable share on the jump host period2 F016
+OP-F06,Period-2,OP-F-2-017,MEDIUM,NODE-17,SMB write-ahead log copied to an unmanaged removable volume period2 F017
+OP-F06,Period-2,OP-F-2-018,CRITICAL,NODE-18,Beaconing interval jittered then stabilised after egress block period2 F018
+OP-F06,Period-2,OP-F-2-019,HIGH,NODE-19,OAuth consent granted to an unverified publisher application period2 F019
+OP-E05,Period-1,OP-E05-000,CRITICAL,NODE-00,Kerberos ticket anomaly traced to a single service account normal E05-000
+OP-E05,Period-1,OP-E05-001,HIGH,NODE-01,Unsigned driver loaded from a writable share on the jump host normal E05-001
+OP-E05,Period-1,OP-E05-002,MEDIUM,NODE-02,SMB write-ahead log copied to an unmanaged removable volume normal E05-002
+OP-E05,Period-1,OP-E05-003,LOW,NODE-03,Beaconing interval jittered then stabilised after egress block normal E05-003
+OP-E05,Period-1,OP-E05-004,CRITICAL,NODE-04,OAuth consent granted to an unverified publisher application normal E05-004
+OP-E05,Period-1,OP-E05-005,HIGH,NODE-05,Named pipe created in a directory writable by a low privilege group normal E05-005
+OP-E05,Period-1,OP-E05-006,MEDIUM,NODE-06,Registry run key pointed at a script staged in the recycle bin normal E05-006
+OP-E05,Period-1,OP-E05-007,LOW,NODE-07,Certificate private key exported from the signing workstation normal E05-007
+OP-E05,Period-1,OP-E05-008,CRITICAL,NODE-08,Lateral RDP session from a host outside the management VLAN normal E05-008
+OP-E05,Period-1,OP-E05-009,HIGH,NODE-09,DNS TXT record used to stage a payload over three resolvers normal E05-009
+OP-E05,Period-1,OP-E05-010,MEDIUM,NODE-10,Archive password protected then extracted by a separate job normal E05-010
+OP-E05,Period-1,OP-E05-011,LOW,NODE-11,Scheduled task created to run as a service account on logon normal E05-011
+OP-E05,Period-1,OP-E05-012,CRITICAL,NODE-12,Kerberos ticket anomaly traced to a single service account normal E05-012
+OP-E05,Period-1,OP-E05-013,HIGH,NODE-13,Unsigned driver loaded from a writable share on the jump host normal E05-013
+OP-E05,Period-1,OP-E05-014,MEDIUM,NODE-14,SMB write-ahead log copied to an unmanaged removable volume normal E05-014
+OP-E05,Period-1,OP-E05-015,LOW,NODE-15,Beaconing interval jittered then stabilised after egress block normal E05-015
+OP-E05,Period-1,OP-E05-016,CRITICAL,NODE-16,OAuth consent granted to an unverified publisher application normal E05-016
+OP-E05,Period-1,OP-E05-017,HIGH,NODE-17,Named pipe created in a directory writable by a low privilege group normal E05-017
+OP-E06,Period-1,OP-E06-000,CRITICAL,NODE-77,Beaconing interval jittered then stabilised after egress block concentrated E06-000
+OP-E06,Period-1,OP-E06-001,HIGH,NODE-77,OAuth consent granted to an unverified publisher application concentrated E06-001
+OP-E06,Period-1,OP-E06-002,CRITICAL,NODE-77,Named pipe created in a directory writable by a low privilege group concentrated E06-002
+OP-E06,Period-1,OP-E06-003,HIGH,NODE-77,Registry run key pointed at a script staged in the recycle bin concentrated E06-003
+OP-E06,Period-1,OP-E06-004,CRITICAL,NODE-77,Certificate private key exported from the signing workstation concentrated E06-004
+OP-E06,Period-1,OP-E06-005,HIGH,NODE-77,Lateral RDP session from a host outside the management VLAN concentrated E06-005
+OP-E06,Period-1,OP-E06-006,CRITICAL,NODE-77,DNS TXT record used to stage a payload over three resolvers concentrated E06-006
+OP-E06,Period-1,OP-E06-007,HIGH,NODE-77,Archive password protected then extracted by a separate job concentrated E06-007
+OP-E06,Period-1,OP-E06-008,CRITICAL,NODE-77,Scheduled task created to run as a service account on logon concentrated E06-008
+OP-E06,Period-1,OP-E06-009,HIGH,NODE-77,Kerberos ticket anomaly traced to a single service account concentrated E06-009
+OP-E06,Period-1,OP-E06-010,CRITICAL,NODE-77,Unsigned driver loaded from a writable share on the jump host concentrated E06-010
+OP-E06,Period-1,OP-E06-011,HIGH,NODE-77,SMB write-ahead log copied to an unmanaged removable volume concentrated E06-011
+OP-E06,Period-1,OP-E06-012,CRITICAL,NODE-77,Beaconing interval jittered then stabilised after egress block concentrated E06-012
+OP-E06,Period-1,OP-E06-013,HIGH,NODE-77,OAuth consent granted to an unverified publisher application concentrated E06-013
+OP-E06,Period-1,OP-E06-014,CRITICAL,NODE-77,Named pipe created in a directory writable by a low privilege group concentrated E06-014
+OP-E06,Period-1,OP-E06-015,HIGH,NODE-75,Registry run key pointed at a script staged in the recycle bin concentrated E06-015
+OP-E06,Period-1,OP-E06-016,CRITICAL,NODE-76,Certificate private key exported from the signing workstation concentrated E06-016
+OP-E06,Period-1,OP-E06-017,HIGH,NODE-77,Lateral RDP session from a host outside the management VLAN concentrated E06-017
+OP-E06,Period-1,OP-E06-018,CRITICAL,NODE-78,DNS TXT record used to stage a payload over three resolvers concentrated E06-018
+OP-E06,Period-1,OP-E06-019,HIGH,NODE-79,Archive password protected then extracted by a separate job concentrated E06-019

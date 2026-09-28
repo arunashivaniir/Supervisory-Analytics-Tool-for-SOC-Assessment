@@ -1,0 +1,35 @@
+# Runtime dependencies for the SAT-SA assessment tool.
+#
+# The repository had no dependency manifest, so the versions below are the ones
+# the suite and the offline anomaly model were actually verified against. They
+# are lower bounds rather than hard pins: the tool is not sensitive to patch
+# releases, and a floor keeps a fresh environment installable while still
+# refusing a version too old to have the APIs this code calls.
+
+# Core data handling. Used by ingestion and dataset profiling:
+# framework/ingestion/csv_loader.py, framework/ingestion/base_loader.py,
+# framework/profiling/dataset_profiler.py.
+pandas>=3.0.6
+
+# The offline anomaly model. framework/ml/anomaly/imports this lazily, inside
+# a guard, so the rest of the tool still runs -- and the suite still passes --
+# when scikit-learn is not installed; the anomaly layer then reports itself as
+# not evaluable rather than raising. Isolated to this one layer on purpose.
+scikit-learn>=1.9.1
+
+# Transitive requirements of scikit-learn, pinned explicitly because the
+# Isolation Forest's behaviour at the extremes of the training distribution is
+# sensitive to the underlying numerical stack, and an unconstrained resolve
+# should not silently pick up a numpy or scipy that changes those results.
+# Verified together with scikit-learn 1.9.1; the values below are the versions
+# that combination was tested at.
+numpy>=2.5.3
+scipy>=1.18.1
+joblib>=1.6.0
+
+# The local adapter that serves the React interface. Kept separate from the
+# assessment tool itself: the pipeline, the framework and the suite do not
+# import FastAPI, and the Streamlit dashboard does not need it. backend/app.py
+# and backend/jobs.py are the only modules that do.
+fastapi>=0.115
+uvicorn>=0.34

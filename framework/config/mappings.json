@@ -1,0 +1,247 @@
+{
+    "SECURITY_SEVERITY": {
+
+        "canonical_path":
+        "alert_context.severity"
+
+    },
+
+
+    "ASSET_IDENTIFIER": {
+
+        "canonical_path":
+        "asset_context.asset_id"
+
+    },
+
+
+    "ASSET_CRITICALITY": {
+
+        "_comment": [
+            "Asset/system criticality. This is the importance of the ASSET, not",
+            "the severity of the ALERT, and it is a separate axis from",
+            "SECURITY_SEVERITY (alert_context.severity).",
+            "",
+            "The destination asset_context.criticality already existed in",
+            "canonical_schema.json, is declared as the ASSET_CONTEXT indicator",
+            "'criticality' in framework/ontology/security_ontology.py, and is the",
+            "required evidence of the existing ASSET_CRITICALITY_RISK feature in",
+            "framework/features/feature_registry.py. Only the concept declaration",
+            "itself was missing, so the field could never be populated and the",
+            "feature could never become AVAILABLE."
+        ],
+
+        "canonical_path":
+        "asset_context.criticality"
+
+    },
+
+
+    "RESOLUTION_TIME": {
+
+        "canonical_path":
+        "response_context.resolution_time"
+
+    },
+
+
+    "EVENT_TIMESTAMP": {
+
+        "canonical_path":
+        "alert_context.timestamp"
+
+    },
+
+
+    "USER_IDENTIFIER": {
+
+        "canonical_path":
+        "entity_context.entity_name"
+
+    },
+
+
+    "THREAT_CATEGORY": {
+
+        "canonical_path":
+        "alert_context.category"
+
+    },
+
+
+    "INVESTIGATION_EVIDENCE": {
+
+        "canonical_path":
+        "investigation_context.notes"
+
+    },
+
+
+    "ESCALATION_STATUS": {
+
+        "canonical_path":
+        "response_context.escalation_status"
+
+    },
+
+
+    "NETWORK_PROTOCOL": {
+
+        "canonical_path":
+        "network_context.protocol"
+
+    },
+
+
+    "NETWORK_SERVICE": {
+
+        "canonical_path":
+        "network_context.service"
+
+    },
+
+
+    "CONNECTION_STATE": {
+
+        "canonical_path":
+        "network_context.connection_state"
+
+    },
+
+
+    "PACKET_VOLUME": {
+
+        "canonical_path":
+        "network_context.source_packets"
+
+    },
+
+
+    "PACKET_COUNT": {
+
+        "canonical_path":
+        "network_context.source_packets"
+
+    },
+
+
+    "TRAFFIC_BYTES": {
+
+        "canonical_path":
+        "network_context.source_bytes"
+
+    },
+
+
+    "TRAFFIC_RATE": {
+
+        "canonical_path":
+        "network_context.traffic_rate"
+
+    },
+
+
+    "CONNECTION_DURATION": {
+
+        "canonical_path":
+        "network_context.connection_duration"
+
+    },
+
+
+    "NETWORK_CONNECTION_COUNT": {
+
+        "canonical_path":
+        "network_behavior_context.flow_statistics"
+
+    },
+
+
+    "TRAFFIC_BEHAVIOR_METRIC": {
+
+        "canonical_path":
+        "network_behavior_context.flow_statistics"
+
+    },
+
+
+    "PACKET_TIMING": {
+
+        "canonical_path":
+        "network_behavior_context.source_jitter"
+
+    },
+
+
+    "SOURCE_TTL": {
+
+        "canonical_path":
+        "network_behavior_context.source_ttl"
+
+    },
+
+
+    "DESTINATION_TTL": {
+
+        "canonical_path":
+        "network_behavior_context.destination_ttl"
+
+    },
+
+
+    "PACKET_LOSS": {
+
+        "canonical_path":
+        "network_behavior_context.packet_loss_source"
+
+    },
+
+
+    "TCP_WINDOW_SIZE": {
+
+        "canonical_path":
+        "network_behavior_context.source_window_size"
+
+    },
+
+
+    "TCP_CONNECTION_TIME": {
+
+        "canonical_path":
+        "network_behavior_context.tcp_connection_time"
+
+    },
+
+
+    "TCP_HANDSHAKE_TIME": {
+
+        "canonical_path":
+        "network_behavior_context.tcp_handshake_time"
+
+    },
+
+
+    "APPLICATION_CONTEXT": {
+
+        "canonical_path":
+        "application_context.transaction_depth"
+
+    },
+
+
+    "RESPONSE_BODY_LENGTH": {
+
+        "canonical_path":
+        "application_context.response_body_length"
+
+    },
+
+
+    "SECURITY_LABEL": {
+
+        "canonical_path":
+        "classification_context.security_label"
+
+    }
+
+}

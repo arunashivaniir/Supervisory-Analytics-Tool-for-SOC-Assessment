@@ -1,0 +1,381 @@
+{
+    "_comment": [
+        "SAT-SA operational pattern configuration.",
+        "",
+        "WHAT THIS LAYER IS FOR",
+        "=======================",
+        "A normal SOC dashboard already shows alert counts, severities and open",
+        "queues. This layer looks for operational *shape* inside one assessment",
+        "scope that a count-based dashboard does not make obvious, and that a",
+        "supervisor might reasonably want to look at.",
+        "",
+        "WHAT A SIGNAL IS NOT",
+        "====================",
+        "A signal here is a request for human review. It is not a finding of",
+        "misconduct, not a control failure, and not a risk level. Control",
+        "failure language belongs to the execution-gap layer, which is the only",
+        "layer whose logic can actually establish a contradicted expectation.",
+        "Every status here is therefore qualified as POTENTIAL or reported as",
+        "NOT_EVALUABLE.",
+        "",
+        "NO INVENTED THRESHOLDS",
+        "=======================",
+        "Two failure modes are explicitly avoided.",
+        "",
+        "  'if count > 10' / 'if share > 0.8'",
+        "      An asset carrying 60% of a scope's alerts is unremarkable in a",
+        "      small scope and notable in a large one. A fixed cut-point on a",
+        "      raw count or share cannot distinguish those cases, so none is",
+        "      used. Concentration is instead judged against what the scope's",
+        "      OWN population would produce by chance, which is a property of",
+        "      the data rather than a number chosen here.",
+        "",
+        "  'closure < 5' / 'word_count <= 2'",
+        "      These legacy rules were deliberately removed from SAT-SA because",
+        "      they encoded an expectation nobody could justify. They are not",
+        "      reintroduced, and no pattern below depends on a raw magnitude",
+        "      cut-point of that kind.",
+        "",
+        "Every number this layer uses is one of exactly three things:",
+        "  1. a minimum observation count, required by the analytical method and",
+        "     declared in 'methodology' below so it is visible, not buried;",
+        "  2. a statistical significance level belonging to the method; or",
+        "  3. an explicitly configurable parameter, defaulted here and adjustable",
+        "     by configuration rather than by editing detector code."
+    ],
+    "schema_version": "1.0",
+    "value_normalisation": {
+        "case_sensitive": false,
+        "separators_folded_to_underscore": [
+            " ",
+            "-",
+            ".",
+            "/"
+        ]
+    },
+    "methodology": {
+        "_comment": [
+            "Each pattern names the method that produced its number and the",
+            "minimum observations that method needs. When a scope holds fewer",
+            "observations than the method requires, the pattern returns",
+            "NOT_EVALUABLE with an explanation instead of producing a number",
+            "that would look precise and mean nothing. There is deliberately no",
+            "single global minimum: 'enough observations' depends on the method."
+        ],
+        "asset_concentration": {
+            "method": "exact_binomial_tail",
+            "summary": [
+                "Null hypothesis: the scope's records are distributed across its",
+                "observed assets uniformly at random. Under that hypothesis the",
+                "count on the busiest asset is Binomial(n, 1/k) for n scope",
+                "records and k distinct assets, so the observed count has a",
+                "computable probability. The signal is raised only when that",
+                "probability is small enough to be unlikely by chance.",
+                "",
+                "This is why no share cut-point is needed: the question asked is",
+                "'would this concentration arise by chance in a scope this",
+                "size?', not 'is this share above a number someone picked'."
+            ],
+            "null_hypothesis": "records are distributed uniformly at random across the observed distinct assets",
+            "alternative": "one asset carries more records than chance explains",
+            "significance_parameter": "alpha",
+            "alpha_justification": [
+                "alpha is a statistical significance level belonging to the test,",
+                "not a supervisory policy. 0.01 is a conventional, conservative",
+                "level: it means an observed concentration of this kind would",
+                "arise by chance in fewer than 1 scope in 100. It does not mean",
+                "the asset is risky, and it is configurable rather than fixed."
+            ],
+            "executable": true,
+            "requires_model_file": false,
+            "computation": [
+                "Computed exactly in-process with integer binomial",
+                "coefficients. No model artefact, no training step and no",
+                "numerical dependency, so the result is reproducible offline",
+                "and inspectable without loading anything."
+            ],
+            "minimum_observations": {
+                "_comment": [
+                    "Declared here so the requirement is inspectable. A binomial",
+                    "tail over 4 or 5 records cannot distinguish concentration",
+                    "from coincidence at any meaningful level, and a single-asset",
+                    "scope has nothing to be concentrated relative to."
+                ],
+                "min_scope_records": 12,
+                "min_distinct_assets": 3,
+                "min_records_on_flagged_asset": 4
+            }
+        },
+        "investigation_repetition": {
+            "method": "token_set_similarity_components",
+            "summary": [
+                "Investigation evidence is reduced to a set of normalised tokens.",
+                "Two records are similar when the Jaccard overlap of their token",
+                "sets reaches the configured minimum. Records are then grouped",
+                "into connected components of mutual similarity, and a component",
+                "large enough to be unlikely by chance is reported.",
+                "",
+                "Repetition is reported as a shape across the population, never as",
+                "a judgement about any single note. A single terse note is not",
+                "evidence of anything; many notes drawn from the same small",
+                "vocabulary is a pattern a supervisor may want to understand."
+            ],
+            "similarity_measure": "jaccard_over_normalised_token_sets",
+            "min_similarity": 0.8,
+            "similarity_justification": [
+                "0.8 is used as the default because Jaccard is 1.0 only for",
+                "identical token sets and falls away quickly as vocabulary",
+                "differs, so 0.8 corresponds to near-identical vocabulary rather",
+                "than merely topical overlap. It is a configurable parameter, not",
+                "a supervisory policy, and it is applied identically to every",
+                "scope."
+            ],
+            "executable": true,
+            "requires_model_file": false,
+            "computation": [
+                "Computed in-process from token sets. No model artefact and no",
+                "training step."
+            ],
+            "minimum_observations": {
+                "_comment": [
+                    "Similarity components are meaningless on a handful of",
+                    "records: with 4 records almost any pair can be called",
+                    "similar. The floor also requires several assets to be",
+                    "involved, because repetition confined to one asset is an",
+                    "asset pattern rather than an investigation pattern."
+                ],
+                "min_scope_records": 12,
+                "min_similar_records": 3
+            }
+        }
+    },
+    "statistical_parameters": {
+        "_comment": [
+            "Significance level for the concentration test. Statistical, not",
+            "policy. Exposed here so it can be changed without touching code."
+        ],
+        "alpha": 0.01
+    },
+    "patterns": [
+        {
+            "pattern_id": "repeated_asset_activity",
+            "indicator": "REPEATED_ASSET_ACTIVITY",
+            "name": "Alert activity concentrated on a single asset",
+            "pattern_type": "CONCENTRATION",
+            "capability": "SECURITY_OPERATIONS",
+            "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+            "group_concept": "ASSET_IDENTIFIER",
+            "population_concept": "ASSET_IDENTIFIER",
+            "method": "asset_concentration",
+            "evidence_concepts": [
+                "ASSET_IDENTIFIER"
+            ],
+            "description": [
+                "One asset carries a larger share of an assessment scope's alert",
+                "records than chance explains for a population of that size."
+            ],
+            "reason_template": [
+                "Asset {group_value} accounts for {group_record_count} of",
+                "{scope_record_count} records in this assessment scope",
+                "({share_pct}%), across {distinct_groups} distinct assets. Under a",
+                "uniform random allocation of {scope_record_count} records across",
+                "{distinct_groups} assets, {group_record_count} or more on a single",
+                "asset has a probability {probability_phrase}, so this",
+                "concentration is unlikely to have arisen by chance."
+            ],
+            "why_review_might_be_warranted": [
+                "Repeated activity on one asset may reflect a genuine incident",
+                "requiring sustained response, a monitoring or triage path that",
+                "funnels work onto a single system, or a recording convention",
+                "that attributes work to the asset rather than to the activity.",
+                "None of these can be distinguished from the data alone, which",
+                "is why this is a request to inspect rather than a conclusion."
+            ],
+            "explanation_limitations": [
+                "Concentration establishes distribution, not cause. The pattern",
+                "cannot distinguish a persistent campaign, a noisy sensor, and a",
+                "systematic triage bias, and it says nothing about whether the",
+                "underlying responses were appropriate."
+            ]
+        },
+        {
+            "pattern_id": "repetitive_investigation_evidence",
+            "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+            "name": "Investigation evidence drawn from a repeated vocabulary",
+            "pattern_type": "REPETITION",
+            "capability": "INVESTIGATION",
+            "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+            "group_concept": "ASSET_IDENTIFIER",
+            "population_concept": "INVESTIGATION_EVIDENCE",
+            "text_concept": "INVESTIGATION_EVIDENCE",
+            "method": "investigation_repetition",
+            "evidence_concepts": [
+                "INVESTIGATION_EVIDENCE",
+                "ASSET_IDENTIFIER"
+            ],
+            "description": [
+                "A group of investigations in one assessment scope share highly",
+                "similar evidence text, indicating they were written from a",
+                "repeated vocabulary rather than from record-specific findings."
+            ],
+            "reason_template": [
+                "{group_size} investigations in this assessment scope share",
+                "near-identical evidence text: the lowest pairwise token overlap",
+                "within the group is {observed_min_similarity}, against a configured",
+                "floor of {min_similarity}. The group spans {distinct_assets}",
+                "assets. Repetition across multiple assets is more consistent with",
+                "a templated recording habit than with a single incident."
+            ],
+            "content_disclosure": [
+                "The submitted investigation text is never reproduced in a",
+                "finding. Only counts, the similarity statistic and record",
+                "references are emitted, so an examiner can open the underlying",
+                "records under their own access control without this layer",
+                "redistributing potentially sensitive content."
+            ],
+            "why_review_might_be_warranted": [
+                "Repeated near-identical investigation text may indicate",
+                "templated or copied recording rather than analysis specific to",
+                "each case. It may equally reflect a legitimately formulaic",
+                "playbook, a copy-paste workflow, or a tooling limitation. The",
+                "pattern cannot tell these apart, which is why it asks for a look",
+                "instead of asserting one."
+            ],
+            "explanation_limitations": [
+                "Token overlap measures wording, not investigative rigour. A",
+                "thorough investigation and a superficial one can be equally",
+                "repetitive, and a short note can be highly specific. No",
+                "judgement about the quality of any investigation is made or",
+                "implied by this pattern."
+            ]
+        }
+    ],
+    "unavailable_patterns": [
+        {
+            "pattern_id": "unusual_closure_behaviour",
+            "indicator": "UNUSUAL_CLOSURE_BEHAVIOUR",
+            "name": "Unusual closure behaviour",
+            "pattern_type": "TIMING",
+            "capability": "INCIDENT_RESPONSE",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "RESOLUTION_TIME and EVENT_TIMESTAMP both exist as canonical",
+                "concepts and can resolve from source columns, so raw timing",
+                "evidence is possible in principle.",
+                "No authoritative closure expectation exists anywhere in the",
+                "repository: no configured SLA, no mandated response window, and",
+                "no per-CSE closure objective.",
+                "No historical or peer baseline of closure times exists, so a",
+                "closure time cannot be called unusual relative to anything."
+            ],
+            "why_not_implemented": [
+                "Establishing that a closure is unusual requires a reference to",
+                "be unusual against. The legacy 'closure < 5' rule encoded an",
+                "expectation nobody could justify and was deliberately removed",
+                "from SAT-SA; reintroducing it, in any disguised form, would",
+                "restore exactly the unsupported judgement that was deleted.",
+                "Producing a signal here would mean the tool inventing its own",
+                "notion of a reasonable closure time."
+            ],
+            "would_require": [
+                "A configured closure expectation supplied by a supervisory",
+                "authority, such as a mandated response window per severity, or",
+                "a historical closure baseline per CSE."
+            ]
+        },
+        {
+            "pattern_id": "statistical_isolation_forest_anomaly",
+            "indicator": "MULTIVARIATE_OUTLIER_SIGNAL",
+            "name": "Multivariate outlier signal",
+            "pattern_type": "STATISTICAL",
+            "capability": "SECURITY_OPERATIONS",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "data/generated/isolation_forest.pkl exists and is a genuine",
+                "sklearn.ensemble._iforest.IsolationForest, but scikit-learn is",
+                "not importable from the interpreter that runs SAT-SA, so the",
+                "model cannot be loaded.",
+                "The pickled model expects a 16-dimensional vector",
+                "(severity_score, asset_criticality_score, response_time_minutes,",
+                "fast_closure, sla_breach, evidence_count, missing_evidence,",
+                "missing_root_cause, missing_remediation, missing_escalation,",
+                "investigation_quality, low_investigation_quality,",
+                "investigation_time_minutes, short_investigation,",
+                "note_similarity, template_investigation).",
+                "None of these are canonical SAT-SA concepts. They belong to a",
+                "different feature pipeline that produces no code in this",
+                "repository, and no training population or feature-extraction",
+                "path exists that could rebuild that vector.",
+                "The companion data/generated/features.csv and",
+                "features_anomaly.csv are likewise orphaned artefacts: nothing in",
+                "framework/ reads or writes them."
+            ],
+            "why_not_implemented": [
+                "Loading a model whose feature contract cannot be reproduced",
+                "would produce numbers that cannot be explained or defended, and",
+                "an unexplainable anomaly is exactly what this layer exists to",
+                "avoid. Hand-rolling a substitute estimator would also mean",
+                "building a new ML framework, which is out of scope.",
+                "Note also that an Isolation Forest score is a statement about",
+                "distance in a feature space, not about supervisory relevance;",
+                "even a working model would need an explanation layer before it",
+                "could support a reviewable signal."
+            ],
+            "would_require": [
+                "scikit-learn available to the SAT-SA runtime, and",
+                "A reproducible feature-extraction path mapping canonical",
+                "concepts onto the model's expected vector, with a documented",
+                "training and inference population, plus a feature-attribution",
+                "method able to say which feature drove a score."
+            ]
+        },
+        {
+            "pattern_id": "longitudinal_operational_drift",
+            "indicator": "OPERATIONAL_DRIFT",
+            "name": "Operational drift across periods",
+            "pattern_type": "TEMPORAL",
+            "capability": "GOVERNANCE_OVERSIGHT",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "This phase evaluates each assessment scope independently and",
+                "never pools scopes, so no cross-period comparison exists to",
+                "detect drift.",
+                "Only two period labels exist in the current fixtures, which is",
+                "not a time series."
+            ],
+            "why_not_implemented": [
+                "Pooling periods or entities to compare them is explicitly out of",
+                "scope for this phase, and an operational pattern that is normal",
+                "in one CSE or period may be routine in another. Building the",
+                "comparison now would defeat the scope isolation this layer is",
+                "required to preserve."
+            ],
+            "would_require": [
+                "A deliberate longitudinal analysis phase with an agreed",
+                "comparison basis across CSEs or periods."
+            ]
+        },
+        {
+            "pattern_id": "alert_volume_anomaly",
+            "indicator": "UNUSUAL_ALERT_VOLUME",
+            "name": "Unusual alert volume",
+            "pattern_type": "VOLUME",
+            "capability": "THREAT_DETECTION",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "No expected record volume, no historical baseline, no peer",
+                "group and no coverage statement exists for any CSE."
+            ],
+            "why_not_implemented": [
+                "A record count is only 'unusual' relative to an expectation. In",
+                "the absence of any baseline, every period looks unremarkable and",
+                "any threshold applied to a raw count would encode a volume",
+                "assumption that SAT-SA has no basis to make."
+            ],
+            "would_require": [
+                "A configured expected alert volume, or a historical baseline,",
+                "per Critical Sector Entity."
+            ]
+        }
+    ]
+}

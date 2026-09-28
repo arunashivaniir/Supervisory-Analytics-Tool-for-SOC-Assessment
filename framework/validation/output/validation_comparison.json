@@ -1,0 +1,792 @@
+{
+  "artefact": "VALIDATION_COMPARISON",
+  "case_count": 20,
+  "comparisons": [
+    {
+      "assessment_id": "CSE-A01::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "explanation": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+      "family": "execution_gap",
+      "human_evidence": null,
+      "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        1
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "CSE-A01::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "explanation": "Critical alert activity is present and escalation evidence was submitted for part of the population only.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        2
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "CSE-B02::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "explanation": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+      "family": "execution_gap",
+      "human_evidence": null,
+      "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        6
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "NS-A01::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        0,
+        1
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "NS-B02::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "explanation": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+      "family": "execution_gap",
+      "human_evidence": null,
+      "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        6
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "NS-B02::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "explanation": "Critical alert activity is present and escalation evidence was submitted for part of the population only.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        7
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "NS-D04::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        13,
+        14
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "NS-D04::Period-2",
+      "capability": "ESCALATION",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "explanation": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of Not Escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+      "family": "execution_gap",
+      "human_evidence": null,
+      "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        16
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-A01::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        0,
+        4,
+        8,
+        12,
+        16
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-B02::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        20,
+        22,
+        24,
+        26,
+        28,
+        30,
+        32,
+        34,
+        36,
+        38
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-B02::Period-1",
+      "capability": "SECURITY_OPERATIONS",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Asset NODE_77 accounts for 14 of 20 records in this assessment scope (70.0%), across 7 distinct assets. Under a uniform random allocation of 20 records across 7 assets, 14 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+      "family": "operational_pattern",
+      "human_evidence": null,
+      "indicator": "REPEATED_ASSET_ACTIVITY",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-C03::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        40,
+        43,
+        46,
+        49,
+        52,
+        55
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-C03::Period-1",
+      "capability": "INVESTIGATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "16 investigations in this assessment scope share near-identical evidence text: the lowest pairwise token overlap within the group is 1.0, against a configured floor of 0.8. The group spans 16 assets. Repetition across multiple assets is more consistent with a templated recording habit than with a single incident.",
+      "family": "operational_pattern",
+      "human_evidence": null,
+      "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-D04::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        56,
+        57,
+        58,
+        59
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-E05::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        100,
+        104,
+        108,
+        112,
+        116
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-E06::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        118,
+        120,
+        122,
+        124,
+        126,
+        128,
+        130,
+        132,
+        134,
+        136
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-E06::Period-1",
+      "capability": "SECURITY_OPERATIONS",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Asset NODE_77 accounts for 16 of 20 records in this assessment scope (80.0%), across 5 distinct assets. Under a uniform random allocation of 20 records across 5 assets, 16 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+      "family": "operational_pattern",
+      "human_evidence": null,
+      "indicator": "REPEATED_ASSET_ACTIVITY",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        135
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-F06::Period-1",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        60,
+        62,
+        64,
+        66,
+        68,
+        70,
+        72,
+        74,
+        76,
+        78
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-F06::Period-1",
+      "capability": "SECURITY_OPERATIONS",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Asset NODE_55 accounts for 13 of 20 records in this assessment scope (65.0%), across 8 distinct assets. Under a uniform random allocation of 20 records across 8 assets, 13 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+      "family": "operational_pattern",
+      "human_evidence": null,
+      "indicator": "REPEATED_ASSET_ACTIVITY",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    },
+    {
+      "assessment_id": "OP-F06::Period-2",
+      "capability": "ESCALATION",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "explanation": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+      "family": "negative_space",
+      "human_evidence": null,
+      "indicator": "MISSING_ESCALATION_EVIDENCE",
+      "notes": [
+        "SAT-SA reported an indicator the reviewer did not"
+      ],
+      "outcome": "FALSE_POSITIVE",
+      "record_positions": [
+        80,
+        83,
+        86,
+        89,
+        92,
+        95,
+        98
+      ],
+      "sat_sa_evidence": {
+        "detail": "a signal the reviewer did not report is not evidence agreement",
+        "status": "NOT_EVALUATED"
+      },
+      "scope_mismatch": null
+    }
+  ],
+  "declared_label_source": "EXPERT_REVIEW",
+  "expert_labelled": false,
+  "indicator_vocabulary": {
+    "execution_gap": [
+      "CRITICAL_ALERT_NOT_ESCALATED"
+    ],
+    "negative_space": [
+      "MISSING_ESCALATION_EVIDENCE"
+    ],
+    "operational_pattern": [
+      "REPEATED_ASSET_ACTIVITY",
+      "REPEATED_INVESTIGATION_EVIDENCE"
+    ]
+  },
+  "label_source": "UNLABELLED",
+  "not_evaluable": {
+    "case_count": 20,
+    "cases_matching_controlled_expectation": 13,
+    "cases_where_sat_sa_declined": 13,
+    "entries": [
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-1",
+        "case_id": "EG-01",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-2",
+        "case_id": "EG-02",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-1",
+        "case_id": "EG-03",
+        "controlled_expectation_not_evaluable": [
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-2",
+        "case_id": "EG-04",
+        "controlled_expectation_not_evaluable": [
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-2",
+        "case_id": "EG-05",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-2",
+        "case_id": "EG-06",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-A01::Period-1",
+        "case_id": "NS-01",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-A01::Period-2",
+        "case_id": "NS-02",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-B02::Period-1",
+        "case_id": "NS-03",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-C03::Period-1",
+        "case_id": "NS-04",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-D04::Period-1",
+        "case_id": "NS-05",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-D04::Period-2",
+        "case_id": "NS-06",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-A01::Period-1",
+        "case_id": "OP-01",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-B02::Period-1",
+        "case_id": "OP-02",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-C03::Period-1",
+        "case_id": "OP-03",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": true,
+        "assessment_id": "OP-D04::Period-1",
+        "case_id": "OP-04",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-E05::Period-1",
+        "case_id": "OP-05",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-E06::Period-1",
+        "case_id": "OP-06",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-F06::Period-1",
+        "case_id": "OP-07",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-F06::Period-2",
+        "case_id": "OP-08",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      }
+    ]
+  },
+  "reviewer_ids": [],
+  "schema_version": 1,
+  "supervisory_responses": {},
+  "unrecognised_human_indicators": []
+}

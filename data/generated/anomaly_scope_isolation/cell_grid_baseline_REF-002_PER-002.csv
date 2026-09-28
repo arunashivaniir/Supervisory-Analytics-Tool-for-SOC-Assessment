@@ -1,0 +1,41 @@
+cse,period,alert_id,priority,host,asset_criticality,escalation_status,investigation_notes
+REF-002,PER-002,REF-002-PER-002-0001,CRITICAL,ref-asset-012,MEDIUM,,validated packet capture and closed after verification step
+REF-002,PER-002,REF-002-PER-002-0002,CRITICAL,ref-asset-019,CRITICAL,NOT_ESCALATED,validated region earlier stakeholders header observations topology window of sequence affected integrity ancestry for
+REF-002,PER-002,REF-002-PER-002-0003,LOW,ref-asset-017,MEDIUM,ESCALATED,observations handshake endpoints privilege stakeholders verification latency components recommendation inventory narrative annotated summary ownership
+REF-002,PER-002,REF-002-PER-002-0004,CRITICAL,ref-asset-016,MEDIUM,NOT_ESCALATED,validated ownership review verification during sequence sensitivity interval stakeholders worksheet scrutinising guidance padding earlier
+REF-002,PER-002,REF-002-PER-002-0005,MEDIUM,ref-asset-012,MEDIUM,,
+REF-002,PER-002,REF-002-PER-002-0006,MEDIUM,ref-asset-016,CRITICAL,NOT_ESCALATED,compared against baseline and observed no deviation from normal
+REF-002,PER-002,REF-002-PER-002-0007,HIGH,ref-asset-014,CRITICAL,NOT_ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0008,CRITICAL,ref-asset-010,CRITICAL,,review components memory scrutinising summary appendix recommendation with traced across checksum affected interval analysed
+REF-002,PER-002,REF-002-PER-002-0009,HIGH,ref-asset-018,MEDIUM,NOT_ESCALATED,integrity provisional window of tuning earlier documented recommendation pattern traced entries authentication compared for
+REF-002,PER-002,REF-002-PER-002-0010,CRITICAL,ref-asset-012,LOW,,correlation capturing recurring confirmation of window matched tuning segment retrospective payload traced components contents
+REF-002,PER-002,REF-002-PER-002-0011,MEDIUM,ref-asset-020,MEDIUM,NOT_ESCALATED,privilege boundary inspected and no escalation of rights seen certificate chain validated against the trusted store outbound connection attempted to an unapproved destination ref 42481
+REF-002,PER-002,REF-002-PER-002-0012,LOW,ref-asset-018,CRITICAL,,closure annotated authentication confirmation baseline calibration review before batch correlation across retrospective recommendation submitted
+REF-002,PER-002,REF-002-PER-002-0013,CRITICAL,ref-asset-011,MEDIUM,NOT_ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0014,CRITICAL,ref-asset-011,HIGH,NOT_ESCALATED,region correlation chain provisional telemetry deviation guidance recurring traced indicator segment closure validated ledger
+REF-002,PER-002,REF-002-PER-002-0015,LOW,ref-asset-017,MEDIUM,,inventory review scrutinising stakeholders and calibration matched authentication memory endpoints capturing checksum header sensitivity
+REF-002,PER-002,REF-002-PER-002-0016,LOW,ref-asset-019,LOW,NOT_ESCALATED,inspected process list and found no further suspicious activity
+REF-002,PER-002,REF-002-PER-002-0017,HIGH,ref-asset-019,MEDIUM,NOT_ESCALATED,closure chain ownership packets during observations ledger latency consolidated inspected header boundary contents across
+REF-002,PER-002,REF-002-PER-002-0018,CRITICAL,ref-asset-015,LOW,NOT_ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0019,LOW,ref-asset-006,MEDIUM,ESCALATED,components threshold with pattern interval inventory integrity sampling baseline scrutinising during confirmation header privilege
+REF-002,PER-002,REF-002-PER-002-0020,LOW,ref-asset-018,MEDIUM,ESCALATED,matched known indicator and escalated to on call for guidance
+REF-002,PER-002,REF-002-PER-002-0021,CRITICAL,ref-asset-009,MEDIUM,ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0022,LOW,ref-asset-010,MEDIUM,ESCALATED,reviewed queued alert and confirmed recurring pattern on endpoint
+REF-002,PER-002,REF-002-PER-002-0023,MEDIUM,ref-asset-014,MEDIUM,,ownership recommendation privilege integrity authentication threshold recurring entries provisional validated across review closure and
+REF-002,PER-002,REF-002-PER-002-0024,MEDIUM,ref-asset-010,MEDIUM,NOT_ESCALATED,contents review behaviour segment authentication confirmation baseline sampling worksheet padding sensitivity documented ancestry submitted
+REF-002,PER-002,REF-002-PER-002-0025,MEDIUM,ref-asset-016,MEDIUM,ESCALATED,tuning and inspected unapproved sensitivity inventory ledger baseline consolidated with ownership privilege chain pattern
+REF-002,PER-002,REF-002-PER-002-0026,HIGH,ref-asset-016,MEDIUM,,baseline documented observations ownership padding components segment submitted summary handshake recurring calibration capturing appendix
+REF-002,PER-002,REF-002-PER-002-0027,CRITICAL,ref-asset-009,LOW,NOT_ESCALATED,correlated with change window and marked as expected behaviour
+REF-002,PER-002,REF-002-PER-002-0028,MEDIUM,ref-asset-020,LOW,,segment destination telemetry earlier region ownership rotation pattern inspected observed payload submitted with behaviour
+REF-002,PER-002,REF-002-PER-002-0029,LOW,ref-asset-001,HIGH,NOT_ESCALATED,interval checksum payload latency topology destination validated provisional ownership offset summary queue affected before
+REF-002,PER-002,REF-002-PER-002-0030,LOW,ref-asset-018,LOW,NOT_ESCALATED,matched queue compared indicator sensitivity sequence destination consolidated header guidance behaviour before deviation window
+REF-002,PER-002,REF-002-PER-002-0031,CRITICAL,ref-asset-018,LOW,ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0032,CRITICAL,ref-asset-020,LOW,NOT_ESCALATED,entries unapproved region segment during authentication scrutinising baseline header provisional retrospective before review ancestry
+REF-002,PER-002,REF-002-PER-002-0033,CRITICAL,ref-asset-011,LOW,NOT_ESCALATED,log source rotated and earlier entries unavailable for review authentication handshake retried several times before success process ancestry traced back to the initiating service ref 4618
+REF-002,PER-002,REF-002-PER-002-0034,LOW,ref-asset-012,LOW,NOT_ESCALATED,verification retrospective review topology ledger for components interval scrutinising indicator sensitivity documented padding affected
+REF-002,PER-002,REF-002-PER-002-0035,LOW,ref-asset-015,LOW,,
+REF-002,PER-002,REF-002-PER-002-0036,HIGH,ref-asset-010,MEDIUM,,latency packets calibration certificate sampling submitted confirmation guidance deviation endpoints closure verification tuning analysed
+REF-002,PER-002,REF-002-PER-002-0037,LOW,ref-asset-015,CRITICAL,ESCALATED,checksum batch for across worksheet indicator chain scrutinising review recommendation threshold baseline review traced
+REF-002,PER-002,REF-002-PER-002-0038,CRITICAL,ref-asset-020,CRITICAL,NOT_ESCALATED,threshold payload baseline observations appendix ledger queue across review review capturing checksum ownership topology
+REF-002,PER-002,REF-002-PER-002-0039,HIGH,ref-asset-019,LOW,NOT_ESCALATED,
+REF-002,PER-002,REF-002-PER-002-0040,LOW,ref-asset-019,CRITICAL,NOT_ESCALATED,

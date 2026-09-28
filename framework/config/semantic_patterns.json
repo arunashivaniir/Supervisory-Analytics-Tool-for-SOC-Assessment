@@ -1,0 +1,444 @@
+{
+    "SECURITY_SEVERITY": {
+
+        "_comment": [
+            "Alert/incident severity only. Asset criticality, importance and",
+            "business impact are a different axis and are NOT severity evidence,",
+            "so a column whose name says criticality must never reach this",
+            "concept, even when its values look like LOW/MEDIUM/HIGH/CRITICAL.",
+            "",
+            "value_patterns is deliberately absent. SemanticInference adds",
+            "+0.25 for EVERY value pattern that matches (the break only exits the",
+            "sample loop), so a severity-shaped value list contributes up to",
+            "+1.00 and a name-keyword-free column such as asset_criticality could",
+            "reach the 0.45 threshold on values alone. Name evidence is the only",
+            "sound discriminator here; category and value agreement confirm it."
+        ],
+
+        "keywords": [
+            "severity",
+            "priority",
+            "risk",
+            "rating",
+            "level"
+        ],
+
+        "negative_keywords": [
+            "time",
+            "date",
+            "duration",
+            "user",
+            "owner",
+            "closed_by",
+            "criticality",
+            "asset_criticality",
+            "asset_importance",
+            "business_impact"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+    },
+
+
+    "THREAT_CATEGORY": {
+
+        "keywords": [
+            "attack",
+            "threat",
+            "category",
+            "type",
+            "classification"
+        ],
+
+        "negative_keywords": [
+            "label"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+    },
+
+
+    "SECURITY_LABEL": {
+
+        "keywords": [
+            "label",
+            "class",
+            "target"
+        ],
+
+        "expected_categories": [
+            "numeric",
+            "categorical"
+        ]
+    },
+
+
+    "ASSET_IDENTIFIER": {
+
+        "keywords": [
+            "asset",
+            "host",
+            "hostname",
+            "device",
+            "server",
+            "system",
+            "machine",
+            "node"
+        ],
+
+        "negative_keywords": [
+            "criticality",
+            "importance",
+            "severity",
+            "priority",
+            "count",
+            "type"
+        ],
+
+        "expected_categories": [
+            "identifier_like"
+        ]
+    },
+
+
+    "NETWORK_PROTOCOL": {
+
+        "keywords": [
+            "proto",
+            "protocol"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+    },
+
+
+    "NETWORK_SERVICE": {
+
+        "keywords": [
+            "service"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+    },
+
+
+    "CONNECTION_STATE": {
+
+        "keywords": [
+            "state"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+    },
+
+
+    "CONNECTION_DURATION": {
+
+        "keywords": [
+            "dur",
+            "duration"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "PACKET_COUNT": {
+
+        "keywords": [
+            "spkts",
+            "dpkts"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "PACKET_TIMING": {
+
+        "keywords": [
+            "sinpkt",
+            "dinpkt"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "TRAFFIC_BYTES": {
+
+        "keywords": [
+            "sbytes",
+            "dbytes",
+            "bytes"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "TRAFFIC_RATE": {
+
+        "keywords": [
+            "rate",
+            "sload",
+            "dload"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "NETWORK_CONNECTION_COUNT": {
+
+        "keywords": [
+            "ct_"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "SOURCE_TTL": {
+
+        "keywords": [
+            "sttl"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "DESTINATION_TTL": {
+
+        "keywords": [
+            "dttl"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "PACKET_LOSS": {
+
+        "keywords": [
+            "sloss",
+            "dloss"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "PACKET_JITTER": {
+
+        "keywords": [
+            "sjit",
+            "djit"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "TCP_WINDOW_SIZE": {
+
+        "keywords": [
+            "swin",
+            "dwin"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "TCP_CONNECTION_TIME": {
+
+        "keywords": [
+            "tcprtt"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "TCP_HANDSHAKE_TIME": {
+
+        "keywords": [
+            "synack",
+            "ackdat"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    },
+
+
+    "APPLICATION_CONTEXT": {
+
+        "keywords": [
+            "trans_depth",
+            "response_body_len"
+        ],
+
+        "expected_categories": [
+            "numeric"
+        ]
+    }
+    ,
+
+    "ESCALATION_STATUS": {
+
+        "_comment": [
+            "Escalation state. This concept already existed in mappings.json and",
+            "in capability_evidence_patterns.json, but had no entry here, and",
+            "SemanticInference scores a column only against patterns present in",
+            "this file. The concept was therefore unreachable from the main",
+            "mapping pass and any finding citing it was untraceable there.",
+            "",
+            "The keyword and category sets mirror the capability pattern file so",
+            "the two passes select the same columns and the only change is which",
+            "pass is reported as the source. The time/date/duration negatives are",
+            "the same guard SECURITY_SEVERITY already uses, and _by is the actor",
+            "guard: an escalation performed BY someone is not an escalation",
+            "state. These are needed in pairs because the scorer adds +0.25 per",
+            "matching negative keyword but caps the total penalty at 0.5, so a",
+            "single match (-0.25) cannot pull a keyword hit below the 0.45",
+            "threshold once the category bonus is added back."
+        ],
+
+        "keywords": [
+            "escalation",
+            "escalated",
+            "escalation_status",
+            "escalation_state",
+            "escalation_level",
+            "escalation_required",
+            "is_escalated",
+            "escalation_reason"
+        ],
+
+        "negative_keywords": [
+            "escalation_time",
+            "escalated_by",
+            "_by",
+            "time",
+            "date",
+            "duration"
+        ],
+
+        "expected_categories": [
+            "categorical",
+            "identifier_like",
+            "numeric"
+        ]
+    },
+
+    "ASSET_CRITICALITY": {
+
+        "_comment": [
+            "Asset/system criticality: how important the ASSET is. This is a",
+            "different axis from SECURITY_SEVERITY (how severe the ALERT is) and",
+            "the two must never resolve to the same concept.",
+            "",
+            "Keywords are deliberately asset-qualified. A bare 'criticality'",
+            "keyword is what previously let asset_criticality resolve to",
+            "SECURITY_SEVERITY, so it is NOT used here either: 'criticality' alone",
+            "does not say whether the criticality belongs to the asset or to the",
+            "alert, and 'alert_criticality' is severity evidence, not asset",
+            "evidence. The negative keywords push alert-shaped names away.",
+            "",
+            "Like SECURITY_SEVERITY, this concept declares no value_patterns: the",
+            "scorer adds +0.25 per matching value pattern, so value agreement is",
+            "left to category confirmation rather than used to admit a column on",
+            "its values alone."
+        ],
+
+        "keywords": [
+            "asset_criticality",
+            "asset_critical",
+            "asset_importance",
+            "system_criticality",
+            "device_criticality",
+            "business_impact"
+        ],
+
+        "negative_keywords": [
+            "alert",
+            "severity",
+            "priority",
+            "escalation",
+            "time",
+            "date",
+            "duration",
+            "user",
+            "owner",
+            "closed_by"
+        ],
+
+        "expected_categories": [
+            "categorical",
+            "numeric",
+            "identifier_like"
+        ]
+    },
+
+    "INVESTIGATION_EVIDENCE": {
+
+        "keywords": [
+            "investigation",
+            "analysis",
+            "notes",
+            "comment",
+            "finding",
+            "root_cause",
+            "evidence"
+        ],
+
+        "negative_keywords": [
+            "user",
+            "owner",
+            "timestamp"
+        ],
+
+        "expected_categories": [
+            "categorical"
+        ]
+
+    }
+}

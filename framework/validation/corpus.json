@@ -1,0 +1,454 @@
+{
+  "corpus_id": "sat_sa_controlled_validation_v1",
+  "schema_version": 1,
+  "description": "A small controlled corpus of assessment cases drawn from datasets that already exist in the repository. No new dataset is created by the validation framework.",
+  "label_policy": {
+    "human_template": "framework/validation/human_review_template.json",
+    "label_sources": {
+      "EXPERT_REVIEW": "Indicators entered by a real human reviewer who inspected the submitted data before seeing any SAT-SA output.",
+      "CONTROLLED_EXPECTATION": "Indicators recorded here from the raw source data by the framework author, to exercise the comparison machinery in software tests. This is NOT expert ground truth and must never be described as such.",
+      "UNLABELLED": "No label of any kind is available for this case."
+    },
+    "prohibition": "This file contains no expert labels. Controlled expectations are design intent, not ground truth."
+  },
+  "cases": [
+    {
+      "case_id": "EG-01",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "assessment_id": "CSE-A01::Period-1",
+      "case_type": "clear_execution_gap",
+      "covers": ["clear_execution_gap", "missing_evidence", "mixed_signal"],
+      "design_intent": "A scope that contains one critical alert recorded as explicitly not escalated, alongside a critical alert that was escalated and a critical alert with no escalation value at all.",
+      "raw_observations": [
+        "EG-0002: priority=CRITICAL, escalation_status=not_escalated",
+        "EG-0001: priority=CRITICAL, escalation_status=escalated",
+        "EG-0003: priority=CRITICAL, escalation_status is empty",
+        "EG-0004: priority=HIGH, escalation_status=not_escalated"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Row EG-0002 records a critical severity together with an explicit not_escalated value, so a critical-alert escalation gap is present. Row EG-0003 is a critical alert with no escalation evidence, so expected evidence is absent for part of the triggered population.",
+        "execution_gap": ["CRITICAL_ALERT_NOT_ESCALATED"],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "EG-02",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "assessment_id": "CSE-A01::Period-2",
+      "case_type": "valid_execution",
+      "covers": ["valid_execution", "insufficient_observations"],
+      "design_intent": "A scope in which the only critical alert was escalated, so the expectation is satisfied and nothing should be raised.",
+      "raw_observations": [
+        "EG-0005: priority=CRITICAL, escalation_status=escalated",
+        "EG-0006: priority=HIGH, escalation_status=escalated",
+        "scope contains 2 records, 2 distinct hosts, 2 distinct investigation notes"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "The single triggered critical alert carries escalated evidence, so neither a contradiction nor an absence exists.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "EG-03",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "assessment_id": "CSE-B02::Period-1",
+      "case_type": "clear_execution_gap_single_record",
+      "covers": ["clear_execution_gap", "multi_cse_isolation"],
+      "design_intent": "A single-record scope holding one critical alert that was not escalated.",
+      "raw_observations": [
+        "EG-0007: priority=CRITICAL, escalation_status=not_escalated",
+        "scope contains 1 record and 1 distinct host, so no distribution of activity can exist"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "The single record contradicts the expectation. Activity distribution cannot be assessed on one record, which is a different condition from an absent population.",
+        "execution_gap": ["CRITICAL_ALERT_NOT_ESCALATED"],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": ["repeated_asset_activity"]
+      }
+    },
+    {
+      "case_id": "EG-04",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "assessment_id": "CSE-B02::Period-2",
+      "case_type": "valid_execution_single_record",
+      "covers": ["valid_execution", "multi_cse_isolation"],
+      "design_intent": "The period sibling of EG-03, in which the same entity's critical alert was escalated.",
+      "raw_observations": [
+        "EG-0008: priority=CRITICAL, escalation_status=escalated",
+        "scope contains 1 record and 1 distinct host"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "The expectation is satisfied. This case exists to show that the same entity and the same severity produce no finding in a different period.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": ["repeated_asset_activity"]
+      }
+    },
+    {
+      "case_id": "EG-05",
+      "dataset": "dataset_capability_rich.csv",
+      "assessment_id": "CSE-A01::Period-2",
+      "case_type": "expected_no_gap_severity_concept_collision",
+      "covers": ["valid_execution", "expected_silence"],
+      "design_intent": "A scope whose highest submitted ALERT severity is HIGH. The expectation is that nothing is raised, because no critical alert exists to be un-escalated.",
+      "raw_observations": [
+        "ALRT1004: priority=MEDIUM, escalation_status=not_escalated, asset_criticality=critical",
+        "ALRT1005: priority=HIGH, escalation_status=escalated, asset_criticality=high",
+        "ALRT1006: priority=LOW, escalation_status=not_escalated, asset_criticality=medium",
+        "no row in this scope records priority=CRITICAL",
+        "this dataset maps BOTH priority and asset_criticality onto the canonical concept SECURITY_SEVERITY"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Reading the alert severity column, this scope contains no critical alert, so CRITICAL_ALERT_NOT_ESCALATED is not evidenced. The asset_criticality column describes how critical the asset is, not how severe the alert is, and the two columns are mapped to one canonical concept in this dataset.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": [],
+        "expected_disagreement": "This case is included precisely because a disagreement is informative. If SAT-SA reports a critical-alert execution gap here, the finding is reading severity from the asset_criticality column rather than from the alert severity, which is a mapping defect rather than a validation success."
+      }
+    },
+    {
+      "case_id": "EG-06",
+      "dataset": "dataset_capability_rich.csv",
+      "assessment_id": "CSE-B02::Period-2",
+      "case_type": "valid_execution",
+      "covers": ["valid_execution", "complete_evidence"],
+      "design_intent": "A scope in which a critical alert is present in the alert severity column and was escalated.",
+      "raw_observations": [
+        "ALRT2006: priority=CRITICAL, escalation_status=escalated, asset_criticality=critical",
+        "ALRT2004: priority=HIGH, escalation_status=escalated, asset_criticality=high",
+        "ALRT2005: priority=LOW, escalation_status=not_escalated, asset_criticality=medium"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "The one critical alert was escalated, so the expectation holds and the low-severity not_escalated row is irrelevant to a critical-alert expectation.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-01",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-A01::Period-1",
+      "case_type": "clear_negative_space",
+      "covers": ["clear_negative_space", "missing_evidence"],
+      "design_intent": "A scope in which two triggered critical alerts carry no escalation evidence whatsoever.",
+      "raw_observations": [
+        "NS-0001: priority=CRITICAL, escalation_status is empty",
+        "NS-0002: priority=CRITICAL, escalation_status is empty",
+        "NS-0003: priority=HIGH, escalation_status=not_escalated"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "No record in the triggered critical population carries escalation evidence, so expected evidence is completely absent. The high-severity row does not trigger a critical-alert expectation.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-02",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-A01::Period-2",
+      "case_type": "complete_evidence",
+      "covers": ["complete_evidence", "expected_silence"],
+      "design_intent": "The period sibling of NS-01, in which both triggered critical alerts carry escalation evidence.",
+      "raw_observations": [
+        "NS-0004: priority=CRITICAL, escalation_status=escalated",
+        "NS-0005: priority=CRITICAL, escalation_status=escalated"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Every triggered record carries the expected evidence, so no absence exists.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-03",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-B02::Period-1",
+      "case_type": "partial_evidence",
+      "covers": ["partial_evidence", "mixed_signal"],
+      "design_intent": "A scope mixing an escalated critical alert, a not-escalated critical alert and a critical alert with no escalation value, so the expectation is satisfied for part of the population and absent for the rest.",
+      "raw_observations": [
+        "NS-0006: priority=CRITICAL, escalation_status=escalated",
+        "NS-0007: priority=CRITICAL, escalation_status=not_escalated",
+        "NS-0024: priority=CRITICAL, escalation_status is empty"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "NS-0007 contradicts the expectation outright. NS-0024 contributes no evidence, so the expectation is only partly satisfied and an absence is present for part of the population. This scope is expected to carry both an execution gap and a negative-space signal.",
+        "execution_gap": ["CRITICAL_ALERT_NOT_ESCALATED"],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-04",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-C03::Period-1",
+      "case_type": "expectation_not_triggered",
+      "covers": ["expected_silence", "valid_execution"],
+      "design_intent": "A scope in which no critical alert exists, so no escalation expectation is triggered even though escalation values are empty.",
+      "raw_observations": [
+        "NS-0009: priority=LOW, escalation_status is empty",
+        "NS-0010: priority=MEDIUM, escalation_status is empty"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "No critical alert exists, so an empty escalation field is not a supervisory signal. Absence of a value outside a triggered population is not absence of expected evidence.",
+        "execution_gap": [],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-05",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-D04::Period-1",
+      "case_type": "missing_evidence_with_placeholder_value",
+      "covers": ["missing_evidence", "clear_negative_space"],
+      "design_intent": "A scope in which one triggered record carries a placeholder rather than a value and the other is empty.",
+      "raw_observations": [
+        "NS-0013: priority=CRITICAL, escalation_status=N/A",
+        "NS-0014: priority=CRITICAL, escalation_status is empty"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "N/A is a placeholder, not a submitted escalation decision, and the other record is empty. No triggered record carries usable evidence, and neither is contradicted because neither states a decision.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "NS-06",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "assessment_id": "NS-D04::Period-2",
+      "case_type": "semantic_value_variation",
+      "covers": ["clear_execution_gap", "expected_silence"],
+      "design_intent": "A scope in which the same escalation decision is spelled in three different ways across records, one of which records a decision not to escalate.",
+      "raw_observations": [
+        "NS-0015: priority=CRITICAL, escalation_status=ESCALATED",
+        "NS-0016: priority=CRITICAL, escalation_status=Not Escalated"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Capitalisation and spacing vary but the submitted decisions are unambiguous. One record states a decision not to escalate, which contradicts the expectation; the other satisfies it, so no absence arises.",
+        "execution_gap": ["CRITICAL_ALERT_NOT_ESCALATED"],
+        "negative_space": [],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-01",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-A01::Period-1",
+      "case_type": "normal_distribution_normal_investigation_evidence",
+      "covers": ["normal_distribution", "normal_investigation_evidence", "mixed_signal"],
+      "design_intent": "A scope of twenty records spread evenly over twenty distinct assets, each with its own distinct investigation note.",
+      "raw_observations": [
+        "20 records, 20 distinct hosts, busiest host appears once",
+        "20 distinct investigation notes, no note repeated",
+        "the dataset has no escalation_status column, so no escalation evidence is submitted for any record"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Activity is spread as evenly as twenty records over twenty assets allow and no wording repeats, so neither pattern is supported. No escalation evidence is submitted anywhere in this dataset for the critical records it contains, so expected evidence is absent.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-02",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-B02::Period-1",
+      "case_type": "clear_operational_concentration",
+      "covers": ["clear_operational_concentration", "mixed_signal", "normal_investigation_evidence"],
+      "design_intent": "A scope of twenty records in which fourteen concern the same asset, while every investigation note is still distinct.",
+      "raw_observations": [
+        "20 records across 7 distinct hosts; busiest host WEB-PROD-09 appears 14 times",
+        "20 distinct investigation notes, so wording is not the reason for the concentration",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Fourteen of twenty records on one of seven assets is far from the even spread the record count allows, which supports a concentration signal. Wording is distinct, so no repetition signal is supported.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": ["REPEATED_ASSET_ACTIVITY"],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-03",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-C03::Period-1",
+      "case_type": "repetitive_investigation_evidence",
+      "covers": ["repetitive_investigation_evidence", "normal_distribution"],
+      "design_intent": "A scope of sixteen records across sixteen distinct assets in which the investigation note is word-for-word identical every time.",
+      "raw_observations": [
+        "16 records, 16 distinct hosts, busiest host appears once",
+        "all 16 investigation notes are the identical string",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Activity is spread one record per asset, so no concentration is supported. Sixteen identical notes across sixteen different assets cannot be record-specific analysis, so a repetition signal is supported.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": ["REPEATED_INVESTIGATION_EVIDENCE"],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-04",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-D04::Period-1",
+      "case_type": "insufficient_observations",
+      "covers": ["insufficient_observations", "expected_silence"],
+      "design_intent": "A scope of only four records, three of which concern the same asset. The concentration is visible by eye but the scope is far too small to support any statistical statement.",
+      "raw_observations": [
+        "4 records, 2 distinct hosts; busiest host appears 3 times",
+        "4 distinct investigation notes",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Three of four records on one of two assets looks concentrated, but a proportion drawn from four records carries no evidential weight and the pattern layer should decline to assess it rather than assert it.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": ["repeated_asset_activity", "repetitive_investigation_evidence"],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-05",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-E05::Period-1",
+      "case_type": "normal_distribution_multi_cse_twin",
+      "covers": ["normal_distribution", "multi_cse_isolation", "normal_investigation_evidence"],
+      "design_intent": "A large scope with an even spread across eighteen distinct assets and eighteen distinct notes, holding the same period as OP-06 but a different entity.",
+      "raw_observations": [
+        "18 records, 18 distinct hosts, busiest host appears once",
+        "18 distinct investigation notes",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Activity is spread as evenly as eighteen records over eighteen assets allow and no wording repeats. This scope is the control for OP-06: it shares its period and differs only in entity, so it must not inherit OP-06's concentration.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-06",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-E06::Period-1",
+      "case_type": "clear_operational_concentration_multi_cse_twin",
+      "covers": ["clear_operational_concentration", "multi_cse_isolation"],
+      "design_intent": "The entity twin of OP-05, holding the same period but concentrating sixteen of twenty records on one asset.",
+      "raw_observations": [
+        "20 records across 5 distinct hosts; busiest host appears 16 times",
+        "20 distinct investigation notes",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Sixteen of twenty records on one of five assets supports a concentration signal, confined to this entity. OP-05 shares the period and must stay silent, so the signal cannot come from the period.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": ["REPEATED_ASSET_ACTIVITY"],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-07",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-F06::Period-1",
+      "case_type": "clear_operational_concentration_period_twin",
+      "covers": ["clear_operational_concentration", "multi_period_isolation"],
+      "design_intent": "One period of an entity in which thirteen of twenty records concern a small number of assets.",
+      "raw_observations": [
+        "20 records across 8 distinct hosts; busiest host appears 13 times",
+        "20 distinct investigation notes",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Thirteen of twenty records on one of eight assets supports a concentration signal in this period. OP-08 holds the same entity and a different period with an even spread, so the signal is confined to this period.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": ["REPEATED_ASSET_ACTIVITY"],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    },
+    {
+      "case_id": "OP-08",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "assessment_id": "OP-F06::Period-2",
+      "case_type": "normal_distribution_period_twin",
+      "covers": ["normal_distribution", "multi_period_isolation", "normal_investigation_evidence"],
+      "design_intent": "The period sibling of OP-07, holding the same entity with an even spread across twenty distinct assets.",
+      "raw_observations": [
+        "20 records, 20 distinct hosts, busiest host appears once",
+        "20 distinct investigation notes",
+        "the dataset has no escalation_status column"
+      ],
+      "controlled_expectation": {
+        "label_source": "CONTROLLED_EXPECTATION",
+        "basis": "Activity is spread as evenly as twenty records over twenty assets allow. This scope is the control for OP-07: same entity, different period, so the concentration must not be carried across periods.",
+        "execution_gap": [],
+        "negative_space": ["MISSING_ESCALATION_EVIDENCE"],
+        "operational_pattern": [],
+        "operational_pattern_not_evaluable": [],
+        "operational_pattern_evidence_not_present": []
+      }
+    }
+  ]
+}

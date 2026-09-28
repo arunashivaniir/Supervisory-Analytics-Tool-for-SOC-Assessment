@@ -1,0 +1,3 @@
+priority,hostname,close_time
+HIGH,WEB01,120
+LOW,DB01,40

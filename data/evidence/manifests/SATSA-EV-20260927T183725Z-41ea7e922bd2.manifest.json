@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "SATSA-EV-20260927T183725Z-41ea7e922bd2",
+  "created_at": "2026-09-27T18:37:25Z",
+  "hash_algorithm": "sha256",
+  "originals_read_only": true,
+  "file_count": 1,
+  "total_size": 16350,
+  "files": [
+    {
+      "name": "dataset_operational_pattern_controlled.csv",
+      "stored_name": "dataset_operational_pattern_controlled.csv",
+      "relative_path": "dataset_operational_pattern_controlled.csv",
+      "size": 16350,
+      "sha256": "41ea7e922bd2c78d99adb725d480088b8fe137a1a049718522fcfa58521ea96d",
+      "modified_at": "2026-09-27T15:54:25Z",
+      "content_type": "csv",
+      "role": "original",
+      "location": "originals"
+    }
+  ],
+  "notes": {
+    "intake": "sat-sa-evidence-intake/1.0",
+    "original_filename": "dataset_operational_pattern_controlled.csv",
+    "content_type": "csv"
+  }
+}

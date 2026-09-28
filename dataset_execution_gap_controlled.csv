@@ -1,0 +1,9 @@
+cse,period,alert_id,priority,escalation_status,threat_type,host,investigation_notes
+CSE-A01,Period-1,EG-0001,CRITICAL,escalated,Malware,WEB-PROD-01,"Binary quarantined and host isolated at the edge proxy"
+CSE-A01,Period-1,EG-0002,CRITICAL,not_escalated,Ransomware,DB-PROD-02,"Encrypted volume confirmed, no restore path yet"
+CSE-A01,Period-1,EG-0003,CRITICAL,,Phishing,WEB-PROD-01,"Sender domain newly registered, campaign still spreading"
+CSE-A01,Period-1,EG-0004,HIGH,not_escalated,Spam,MTA-PROD-01,"Bulk mail relay observed from internal segment"
+CSE-A01,Period-2,EG-0005,CRITICAL,escalated,Ransomware,DB-PROD-02,"Restore completed and credentials rotated fleet wide"
+CSE-A01,Period-2,EG-0006,HIGH,escalated,Malware,WEB-PROD-01,"Malware beaconing blocked at perimeter"
+CSE-B02,Period-1,EG-0007,CRITICAL,not_escalated,DataExfiltration,DB-PROD-01,"Unusual outbound volume to an unmanaged host"
+CSE-B02,Period-2,EG-0008,CRITICAL,escalated,DataExfiltration,DB-PROD-01,"Exfiltration path closed and egress allowlist tightened"

@@ -1,0 +1,5 @@
+entity_id,priority,host,investigation_notes,closed_time
+CSE001,CRITICAL,WEB01,closed,2
+CSE001,HIGH,WEB02,closed,3
+CSE001,HIGH,WEB03,closed,3
+CSE002,LOW,APP01,Root cause identified,120

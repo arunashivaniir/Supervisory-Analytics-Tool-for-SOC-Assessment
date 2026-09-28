@@ -1,0 +1,443 @@
+{
+  "agreement_metrics_blocked_because": "no human review labels exist; SAT-SA output is reported but agreement is not measurable",
+  "agreement_metrics_computable": false,
+  "artefact": "VALIDATION_METRICS",
+  "case_count": 20,
+  "declared_label_source": "EXPERT_REVIEW",
+  "expert_labelled": false,
+  "label_source": "UNLABELLED",
+  "no_grand_accuracy_score": "Precision and recall are reported per signal family only. No single accuracy figure is produced: the corpus is small and controlled, and one number would hide which family it describes.",
+  "not_evaluable": {
+    "case_count": 20,
+    "cases_matching_controlled_expectation": 13,
+    "cases_where_sat_sa_declined": 13,
+    "entries": [
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-1",
+        "case_id": "EG-01",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-2",
+        "case_id": "EG-02",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-1",
+        "case_id": "EG-03",
+        "controlled_expectation_not_evaluable": [
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-2",
+        "case_id": "EG-04",
+        "controlled_expectation_not_evaluable": [
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-A01::Period-2",
+        "case_id": "EG-05",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "CSE-B02::Period-2",
+        "case_id": "EG-06",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-A01::Period-1",
+        "case_id": "NS-01",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-A01::Period-2",
+        "case_id": "NS-02",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-B02::Period-1",
+        "case_id": "NS-03",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-C03::Period-1",
+        "case_id": "NS-04",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-D04::Period-1",
+        "case_id": "NS-05",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": true,
+        "assessment_id": "NS-D04::Period-2",
+        "case_id": "NS-06",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-A01::Period-1",
+        "case_id": "OP-01",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-B02::Period-1",
+        "case_id": "OP-02",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-C03::Period-1",
+        "case_id": "OP-03",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": true,
+        "assessment_id": "OP-D04::Period-1",
+        "case_id": "OP-04",
+        "controlled_expectation_not_evaluable": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": [
+          "repeated_asset_activity",
+          "repetitive_investigation_evidence"
+        ]
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-E05::Period-1",
+        "case_id": "OP-05",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-E06::Period-1",
+        "case_id": "OP-06",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-F06::Period-1",
+        "case_id": "OP-07",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      },
+      {
+        "agrees": null,
+        "assessment_id": "OP-F06::Period-2",
+        "case_id": "OP-08",
+        "controlled_expectation_not_evaluable": [],
+        "note": "expectation is controlled design intent, not an expert judgement",
+        "sat_sa_not_evaluable_patterns": []
+      }
+    ]
+  },
+  "per_family": {
+    "execution_gap": {
+      "agreement_metrics_blocked_because": "no human review labels exist, so agreement cannot be measured. These counts are SAT-SA output, not errors.",
+      "agreement_metrics_computable": false,
+      "false_negative_details": [],
+      "false_negatives": 0,
+      "false_positive_details": [
+        {
+          "assessment_id": "CSE-A01::Period-1",
+          "dataset": "dataset_execution_gap_controlled.csv",
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED"
+        },
+        {
+          "assessment_id": "CSE-B02::Period-1",
+          "dataset": "dataset_execution_gap_controlled.csv",
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED"
+        },
+        {
+          "assessment_id": "NS-B02::Period-1",
+          "dataset": "dataset_negative_space_controlled.csv",
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED"
+        },
+        {
+          "assessment_id": "NS-D04::Period-2",
+          "dataset": "dataset_negative_space_controlled.csv",
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED"
+        }
+      ],
+      "false_positives": 4,
+      "matches_with_unsupported_evidence": 0,
+      "outcome_counts": {
+        "FALSE_NEGATIVE": 0,
+        "FALSE_POSITIVE": 4,
+        "MATCH": 0,
+        "MATCH_UNSUPPORTED": 0,
+        "SCOPE_MISMATCH": 0
+      },
+      "precision": null,
+      "recall": null,
+      "scope_mismatch_details": [],
+      "scope_mismatches": 0,
+      "true_positives": 0
+    },
+    "negative_space": {
+      "agreement_metrics_blocked_because": "no human review labels exist, so agreement cannot be measured. These counts are SAT-SA output, not errors.",
+      "agreement_metrics_computable": false,
+      "false_negative_details": [],
+      "false_negatives": 0,
+      "false_positive_details": [
+        {
+          "assessment_id": "CSE-A01::Period-1",
+          "dataset": "dataset_execution_gap_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "NS-A01::Period-1",
+          "dataset": "dataset_negative_space_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "NS-B02::Period-1",
+          "dataset": "dataset_negative_space_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "NS-D04::Period-1",
+          "dataset": "dataset_negative_space_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-A01::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-B02::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-C03::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-D04::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-E05::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-E06::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-F06::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-F06::Period-2",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "MISSING_ESCALATION_EVIDENCE"
+        }
+      ],
+      "false_positives": 12,
+      "matches_with_unsupported_evidence": 0,
+      "outcome_counts": {
+        "FALSE_NEGATIVE": 0,
+        "FALSE_POSITIVE": 12,
+        "MATCH": 0,
+        "MATCH_UNSUPPORTED": 0,
+        "SCOPE_MISMATCH": 0
+      },
+      "precision": null,
+      "recall": null,
+      "scope_mismatch_details": [],
+      "scope_mismatches": 0,
+      "true_positives": 0
+    },
+    "operational_pattern": {
+      "agreement_metrics_blocked_because": "no human review labels exist, so agreement cannot be measured. These counts are SAT-SA output, not errors.",
+      "agreement_metrics_computable": false,
+      "false_negative_details": [],
+      "false_negatives": 0,
+      "false_positive_details": [
+        {
+          "assessment_id": "OP-B02::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "REPEATED_ASSET_ACTIVITY"
+        },
+        {
+          "assessment_id": "OP-C03::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE"
+        },
+        {
+          "assessment_id": "OP-E06::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "REPEATED_ASSET_ACTIVITY"
+        },
+        {
+          "assessment_id": "OP-F06::Period-1",
+          "dataset": "dataset_operational_pattern_controlled.csv",
+          "indicator": "REPEATED_ASSET_ACTIVITY"
+        }
+      ],
+      "false_positives": 4,
+      "matches_with_unsupported_evidence": 0,
+      "outcome_counts": {
+        "FALSE_NEGATIVE": 0,
+        "FALSE_POSITIVE": 4,
+        "MATCH": 0,
+        "MATCH_UNSUPPORTED": 0,
+        "SCOPE_MISMATCH": 0
+      },
+      "precision": null,
+      "recall": null,
+      "scope_mismatch_details": [],
+      "scope_mismatches": 0,
+      "true_positives": 0
+    }
+  },
+  "reviewer_ids": [],
+  "schema_version": 1,
+  "supervisory_value": {
+    "allowed_answers": [
+      "YES",
+      "NO",
+      "UNCERTAIN"
+    ],
+    "not_used_as": "an accuracy metric or a novelty score",
+    "question": "Would this signal be difficult to identify from a conventional SOC dashboard?",
+    "responses": {},
+    "treated_as": "supporting evidence for a supervisory-value argument"
+  },
+  "traceability": {
+    "agreement_metrics_computable": false,
+    "comparable_comparisons": 20,
+    "evidence_status_counts": {
+      "NOT_EVALUATED": 20
+    },
+    "explanations_present": 20,
+    "note": "traceability counts only comparable signals. Free text is never compared by string equality, so an explanation is recorded as present or absent, never as equal or different.",
+    "record_references_present": 20
+  },
+  "unrecognised_human_indicators": []
+}

@@ -1,0 +1,228 @@
+{
+    "_comment": [
+        "SAT-SA execution-gap rule configuration.",
+        "",
+        "An execution gap is a CONTRADICTION between what evidence says was",
+        "expected and what the same evidence says actually happened.",
+        "",
+        "    expected control  ->  observed evidence  ->  contradiction",
+        "                          -> potential execution gap",
+        "",
+        "This file is the ONLY place a supervisory expectation is expressed. The",
+        "detector contains no per-rule code: it reads these declarations and",
+        "evaluates them against canonical concepts. A rule is data, not logic.",
+        "",
+        "MISSING EVIDENCE IS NOT AN EXECUTION GAP",
+        "=========================================",
+        "If any concept in required_evidence is absent or empty for a record, the",
+        "rule evaluates to NOT_EVALUABLE and emits nothing. Absence of escalation",
+        "evidence is reported by the capability layer (evidence availability) and",
+        "the negative-space layer, never here. A gap requires proof that the",
+        "expected step was NOT done, which requires an explicit contradicting",
+        "value -- never a missing one.",
+        "",
+        "WHY ONLY ONE RULE IS ENABLED",
+        "===========================",
+        "Of the 28 concepts in mappings.json, only SECURITY_SEVERITY and",
+        "ESCALATION_STATUS form an expectation/contradiction pair that submitted",
+        "alert evidence can actually prove. Every other candidate needs a",
+        "canonical status field, an SLA, or a concept that does not exist. Those",
+        "are declared under 'unavailable_rules' with the specific missing",
+        "evidence, so the gap is recorded rather than papered over with a proxy",
+        "or an invented threshold.",
+        "",
+        "No numeric threshold appears in this file. A rule may only compare",
+        "explicitly submitted categorical values."
+    ],
+
+    "schema_version": "1.0",
+
+    "value_normalisation": {
+        "_comment": [
+            "Canonical form for submitted values: trimmed, upper-cased, with",
+            "spaces, hyphens and dots folded to underscores. So 'not escalated',",
+            "'NOT-ESCALATED' and 'not_escalated' all normalise to NOT_ESCALATED.",
+            "Matching is exact against the configured vocabulary -- a value that",
+            "is not listed does not match, so an unrecognised value yields",
+            "NOT_EVALUABLE rather than a speculative finding."
+        ],
+        "case_sensitive": false,
+        "separators_folded_to_underscore": [" ", "-", ".", "/"]
+    },
+
+    "value_vocabulary": {
+        "_comment": [
+            "The explicit submitted tokens a rule may match on, per concept.",
+            "mappings.json defines no allowed_values for any concept, so the",
+            "supervisory vocabulary is declared here instead of being guessed at",
+            "detection time. Aliases are deliberately conservative: only tokens",
+            "that unambiguously mean the same thing are listed. A token that could",
+            "also mean 'not applicable' is NOT listed, because reading it as",
+            "'not escalated' would manufacture a finding."
+        ],
+
+        "SECURITY_SEVERITY": {
+            "critical": ["CRITICAL"],
+            "high": ["HIGH", "SEV_HIGH"],
+            "medium": ["MEDIUM", "SEV_MEDIUM"],
+            "low": ["LOW", "SEV_LOW"],
+            "informational": ["INFORMATIONAL", "INFO"]
+        },
+
+        "ESCALATION_STATUS": {
+            "escalated": ["ESCALATED"],
+            "not_escalated": ["NOT_ESCALATED"],
+            "_comment": [
+                "Deliberately narrow. NOT_ESCALATED is the only token that proves",
+                "escalation was considered and declined. Tokens such as NONE,",
+                "N/A, PENDING or blank are absent on purpose: they mean the",
+                "submission did not state an outcome, which is missing evidence",
+                "rather than a contradicted expectation."
+            ]
+        }
+    },
+
+    "rules": [
+        {
+            "rule_id": "critical_alert_requires_escalation",
+            "name": "Critical alert explicitly not escalated",
+            "description": [
+                "A supervisory expectation that an alert whose submitted severity",
+                "is CRITICAL must reach ESCALATED. This rule fires only when the",
+                "same record explicitly states both facts and they contradict each",
+                "other."
+            ],
+            "capability": "ESCALATION",
+            "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+            "status": "POTENTIAL_EXECUTION_GAP",
+
+            "required_evidence": ["SECURITY_SEVERITY", "ESCALATION_STATUS"],
+
+            "expected_condition": {
+                "SECURITY_SEVERITY": {"operator": "in", "vocabulary_key": "critical"},
+                "ESCALATION_STATUS": {"operator": "in", "vocabulary_key": "escalated"}
+            },
+
+            "violation_condition": {
+                "SECURITY_SEVERITY": {"operator": "in", "vocabulary_key": "critical"},
+                "ESCALATION_STATUS": {"operator": "in", "vocabulary_key": "not_escalated"}
+            },
+
+            "evidence_concepts": ["SECURITY_SEVERITY", "ESCALATION_STATUS"],
+
+            "explanation_template": [
+                "Alert evidence records an explicit severity of {SECURITY_SEVERITY}",
+                "together with an explicit escalation status of {ESCALATION_STATUS}.",
+                "The supervisory expectation is that a critical alert is escalated,",
+                "so the two submitted values contradict each other."
+            ],
+
+            "rationale": [
+                "Both concepts exist in mappings.json, both resolve from ordinary",
+                "alert submissions, and both carry an unambiguous submitted value.",
+                "The contradiction is provable from the record alone."
+            ]
+        }
+    ],
+
+    "unavailable_rules": [
+        {
+            "rule_id": "investigation_not_performed",
+            "name": "Investigation explicitly not performed",
+            "capability": "INVESTIGATION",
+            "status": "UNAVAILABLE",
+            "required_evidence_ideal": ["INVESTIGATION_STATUS"],
+            "missing_evidence": [
+                "No INVESTIGATION_STATUS concept exists in mappings.json.",
+                "investigation_context has no status/ performed field in the canonical schema.",
+                "The only investigation concept, INVESTIGATION_EVIDENCE, maps to",
+                "investigation_context.notes, which is free text and cannot assert",
+                "that investigation did not happen.",
+                "investigation_context.root_cause_identified and",
+                "investigation_context.remediation_identified are canonical fields",
+                "but have no mapping concept, so no source column can reach them."
+            ],
+            "why_not_implemented": [
+                "Investigating 'investigation did not occur' from absent notes would",
+                "convert missing evidence into an execution gap, which this layer",
+                "must never do. Absent notes is reported as evidence availability",
+                "by the capability layer, which is the correct owner of that fact."
+            ],
+            "would_require": [
+                "A canonical investigation status field plus a mapping concept, so",
+                "that a submission can state an explicit NOT_PERFORMED value."
+            ]
+        },
+        {
+            "rule_id": "resolution_sla_breach",
+            "name": "Alert resolution breached the applicable SLA",
+            "capability": "INCIDENT_RESPONSE",
+            "status": "UNAVAILABLE",
+            "required_evidence_ideal": [
+                "EVENT_TIMESTAMP",
+                "RESOLUTION_TIME",
+                "an applicable SLA threshold"
+            ],
+            "missing_evidence": [
+                "EVENT_TIMESTAMP and RESOLUTION_TIME both exist as concepts.",
+                "No SLA expectation exists anywhere in the repository: no",
+                "configured threshold, no severity-to-response-time table, and no",
+                "allowed_values for either concept.",
+                "response_context.acknowledgement_time is a canonical field with no",
+                "mapping concept."
+            ],
+            "why_not_implemented": [
+                "Comparing a resolution time against a threshold this project",
+                "invented would be an arbitrary rule, and a defensible one cannot",
+                "be written without a supervisory authority's SLA. Any number",
+                "chosen here would encode the tool's opinion as a control failure."
+            ],
+            "would_require": [
+                "A configured SLA expectation, ideally severity-banded, supplied by",
+                "the supervisory authority rather than assumed by the tool."
+            ]
+        },
+        {
+            "rule_id": "remediation_not_identified",
+            "name": "Closed alert without identified remediation",
+            "capability": "INCIDENT_RESPONSE",
+            "status": "UNAVAILABLE",
+            "required_evidence_ideal": ["REMEDIATION_STATUS"],
+            "missing_evidence": [
+                "investigation_context.remediation_identified is a canonical field",
+                "with no concept in mappings.json, so it is undiscoverable from any",
+                "source column."
+            ],
+            "why_not_implemented": [
+                "A boolean remediation flag with no mapping concept cannot be",
+                "resolved, and a rule reading an unresolvable field would silently",
+                "evaluate as absent -- converting a wiring gap into a silent pass."
+            ],
+            "would_require": [
+                "A mapping concept for the remediation field."
+            ]
+        },
+        {
+            "rule_id": "monitoring_coverage_absent",
+            "name": "Critical asset not monitored",
+            "capability": "SECURITY_OPERATIONS",
+            "status": "UNAVAILABLE",
+            "required_evidence_ideal": [
+                "ASSET_CRITICALITY",
+                "MONITORING_TELEMETRY"
+            ],
+            "missing_evidence": [
+                "asset_context.criticality and monitoring_context.telemetry_available",
+                "are canonical fields with no concepts in mappings.json.",
+                "The capability layer already reports both as undiscoverable."
+            ],
+            "why_not_implemented": [
+                "This is an evidence-availability fact, not a contradiction",
+                "between two observed values. It belongs to the capability layer."
+            ],
+            "would_require": [
+                "Mapping concepts for asset criticality and monitoring telemetry."
+            ]
+        }
+    ]
+}

@@ -1,0 +1,367 @@
+{
+    "_comment": [
+        "SAT-SA capability registry: the eight SOC capabilities named in the SIH",
+        "problem statement.",
+        "",
+        "This file answers 'what SOC capability can SAT-SA actually assess from the",
+        "evidence this CSE submitted?' It is NOT a risk model and produces no",
+        "capability scores.",
+        "",
+        "EVIDENCE REFERENCES",
+        "Every evidence item is a canonical_path that already exists in",
+        "framework/canonical/canonical_schema.json. When a concept is named it is an",
+        "existing concept from framework/config/mappings.json. CapabilityRegistry",
+        "rejects the registry at load time if any path or concept is unknown, so no",
+        "definition can invent a canonical field.",
+        "",
+        "An evidence item whose canonical field has NO concept in mappings.json is",
+        "declared but undiscoverable: it can never be satisfied from a source column",
+        "today. It is still listed, because the capability requirement is real and the",
+        "gap is the honest answer. Such items appear in evidence_missing and are",
+        "flagged concept=null.",
+        "",
+        "MINIMUM EVIDENCE",
+        "minimum_evidence.primary : how many PRIMARY items must be satisfied for",
+        "                              AVAILABLE.",
+        "minimum_evidence.total   : how many items (primary + supporting) must be",
+        "                              satisfied for AVAILABLE.",
+        "These are explicit and configurable. Statuses are computed from them; no",
+        "status is hardcoded per dataset.",
+        "",
+        "INDICATOR CATEGORIES",
+        "Names come from the existing framework.features.feature_registry",
+        "FEATURE_REGISTRY, and indicator_emitted_by records which existing detector",
+        "currently emits each one. 'declared' means the relationship is registered but",
+        "no detector produces it yet. This layer never generates findings."
+    ],
+
+
+    "capabilities": {
+
+        "THREAT_DETECTION": {
+
+            "name": "Threat Detection",
+            "description":
+                "Evidence that the CSE detects and classifies threats, including severity and threat categorisation of incoming alert activity.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "alert_context.severity",
+                    "concept": "SECURITY_SEVERITY",
+                    "role": "severity of detected alerts"
+                },
+                {
+                    "canonical_path": "alert_context.category",
+                    "concept": "THREAT_CATEGORY",
+                    "role": "threat categorisation of detected alerts"
+                },
+                {
+                    "canonical_path": "classification_context.security_label",
+                    "concept": "SECURITY_LABEL",
+                    "role": "security classification applied to detections"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "when detection occurred, required for detection cadence"
+                },
+                {
+                    "canonical_path": "alert_context.alert_id",
+                    "concept": null,
+                    "role": "alert identity, required to distinguish detections from other records"
+                }
+            ],
+            "minimum_evidence": {"primary": 2, "total": 3},
+            "indicator_categories": ["SEVERITY_RISK"],
+            "indicator_emitted_by": {
+                "SEVERITY_RISK": "declared"
+            }
+
+        },
+
+
+        "INVESTIGATION": {
+
+            "name": "Investigation",
+            "description":
+                "Evidence that the CSE investigates detections, including recorded analysis and its outcome.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "investigation_context.notes",
+                    "concept": "INVESTIGATION_EVIDENCE",
+                    "role": "recorded investigation analysis"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "investigation_context.root_cause_identified",
+                    "concept": null,
+                    "role": "whether investigation reached a root cause"
+                },
+                {
+                    "canonical_path": "investigation_context.evidence_available",
+                    "concept": null,
+                    "role": "whether investigative evidence was retained"
+                },
+                {
+                    "canonical_path": "investigation_context.remediation_identified",
+                    "concept": null,
+                    "role": "whether investigation identified remediation"
+                },
+                {
+                    "canonical_path": "entity_context.entity_name",
+                    "concept": "USER_IDENTIFIER",
+                    "role": "identity of the analyst or owner performing the investigation"
+                },
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "investigation reference time"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 2},
+            "indicator_categories": ["INVESTIGATION_QUALITY"],
+            "indicator_emitted_by": {
+                "INVESTIGATION_QUALITY": "framework.supervision.execution_gap_engine.ExecutionGapEngine"
+            }
+
+        },
+
+
+        "ESCALATION": {
+
+            "name": "Escalation",
+            "description":
+                "Evidence that the CSE escalates detections when severity or handling thresholds require it.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "response_context.escalation_status",
+                    "concept": "ESCALATION_STATUS",
+                    "role": "recorded escalation state of a case"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "alert_context.severity",
+                    "concept": "SECURITY_SEVERITY",
+                    "role": "severity that drives escalation decisions"
+                },
+                {
+                    "canonical_path": "response_context.acknowledgement_time",
+                    "concept": null,
+                    "role": "acknowledgement timing relative to escalation"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 1},
+            "indicator_categories": ["ESCALATION_GAP"],
+            "indicator_emitted_by": {
+                "ESCALATION_GAP": "declared",
+                "MISSING_ESCALATION_EVIDENCE": "framework.supervision.negative_space_detector.NegativeSpaceDetector"
+            }
+
+        },
+
+
+        "INCIDENT_RESPONSE": {
+
+            "name": "Incident Response",
+            "description":
+                "Evidence that the CSE responds to and closes incidents, including containment, resolution and lifecycle disposition.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "response_context.resolution_time",
+                    "concept": "RESOLUTION_TIME",
+                    "role": "recorded resolution of a case"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "response_context.acknowledgement_time",
+                    "concept": null,
+                    "role": "acknowledgement timing relative to resolution"
+                },
+                {
+                    "canonical_path": "investigation_context.remediation_identified",
+                    "concept": null,
+                    "role": "containment or remediation outcome"
+                },
+                {
+                    "canonical_path": "investigation_context.evidence_available",
+                    "concept": null,
+                    "role": "response evidence retention"
+                },
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "response reference time"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 1},
+            "indicator_categories": ["FAST_CLOSURE_RISK"],
+            "indicator_emitted_by": {
+                "FAST_CLOSURE_RISK": "framework.supervision.execution_gap_engine.ExecutionGapEngine"
+            }
+
+        },
+
+
+        "SECURITY_OPERATIONS": {
+
+            "name": "Security Operations",
+            "description":
+                "Evidence of the operational substrate the SOC runs on: monitored assets, asset importance and monitoring coverage.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "asset_context.asset_id",
+                    "concept": "ASSET_IDENTIFIER",
+                    "role": "identification of monitored assets"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "monitoring_context.telemetry_available",
+                    "concept": null,
+                    "role": "availability of monitoring telemetry"
+                },
+                {
+                    "canonical_path": "monitoring_context.coverage_status",
+                    "concept": null,
+                    "role": "monitoring coverage state"
+                },
+                {
+                    "canonical_path": "asset_context.criticality",
+                    "concept": null,
+                    "role": "business importance of monitored assets"
+                },
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "operational activity over time"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 3},
+            "indicator_categories": ["MONITORING_VISIBILITY_GAP", "ASSET_CRITICALITY_RISK"],
+            "indicator_emitted_by": {
+                "MONITORING_VISIBILITY_GAP": "declared",
+                "ASSET_CRITICALITY_RISK": "declared"
+            }
+
+        },
+
+
+        "GOVERNANCE_OVERSIGHT": {
+
+            "name": "Governance Oversight",
+            "description":
+                "Evidence of ownership, review and approval over security activity. The presence of alert records is never treated as governance evidence.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "entity_context.entity_name",
+                    "concept": "USER_IDENTIFIER",
+                    "role": "accountable owner of the activity under review"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "investigation_context.remediation_identified",
+                    "concept": null,
+                    "role": "evidence of approved corrective action"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 1},
+            "indicator_categories": [],
+            "indicator_emitted_by": {},
+            "_note":
+                "The canonical schema currently exposes no review, approval, exception or management-review field. Ownership is the only governance signal that exists today, so this capability can rarely reach AVAILABLE. That is reported honestly rather than worked around."
+
+        },
+
+
+        "OPERATIONAL_DISCIPLINE": {
+
+            "name": "Operational Discipline",
+            "description":
+                "Evidence of consistent, timely handling practice: closure behaviour, investigation consistency and escalation compliance.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "response_context.resolution_time",
+                    "concept": "RESOLUTION_TIME",
+                    "role": "closure timing for SLA and handling practice"
+                },
+                {
+                    "canonical_path": "alert_context.severity",
+                    "concept": "SECURITY_SEVERITY",
+                    "role": "severity against which closure practice is judged"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "investigation_context.notes",
+                    "concept": "INVESTIGATION_EVIDENCE",
+                    "role": "consistency of investigation practice"
+                },
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "reference time for handling intervals"
+                },
+                {
+                    "canonical_path": "response_context.escalation_status",
+                    "concept": "ESCALATION_STATUS",
+                    "role": "escalation compliance"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 3},
+            "indicator_categories": [
+                "INVESTIGATION_QUALITY",
+                "FAST_CLOSURE_RISK",
+                "ESCALATION_GAP"
+            ],
+            "indicator_emitted_by": {
+                "INVESTIGATION_QUALITY": "framework.supervision.execution_gap_engine.ExecutionGapEngine",
+                "FAST_CLOSURE_RISK": "framework.supervision.execution_gap_engine.ExecutionGapEngine",
+                "ESCALATION_GAP": "declared"
+            }
+
+        },
+
+
+        "CYBER_RESILIENCE": {
+
+            "name": "Cyber Resilience",
+            "description":
+                "Evidence that the CSE prevents recurrence and sustains response over time. A single alert is never treated as evidence of resilience.",
+            "primary_evidence": [
+                {
+                    "canonical_path": "response_context.resolution_time",
+                    "concept": "RESOLUTION_TIME",
+                    "role": "remediation completion for repeated or recurring issues"
+                }
+            ],
+            "supporting_evidence": [
+                {
+                    "canonical_path": "alert_context.timestamp",
+                    "concept": "EVENT_TIMESTAMP",
+                    "role": "longitudinal timing needed to observe recurrence"
+                },
+                {
+                    "canonical_path": "investigation_context.remediation_identified",
+                    "concept": null,
+                    "role": "remediation outcome"
+                },
+                {
+                    "canonical_path": "monitoring_context.coverage_status",
+                    "concept": null,
+                    "role": "monitoring continuity"
+                }
+            ],
+            "minimum_evidence": {"primary": 1, "total": 3},
+            "indicator_categories": [],
+            "indicator_emitted_by": {},
+            "_note":
+                "Recurrence is a property of a time series, and the canonical schema has no concept for incident identity over time. This capability therefore stays at or below INSUFFICIENT_EVIDENCE for single-scope submissions. Trend analysis is out of scope for this phase and would be the natural future consumer."
+
+        }
+    }
+}

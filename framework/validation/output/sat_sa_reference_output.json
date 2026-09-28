@@ -1,0 +1,2686 @@
+{
+  "artefact": "SAT_SA_REFERENCE_OUTPUT",
+  "case_count": 20,
+  "concept_collisions": [
+    {
+      "collisions": {
+        "INVESTIGATION_EVIDENCE": [
+          "investigation_notes",
+          "root_cause_identified"
+        ]
+      },
+      "dataset": "dataset_capability_rich.csv",
+      "note": "more than one source column feeds this canonical concept, so a finding's evidence value for it is ambiguous unless the columns agree"
+    }
+  ],
+  "concepts_absent_from_semantic_mapping": [],
+  "datasets": [
+    "dataset_capability_rich.csv",
+    "dataset_execution_gap_controlled.csv",
+    "dataset_negative_space_controlled.csv",
+    "dataset_operational_pattern_controlled.csv"
+  ],
+  "generated_by": "framework.validation.reference",
+  "note": [
+    "Machine generated from the existing SAT-SA pipeline result.",
+    "Every field below is a verbatim slice of an existing result key.",
+    "No existing result schema was modified to produce this artefact.",
+    "This file is produced only after the human review is locked."
+  ],
+  "records": [
+    {
+      "assessment_id": "CSE-A01::Period-1",
+      "case_id": "EG-01",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "PARTIAL_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [
+        {
+          "assessment_id": "CSE-A01::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "CSE-A01",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "ESCALATION_STATUS": "not_escalated",
+            "SECURITY_SEVERITY": "CRITICAL"
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+          "record_reference": {
+            "record_position": 1,
+            "source_record_index": 1
+          },
+          "rule_id": "critical_alert_requires_escalation",
+          "rule_name": "Critical alert explicitly not escalated",
+          "status": "POTENTIAL_EXECUTION_GAP"
+        }
+      ],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "PARTIAL_ABSENCE",
+          "assessment_id": "CSE-A01::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "CSE-A01",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.6667,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.6667,
+                "records_with_expected_evidence": 2,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 1
+              }
+            },
+            "records_with_expected_evidence": 2,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 1,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 3
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present and escalation evidence was submitted for part of the population only.",
+          "record_reference": {
+            "record_positions": [
+              2
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              2
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "PARTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 3,
+          "explanation": "Insufficient observations to establish an operational pattern: 4 records, below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 4
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 4 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 4
+        }
+      ],
+      "sat_sa_record_count": 4
+    },
+    {
+      "assessment_id": "CSE-A01::Period-2",
+      "case_id": "EG-02",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 2 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 2
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 2 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 2
+        }
+      ],
+      "sat_sa_record_count": 2
+    },
+    {
+      "assessment_id": "CSE-B02::Period-1",
+      "case_id": "EG-03",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [
+        {
+          "assessment_id": "CSE-B02::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "CSE-B02",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "ESCALATION_STATUS": "not_escalated",
+            "SECURITY_SEVERITY": "CRITICAL"
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+          "record_reference": {
+            "record_position": 0,
+            "source_record_index": 6
+          },
+          "rule_id": "critical_alert_requires_escalation",
+          "rule_name": "Critical alert explicitly not escalated",
+          "status": "POTENTIAL_EXECUTION_GAP"
+        }
+      ],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 1,
+          "explanation": "Only one distinct value is present for the grouping concept, so there is no distribution to describe.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "EVIDENCE_NOT_PRESENT",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 1
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 1 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 1
+        }
+      ],
+      "sat_sa_record_count": 1
+    },
+    {
+      "assessment_id": "CSE-B02::Period-2",
+      "case_id": "EG-04",
+      "dataset": "dataset_execution_gap_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 1,
+          "explanation": "Only one distinct value is present for the grouping concept, so there is no distribution to describe.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "EVIDENCE_NOT_PRESENT",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 1
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 1 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 1
+        }
+      ],
+      "sat_sa_record_count": 1
+    },
+    {
+      "assessment_id": "CSE-A01::Period-2",
+      "case_id": "EG-05",
+      "dataset": "dataset_capability_rich.csv",
+      "sat_sa_absence_state_counts": {
+        "EXPECTATION_NOT_TRIGGERED": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 3,
+          "explanation": "Insufficient observations to establish an operational pattern: 3 records, below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 3
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 3 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 3
+        }
+      ],
+      "sat_sa_record_count": 3
+    },
+    {
+      "assessment_id": "CSE-B02::Period-2",
+      "case_id": "EG-06",
+      "dataset": "dataset_capability_rich.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 3,
+          "explanation": "Insufficient observations to establish an operational pattern: 3 records, below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 3
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 3 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 3
+        }
+      ],
+      "sat_sa_record_count": 3
+    },
+    {
+      "assessment_id": "NS-A01::Period-1",
+      "case_id": "NS-01",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "NS-A01::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "NS-A01",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 2
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 2,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 2
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              0,
+              1
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 3,
+          "explanation": "Insufficient observations to establish an operational pattern: 3 records, below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 3
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 3 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 3
+        }
+      ],
+      "sat_sa_record_count": 3
+    },
+    {
+      "assessment_id": "NS-A01::Period-2",
+      "case_id": "NS-02",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 2 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 2
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 2 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 2
+        }
+      ],
+      "sat_sa_record_count": 2
+    },
+    {
+      "assessment_id": "NS-B02::Period-1",
+      "case_id": "NS-03",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "PARTIAL_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [
+        {
+          "assessment_id": "NS-B02::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "NS-B02",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "ESCALATION_STATUS": "not_escalated",
+            "SECURITY_SEVERITY": "CRITICAL"
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of not_escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+          "record_reference": {
+            "record_position": 1,
+            "source_record_index": 6
+          },
+          "rule_id": "critical_alert_requires_escalation",
+          "rule_name": "Critical alert explicitly not escalated",
+          "status": "POTENTIAL_EXECUTION_GAP"
+        }
+      ],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "PARTIAL_ABSENCE",
+          "assessment_id": "NS-B02::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "NS-B02",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.6667,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.6667,
+                "records_with_expected_evidence": 2,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 1
+              }
+            },
+            "records_with_expected_evidence": 2,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 1,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 3
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present and escalation evidence was submitted for part of the population only.",
+          "record_reference": {
+            "record_positions": [
+              2
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              7
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "PARTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 3,
+          "explanation": "Insufficient observations to establish an operational pattern: 3 records, below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 3
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 3 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 3
+        }
+      ],
+      "sat_sa_record_count": 3
+    },
+    {
+      "assessment_id": "NS-C03::Period-1",
+      "case_id": "NS-04",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "EXPECTATION_NOT_TRIGGERED": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 2 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 2
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 2 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 2
+        }
+      ],
+      "sat_sa_record_count": 2
+    },
+    {
+      "assessment_id": "NS-D04::Period-1",
+      "case_id": "NS-05",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "NS-D04::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "NS-D04",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 2
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 2,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 2
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              13,
+              14
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 2 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 2
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 2 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 2
+        }
+      ],
+      "sat_sa_record_count": 2
+    },
+    {
+      "assessment_id": "NS-D04::Period-2",
+      "case_id": "NS-06",
+      "dataset": "dataset_negative_space_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "NO_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [
+        {
+          "assessment_id": "NS-D04::Period-2",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "NS-D04",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "ESCALATION_STATUS": "Not Escalated",
+            "SECURITY_SEVERITY": "CRITICAL"
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "indicator": "CRITICAL_ALERT_NOT_ESCALATED",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-2",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Alert evidence records an explicit severity of CRITICAL together with an explicit escalation status of Not Escalated. The supervisory expectation is that a critical alert is escalated, so the two submitted values contradict each other.",
+          "record_reference": {
+            "record_position": 1,
+            "source_record_index": 16
+          },
+          "rule_id": "critical_alert_requires_escalation",
+          "rule_name": "Critical alert explicitly not escalated",
+          "status": "POTENTIAL_EXECUTION_GAP"
+        }
+      ],
+      "sat_sa_negative_space_findings": [],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 2 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 2
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 2 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 2
+        }
+      ],
+      "sat_sa_record_count": 2
+    },
+    {
+      "assessment_id": "OP-A01::Period-1",
+      "case_id": "OP-01",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-A01::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-A01",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 5
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 5,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 5
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              4,
+              8,
+              12,
+              16
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              0,
+              4,
+              8,
+              12,
+              16
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.641514,
+          "distinct_groups": 20,
+          "explanation": "The busiest value carries 1 record, below the 4 this method requires before a concentration is meaningful.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.05,
+          "group_value": "NODE_00",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 20,
+          "probability_phrase": "approximately 1 in 2"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 20,
+          "records_with_evidence": 20
+        }
+      ],
+      "sat_sa_record_count": 20
+    },
+    {
+      "assessment_id": "OP-B02::Period-1",
+      "case_id": "OP-02",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-B02::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-B02",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 10
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 10,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 10
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              2,
+              4,
+              6,
+              8,
+              10,
+              12,
+              14,
+              16,
+              18
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              20,
+              22,
+              24,
+              26,
+              28,
+              30,
+              32,
+              34,
+              36,
+              38
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [
+        {
+          "assessment_id": "OP-B02::Period-1",
+          "capability": "SECURITY_OPERATIONS",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-B02",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "alpha": 0.01,
+            "binomial_upper_tail_log10": -7.615,
+            "binomial_upper_tail_probability": 0.0,
+            "distinct_groups": 7,
+            "group_record_count": 14,
+            "group_record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "group_share": 0.7,
+            "group_share_pct": "70.0",
+            "group_value": "NODE_77",
+            "method": "asset_concentration",
+            "null_hypothesis": "records are distributed uniformly at random across the observed distinct assets",
+            "probability_phrase": "below 1 in 10^8",
+            "scope_record_count": 20,
+            "share_versus_uniform_ratio": 4.9,
+            "uniform_expected_share": 0.1429
+          },
+          "evidence_concepts": [
+            "ASSET_IDENTIFIER"
+          ],
+          "explanation_limitations": [
+            "Concentration establishes distribution, not cause. The pattern",
+            "cannot distinguish a persistent campaign, a noisy sensor, and a",
+            "systematic triage bias, and it says nothing about whether the",
+            "underlying responses were appropriate."
+          ],
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "is_not_a_control_failure": "This signal describes operational shape only. It does not establish that a control failed and does not imply misconduct. The execution-gap layer is the only layer whose logic can establish a contradicted expectation.",
+          "method": "asset_concentration",
+          "pattern_id": "repeated_asset_activity",
+          "pattern_name": "Alert activity concentrated on a single asset",
+          "pattern_type": "CONCENTRATION",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "population": {
+            "assessment_id": "OP-B02::Period-1",
+            "distinct_groups": 7,
+            "records_analysed": 20,
+            "scope_record_count": 20
+          },
+          "reason": "Asset NODE_77 accounts for 14 of 20 records in this assessment scope (70.0%), across 7 distinct assets. Under a uniform random allocation of 20 records across 7 assets, 14 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13
+            ],
+            "source_record_indices": [
+              20,
+              21,
+              22,
+              23,
+              24,
+              25,
+              26,
+              27,
+              28,
+              29,
+              30,
+              31,
+              32,
+              33
+            ]
+          },
+          "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "why_review_might_be_warranted": [
+            "Repeated activity on one asset may reflect a genuine incident",
+            "requiring sustained response, a monitoring or triage path that",
+            "funnels work onto a single system, or a recording convention",
+            "that attributes work to the asset rather than to the activity.",
+            "None of these can be distinguished from the data alone, which",
+            "is why this is a request to inspect rather than a conclusion."
+          ]
+        }
+      ],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.0,
+          "distinct_groups": 7,
+          "explanation": "14 of 20 records fall on one value, with tail probability below 1 in 10^8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.7,
+          "group_value": "NODE_77",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 20,
+          "probability_phrase": "below 1 in 10^8"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 20,
+          "records_with_evidence": 20
+        }
+      ],
+      "sat_sa_record_count": 20
+    },
+    {
+      "assessment_id": "OP-C03::Period-1",
+      "case_id": "OP-03",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-C03::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-C03",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 6
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 6,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 6
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              3,
+              6,
+              9,
+              12,
+              15
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              40,
+              43,
+              46,
+              49,
+              52,
+              55
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [
+        {
+          "assessment_id": "OP-C03::Period-1",
+          "capability": "INVESTIGATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-C03",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "comparisons_made": 120,
+            "distinct_assets_in_group": 16,
+            "group_record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "max_pairwise_similarity": 1.0,
+            "mean_pairwise_similarity": 1.0,
+            "method": "investigation_repetition",
+            "min_pairwise_similarity": 1.0,
+            "min_similarity_threshold": 0.8,
+            "qualifying_group_count": 1,
+            "raw_text_disclosed": false,
+            "records_analysed": 16,
+            "records_in_scope": 16,
+            "repeating_group_size": 16,
+            "similarity_measure": "jaccard_over_normalised_token_sets"
+          },
+          "evidence_concepts": [
+            "INVESTIGATION_EVIDENCE",
+            "ASSET_IDENTIFIER"
+          ],
+          "explanation_limitations": [
+            "Token overlap measures wording, not investigative rigour. A",
+            "thorough investigation and a superficial one can be equally",
+            "repetitive, and a short note can be highly specific. No",
+            "judgement about the quality of any investigation is made or",
+            "implied by this pattern."
+          ],
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "is_not_a_control_failure": "This signal describes operational shape only. It does not establish that a control failed and does not imply misconduct. The execution-gap layer is the only layer whose logic can establish a contradicted expectation.",
+          "method": "investigation_repetition",
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_name": "Investigation evidence drawn from a repeated vocabulary",
+          "pattern_type": "REPETITION",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "population": {
+            "assessment_id": "OP-C03::Period-1",
+            "distinct_groups": null,
+            "records_analysed": 16,
+            "scope_record_count": 16
+          },
+          "reason": "16 investigations in this assessment scope share near-identical evidence text: the lowest pairwise token overlap within the group is 1.0, against a configured floor of 0.8. The group spans 16 assets. Repetition across multiple assets is more consistent with a templated recording habit than with a single incident.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15
+            ],
+            "source_record_indices": [
+              40,
+              41,
+              42,
+              43,
+              44,
+              45,
+              46,
+              47,
+              48,
+              49,
+              50,
+              51,
+              52,
+              53,
+              54,
+              55
+            ]
+          },
+          "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "why_review_might_be_warranted": [
+            "Repeated near-identical investigation text may indicate",
+            "templated or copied recording rather than analysis specific to",
+            "each case. It may equally reflect a legitimately formulaic",
+            "playbook, a copy-paste workflow, or a tooling limitation. The",
+            "pattern cannot tell these apart, which is why it asks for a look",
+            "instead of asserting one."
+          ]
+        }
+      ],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.643926,
+          "distinct_groups": 16,
+          "explanation": "The busiest value carries 1 record, below the 4 this method requires before a concentration is meaningful.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.0625,
+          "group_value": "NODE_00",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 16,
+          "probability_phrase": "approximately 1 in 2"
+        },
+        {
+          "distinct_assets_in_group": 16,
+          "explanation": "16 records share near-identical evidence text across 16 assets.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 16,
+          "records_with_evidence": 16,
+          "repeating_group_size": 16
+        }
+      ],
+      "sat_sa_record_count": 16
+    },
+    {
+      "assessment_id": "OP-D04::Period-1",
+      "case_id": "OP-04",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-D04::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-D04",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 4
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 4,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 4
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              56,
+              57,
+              58,
+              59
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "distinct_groups": 2,
+          "explanation": "Insufficient observations to establish an operational pattern: 4 records, below the 12 this method needs; 2 distinct values, below the 3 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 4
+        },
+        {
+          "explanation": "Insufficient observations to establish an operational pattern: 4 below the 12 this method needs.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NOT_EVALUABLE",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 4
+        }
+      ],
+      "sat_sa_record_count": 4
+    },
+    {
+      "assessment_id": "OP-E05::Period-1",
+      "case_id": "OP-05",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-E05::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-E05",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 5
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 5,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 5
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              4,
+              8,
+              12,
+              16
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              100,
+              104,
+              108,
+              112,
+              116
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.642583,
+          "distinct_groups": 18,
+          "explanation": "The busiest value carries 1 record, below the 4 this method requires before a concentration is meaningful.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.0556,
+          "group_value": "NODE_00",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 18,
+          "probability_phrase": "approximately 1 in 2"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 18,
+          "records_with_evidence": 18
+        }
+      ],
+      "sat_sa_record_count": 18
+    },
+    {
+      "assessment_id": "OP-E06::Period-1",
+      "case_id": "OP-06",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-E06::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-E06",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 10
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 10,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 10
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              2,
+              4,
+              6,
+              8,
+              10,
+              12,
+              14,
+              16,
+              18
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              118,
+              120,
+              122,
+              124,
+              126,
+              128,
+              130,
+              132,
+              134,
+              136
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [
+        {
+          "assessment_id": "OP-E06::Period-1",
+          "capability": "SECURITY_OPERATIONS",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-E06",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "alpha": 0.01,
+            "binomial_upper_tail_log10": -7.86,
+            "binomial_upper_tail_probability": 0.0,
+            "distinct_groups": 5,
+            "group_record_count": 16,
+            "group_record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              17
+            ],
+            "group_share": 0.8,
+            "group_share_pct": "80.0",
+            "group_value": "NODE_77",
+            "method": "asset_concentration",
+            "null_hypothesis": "records are distributed uniformly at random across the observed distinct assets",
+            "probability_phrase": "below 1 in 10^8",
+            "scope_record_count": 20,
+            "share_versus_uniform_ratio": 4.0,
+            "uniform_expected_share": 0.2
+          },
+          "evidence_concepts": [
+            "ASSET_IDENTIFIER"
+          ],
+          "explanation_limitations": [
+            "Concentration establishes distribution, not cause. The pattern",
+            "cannot distinguish a persistent campaign, a noisy sensor, and a",
+            "systematic triage bias, and it says nothing about whether the",
+            "underlying responses were appropriate."
+          ],
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "is_not_a_control_failure": "This signal describes operational shape only. It does not establish that a control failed and does not imply misconduct. The execution-gap layer is the only layer whose logic can establish a contradicted expectation.",
+          "method": "asset_concentration",
+          "pattern_id": "repeated_asset_activity",
+          "pattern_name": "Alert activity concentrated on a single asset",
+          "pattern_type": "CONCENTRATION",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "population": {
+            "assessment_id": "OP-E06::Period-1",
+            "distinct_groups": 5,
+            "records_analysed": 20,
+            "scope_record_count": 20
+          },
+          "reason": "Asset NODE_77 accounts for 16 of 20 records in this assessment scope (80.0%), across 5 distinct assets. Under a uniform random allocation of 20 records across 5 assets, 16 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              17
+            ],
+            "source_record_indices": [
+              118,
+              119,
+              120,
+              121,
+              122,
+              123,
+              124,
+              125,
+              126,
+              127,
+              128,
+              129,
+              130,
+              131,
+              132,
+              135
+            ]
+          },
+          "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "why_review_might_be_warranted": [
+            "Repeated activity on one asset may reflect a genuine incident",
+            "requiring sustained response, a monitoring or triage path that",
+            "funnels work onto a single system, or a recording convention",
+            "that attributes work to the asset rather than to the activity.",
+            "None of these can be distinguished from the data alone, which",
+            "is why this is a request to inspect rather than a conclusion."
+          ]
+        }
+      ],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.0,
+          "distinct_groups": 5,
+          "explanation": "16 of 20 records fall on one value, with tail probability below 1 in 10^8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.8,
+          "group_value": "NODE_77",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 20,
+          "probability_phrase": "below 1 in 10^8"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 20,
+          "records_with_evidence": 20
+        }
+      ],
+      "sat_sa_record_count": 20
+    },
+    {
+      "assessment_id": "OP-F06::Period-1",
+      "case_id": "OP-07",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-F06::Period-1",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-F06",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 10
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 10,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 10
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              2,
+              4,
+              6,
+              8,
+              10,
+              12,
+              14,
+              16,
+              18
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              60,
+              62,
+              64,
+              66,
+              68,
+              70,
+              72,
+              74,
+              76,
+              78
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [
+        {
+          "assessment_id": "OP-F06::Period-1",
+          "capability": "SECURITY_OPERATIONS",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-F06",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence": {
+            "alpha": 0.01,
+            "binomial_upper_tail_log10": -7.225,
+            "binomial_upper_tail_probability": 0.0,
+            "distinct_groups": 8,
+            "group_record_count": 13,
+            "group_record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "group_share": 0.65,
+            "group_share_pct": "65.0",
+            "group_value": "NODE_55",
+            "method": "asset_concentration",
+            "null_hypothesis": "records are distributed uniformly at random across the observed distinct assets",
+            "probability_phrase": "below 1 in 10^8",
+            "scope_record_count": 20,
+            "share_versus_uniform_ratio": 5.2,
+            "uniform_expected_share": 0.125
+          },
+          "evidence_concepts": [
+            "ASSET_IDENTIFIER"
+          ],
+          "explanation_limitations": [
+            "Concentration establishes distribution, not cause. The pattern",
+            "cannot distinguish a persistent campaign, a noisy sensor, and a",
+            "systematic triage bias, and it says nothing about whether the",
+            "underlying responses were appropriate."
+          ],
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "is_not_a_control_failure": "This signal describes operational shape only. It does not establish that a control failed and does not imply misconduct. The execution-gap layer is the only layer whose logic can establish a contradicted expectation.",
+          "method": "asset_concentration",
+          "pattern_id": "repeated_asset_activity",
+          "pattern_name": "Alert activity concentrated on a single asset",
+          "pattern_type": "CONCENTRATION",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-1",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "population": {
+            "assessment_id": "OP-F06::Period-1",
+            "distinct_groups": 8,
+            "records_analysed": 20,
+            "scope_record_count": 20
+          },
+          "reason": "Asset NODE_55 accounts for 13 of 20 records in this assessment scope (65.0%), across 8 distinct assets. Under a uniform random allocation of 20 records across 8 assets, 13 or more on a single asset has a probability below 1 in 10^8, so this concentration is unlikely to have arisen by chance.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12
+            ],
+            "source_record_indices": [
+              60,
+              61,
+              62,
+              63,
+              64,
+              65,
+              66,
+              67,
+              68,
+              69,
+              70,
+              71,
+              72
+            ]
+          },
+          "status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "why_review_might_be_warranted": [
+            "Repeated activity on one asset may reflect a genuine incident",
+            "requiring sustained response, a monitoring or triage path that",
+            "funnels work onto a single system, or a recording convention",
+            "that attributes work to the asset rather than to the activity.",
+            "None of these can be distinguished from the data alone, which",
+            "is why this is a request to inspect rather than a conclusion."
+          ]
+        }
+      ],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.0,
+          "distinct_groups": 8,
+          "explanation": "13 of 20 records fall on one value, with tail probability below 1 in 10^8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.65,
+          "group_value": "NODE_55",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "POTENTIAL_OPERATIONAL_ANOMALY",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 20,
+          "probability_phrase": "below 1 in 10^8"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 20,
+          "records_with_evidence": 20
+        }
+      ],
+      "sat_sa_record_count": 20
+    },
+    {
+      "assessment_id": "OP-F06::Period-2",
+      "case_id": "OP-08",
+      "dataset": "dataset_operational_pattern_controlled.csv",
+      "sat_sa_absence_state_counts": {
+        "COMPLETE_ABSENCE": 1
+      },
+      "sat_sa_execution_gap_findings": [],
+      "sat_sa_negative_space_findings": [
+        {
+          "absence_state": "COMPLETE_ABSENCE",
+          "assessment_id": "OP-F06::Period-2",
+          "capability": "ESCALATION",
+          "entity": {
+            "available": true,
+            "confidence": 0.75,
+            "id": "OP-F06",
+            "method": "semantic_mapping",
+            "name": null,
+            "source": "cse",
+            "unavailable_reason": null
+          },
+          "evidence_concepts": [
+            "SECURITY_SEVERITY",
+            "ESCALATION_STATUS"
+          ],
+          "evidence_summary": {
+            "coverage": 0.0,
+            "coverage_by_concept": {
+              "ESCALATION_STATUS": {
+                "coverage": 0.0,
+                "records_with_expected_evidence": 0,
+                "records_with_unusable_evidence": 0,
+                "records_without_expected_evidence": 7
+              }
+            },
+            "records_with_expected_evidence": 0,
+            "records_with_unusable_evidence": 0,
+            "records_without_expected_evidence": 7,
+            "trigger_population": "CRITICAL_ALERT_ACTIVITY",
+            "trigger_records": 7
+          },
+          "expectation": {
+            "basis": "configured supervisory expectation",
+            "expected_evidence": [
+              "ESCALATION_STATUS"
+            ],
+            "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+            "trigger": "CRITICAL_ALERT_ACTIVITY",
+            "why_expected": [
+              "A critical severity assessment implies a supervisory",
+              "escalation decision is warranted, so a record of that",
+              "decision is expected to exist for the population the tool has",
+              "already identified as critical."
+            ]
+          },
+          "indicator": "MISSING_ESCALATION_EVIDENCE",
+          "period": {
+            "available": true,
+            "confidence": 0.75,
+            "end": null,
+            "granularity": "explicit",
+            "inherited": false,
+            "label": "Period-2",
+            "label_precision": "opaque",
+            "method": "explicit_column",
+            "source": "period",
+            "start": null,
+            "unavailable_reason": null
+          },
+          "reason": "Critical alert activity is present in this assessment scope, but no escalation evidence was submitted for the relevant assessment population.",
+          "record_reference": {
+            "record_positions": [
+              0,
+              3,
+              6,
+              9,
+              12,
+              15,
+              18
+            ],
+            "records_with_unusable_evidence": [],
+            "source_record_indices": [
+              80,
+              83,
+              86,
+              89,
+              92,
+              95,
+              98
+            ]
+          },
+          "rule_id": "critical_alerts_expect_escalation_evidence",
+          "rule_name": "Critical alert activity expects escalation evidence",
+          "status": "POTENTIAL_NEGATIVE_SPACE"
+        }
+      ],
+      "sat_sa_operational_pattern_findings": [],
+      "sat_sa_operational_pattern_states": [
+        {
+          "binomial_upper_tail_probability": 0.641514,
+          "distinct_groups": 20,
+          "explanation": "The busiest value carries 1 record, below the 4 this method requires before a concentration is meaningful.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "group_share": 0.05,
+          "group_value": "NODE_00",
+          "indicator": "REPEATED_ASSET_ACTIVITY",
+          "method": "asset_concentration",
+          "minimum_observations": {
+            "min_distinct_assets": 3,
+            "min_records_on_flagged_asset": 4,
+            "min_scope_records": 12
+          },
+          "pattern_id": "repeated_asset_activity",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "CONCENTRATION",
+          "population_concept": "ASSET_IDENTIFIER",
+          "population_size": 20,
+          "probability_phrase": "approximately 1 in 2"
+        },
+        {
+          "explanation": "No group of 3 or more records shares evidence text at a token overlap of 0.8.",
+          "group_concept": "ASSET_IDENTIFIER",
+          "indicator": "REPEATED_INVESTIGATION_EVIDENCE",
+          "method": "investigation_repetition",
+          "minimum_observations": {
+            "min_scope_records": 12,
+            "min_similar_records": 3
+          },
+          "pattern_id": "repetitive_investigation_evidence",
+          "pattern_status": "NO_PATTERN_DETECTED",
+          "pattern_type": "REPETITION",
+          "population_concept": "INVESTIGATION_EVIDENCE",
+          "population_size": 20,
+          "records_with_evidence": 20
+        }
+      ],
+      "sat_sa_record_count": 20
+    }
+  ],
+  "schema_version": 1
+}

@@ -1,0 +1,169 @@
+{
+    "_comment": [
+        "Capability evidence patterns.",
+        "",
+        "framework/config/semantic_patterns.json defines scoring patterns for 21 of",
+        "the 28 concepts in mappings.json. Seven concepts exist in the canonical",
+        "schema and in mappings.json but have no scoring pattern, so they can never",
+        "be inferred today. Four of them are exactly the evidence the ESCALATION,",
+        "INCIDENT_RESPONSE, INVESTIGATION and OPERATIONAL_DISCIPLINE capabilities",
+        "need:",
+        "",
+        "    RESOLUTION_TIME  -> response_context.resolution_time",
+        "    ESCALATION_STATUS-> response_context.escalation_status",
+        "    EVENT_TIMESTAMP  -> alert_context.timestamp",
+        "    USER_IDENTIFIER  -> entity_context.entity_name",
+        "",
+        "This file adds scoring patterns for those EXISTING concepts only. It",
+        "introduces no new canonical concept, and it is scored by the existing",
+        "framework.intelligence.semantic_inference.SemanticInference engine, so",
+        "discovery behaves identically to the main mapping pass.",
+        "",
+        "It is read ONLY by framework.capability. The main semantic mapping pass is",
+        "not modified, so result['semantic_mapping'], result['dataset_context'] and",
+        "result['mapping_report'] are unchanged.",
+        "",
+        "Negative keywords mirror the guards already implemented in",
+        "framework.mapping.schema_mapper.SchemaMapper.validate_mapping: an opening",
+        "or creation time must never be read as a resolution time, and a person who",
+        "closed something is not a resolution time."
+    ],
+
+
+    "RESOLUTION_TIME": {
+
+        "keywords": [
+            "resolution_time",
+            "resolution_timestamp",
+            "resolved_time",
+            "resolved_at",
+            "closed_time",
+            "closed_at",
+            "closure_time",
+            "closure_timestamp",
+            "remediation_time",
+            "time_to_resolve",
+            "ttR",
+            "closed_date"
+        ],
+
+        "negative_keywords": [
+            "closed_by",
+            "created",
+            "opened",
+            "open_time",
+            "acknowledged",
+            "ack_time",
+            "elapsed",
+            "duration",
+            "timeout",
+            "lifetime",
+            "age"
+        ],
+
+        "expected_categories": [
+            "numeric",
+            "identifier_like",
+            "datetime",
+            "categorical"
+        ]
+    },
+
+
+    "ESCALATION_STATUS": {
+
+        "keywords": [
+            "escalation",
+            "escalated",
+            "escalation_status",
+            "escalation_state",
+            "escalation_level",
+            "escalation_required",
+            "is_escalated",
+            "escalation_reason"
+        ],
+
+        "negative_keywords": [
+            "escalation_time",
+            "escalated_by"
+        ],
+
+        "expected_categories": [
+            "categorical",
+            "identifier_like",
+            "numeric"
+        ]
+    },
+
+
+    "EVENT_TIMESTAMP": {
+
+        "keywords": [
+            "created_time",
+            "created_at",
+            "created_date",
+            "event_time",
+            "event_timestamp",
+            "detected_at",
+            "detected_time",
+            "detection_time",
+            "observed_at",
+            "collected_at",
+            "occurred_at",
+            "timestamp",
+            "detected"
+        ],
+
+        "negative_keywords": [
+            "closed",
+            "resolved",
+            "resolution",
+            "escalated",
+            "escalation",
+            "elapsed",
+            "duration",
+            "timeout",
+            "lifetime",
+            "age",
+            "acknowledged"
+        ],
+
+        "expected_categories": [
+            "identifier_like",
+            "datetime",
+            "categorical",
+            "numeric"
+        ]
+    },
+
+
+    "USER_IDENTIFIER": {
+
+        "keywords": [
+            "analyst",
+            "analyst_id",
+            "analyst_name",
+            "assignee",
+            "assigned_to",
+            "owner",
+            "closed_by",
+            "handled_by",
+            "responder",
+            "reviewer",
+            "user_id",
+            "username",
+            "operator"
+        ],
+
+        "negative_keywords": [
+            "user_agent",
+            "users",
+            "user_count"
+        ],
+
+        "expected_categories": [
+            "categorical",
+            "identifier_like"
+        ]
+    }
+}

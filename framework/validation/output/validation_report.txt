@@ -1,0 +1,221 @@
+==============================================================================
+SAT-SA SMALL EXPERT VALIDATION STUDY
+==============================================================================
+
+1. OBJECTIVE
+------------------------------------------------------------------------------
+  Compare human manual review against SAT-SA output for the three
+  existing supervisory signal families, and establish whether those
+  signals are useful, explainable and aligned with manual review.
+  No new analytics were added. The framework observes the existing
+  pipeline result and adds no rule, threshold, score or output key.
+
+2. DATASET DESCRIPTION
+------------------------------------------------------------------------------
+  20 assessment cases drawn from 4 datasets
+  that already exist in the repository. No new dataset was created.
+    dataset_capability_rich.csv (2 cases)
+    dataset_execution_gap_controlled.csv (4 cases)
+    dataset_negative_space_controlled.csv (6 cases)
+    dataset_operational_pattern_controlled.csv (8 cases)
+
+3. NUMBER OF ASSESSMENT CASES
+------------------------------------------------------------------------------
+  20
+
+4. MANUAL-REVIEW METHODOLOGY
+------------------------------------------------------------------------------
+  A reviewer is given each case's assessment scope and the raw
+  submitted rows behind it. They record, per signal family, the
+  indicators they observed, the records that support them, their
+  reasoning, and their confidence.
+  The template ships with every human field empty, so no review is
+  implied before one happens. Free text is kept separate from
+  indicator comparison and is never matched by string equality.
+
+5. SAT-SA METHODOLOGY
+------------------------------------------------------------------------------
+  The existing pipeline is run over each corpus dataset. The
+  reference output is a verbatim slice of the existing per-scope
+  payloads under execution_gap_findings, negative_space_findings and
+  operational_pattern_findings. No result schema was modified.
+
+6. COMPARISON METHODOLOGY
+------------------------------------------------------------------------------
+  Comparison is per indicator, per family, per assessment scope.
+  Scope is part of a signal's identity, so an indicator reported for
+  the right reason against the wrong entity is recorded as a scope
+  mismatch rather than as a match.
+  Outcomes: MATCH, MATCH_UNSUPPORTED, SCOPE_MISMATCH,
+  FALSE_POSITIVE, FALSE_NEGATIVE.
+
+7. EXECUTION GAP
+------------------------------------------------------------------------------
+  agreement not computable: no human review labels exist yet.
+  The counts below are SAT-SA output, not errors. An indicator
+  counted here as a false positive means only that no reviewer
+  has yet to confirm it, which is a gap in the evidence for this
+  study and not a demonstrated mistake by SAT-SA.
+
+  true positives ................ 0
+  false positives ............... 4
+  false negatives ............... 0
+  matches with unsupported evidence 0
+  scope mismatches .............. 0
+  precision ..................... not computable (no human review labels exist yet)
+  recall ........................ not computable (no human review labels exist yet)
+    reported, unreviewed: CRITICAL_ALERT_NOT_ESCALATED at CSE-A01::Period-1
+    reported, unreviewed: CRITICAL_ALERT_NOT_ESCALATED at CSE-B02::Period-1
+    reported, unreviewed: CRITICAL_ALERT_NOT_ESCALATED at NS-B02::Period-1
+    reported, unreviewed: CRITICAL_ALERT_NOT_ESCALATED at NS-D04::Period-2
+
+8. NEGATIVE SPACE
+------------------------------------------------------------------------------
+  agreement not computable: no human review labels exist yet.
+  The counts below are SAT-SA output, not errors. An indicator
+  counted here as a false positive means only that no reviewer
+  has yet to confirm it, which is a gap in the evidence for this
+  study and not a demonstrated mistake by SAT-SA.
+
+  true positives ................ 0
+  false positives ............... 12
+  false negatives ............... 0
+  matches with unsupported evidence 0
+  scope mismatches .............. 0
+  precision ..................... not computable (no human review labels exist yet)
+  recall ........................ not computable (no human review labels exist yet)
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at CSE-A01::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at NS-A01::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at NS-B02::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at NS-D04::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-A01::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-B02::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-C03::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-D04::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-E05::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-E06::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-F06::Period-1
+    reported, unreviewed: MISSING_ESCALATION_EVIDENCE at OP-F06::Period-2
+
+9. OPERATIONAL PATTERN
+------------------------------------------------------------------------------
+  agreement not computable: no human review labels exist yet.
+  The counts below are SAT-SA output, not errors. An indicator
+  counted here as a false positive means only that no reviewer
+  has yet to confirm it, which is a gap in the evidence for this
+  study and not a demonstrated mistake by SAT-SA.
+
+  true positives ................ 0
+  false positives ............... 4
+  false negatives ............... 0
+  matches with unsupported evidence 0
+  scope mismatches .............. 0
+  precision ..................... not computable (no human review labels exist yet)
+  recall ........................ not computable (no human review labels exist yet)
+    reported, unreviewed: REPEATED_ASSET_ACTIVITY at OP-B02::Period-1
+    reported, unreviewed: REPEATED_INVESTIGATION_EVIDENCE at OP-C03::Period-1
+    reported, unreviewed: REPEATED_ASSET_ACTIVITY at OP-E06::Period-1
+    reported, unreviewed: REPEATED_ASSET_ACTIVITY at OP-F06::Period-1
+
+10. PRECISION AND RECALL PER FAMILY
+------------------------------------------------------------------------------
+  Execution Gap          precision=not computable (no human review labels exist yet)  recall=not computable (no human review labels exist yet)
+  Negative Space         precision=not computable (no human review labels exist yet)  recall=not computable (no human review labels exist yet)
+  Operational Pattern    precision=not computable (no human review labels exist yet)  recall=not computable (no human review labels exist yet)
+
+  no human review labels exist; SAT-SA output is reported but agreement is not measurable
+
+  Precision and recall are reported per signal family only. No single accuracy figure is produced: the corpus is small and controlled, and one number would hide which family it describes.
+
+11. FALSE POSITIVES
+------------------------------------------------------------------------------
+  execution_gap: CRITICAL_ALERT_NOT_ESCALATED at CSE-A01::Period-1 in dataset_execution_gap_controlled.csv
+  execution_gap: CRITICAL_ALERT_NOT_ESCALATED at CSE-B02::Period-1 in dataset_execution_gap_controlled.csv
+  execution_gap: CRITICAL_ALERT_NOT_ESCALATED at NS-B02::Period-1 in dataset_negative_space_controlled.csv
+  execution_gap: CRITICAL_ALERT_NOT_ESCALATED at NS-D04::Period-2 in dataset_negative_space_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at CSE-A01::Period-1 in dataset_execution_gap_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at NS-A01::Period-1 in dataset_negative_space_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at NS-B02::Period-1 in dataset_negative_space_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at NS-D04::Period-1 in dataset_negative_space_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-A01::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-B02::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-C03::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-D04::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-E05::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-E06::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-F06::Period-1 in dataset_operational_pattern_controlled.csv
+  negative_space: MISSING_ESCALATION_EVIDENCE at OP-F06::Period-2 in dataset_operational_pattern_controlled.csv
+  operational_pattern: REPEATED_ASSET_ACTIVITY at OP-B02::Period-1 in dataset_operational_pattern_controlled.csv
+  operational_pattern: REPEATED_INVESTIGATION_EVIDENCE at OP-C03::Period-1 in dataset_operational_pattern_controlled.csv
+  operational_pattern: REPEATED_ASSET_ACTIVITY at OP-E06::Period-1 in dataset_operational_pattern_controlled.csv
+  operational_pattern: REPEATED_ASSET_ACTIVITY at OP-F06::Period-1 in dataset_operational_pattern_controlled.csv
+
+  These are not false positives. No human review exists yet, so
+  nothing has confirmed or contradicted them. They are listed as
+  SAT-SA output awaiting review.
+
+12. FALSE NEGATIVES
+------------------------------------------------------------------------------
+  none, and none can exist yet: a false negative requires a
+  human label that SAT-SA did not reproduce.
+
+13. NOT_EVALUABLE CASES
+------------------------------------------------------------------------------
+  cases where SAT-SA declined to judge at least one pattern: 13 of 20
+  Declining to judge is a distinct outcome from judging and finding
+  nothing, and is counted separately so it cannot be scored as agreement.
+    EG-01 CSE-A01::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+    EG-02 CSE-A01::Period-2: repeated_asset_activity, repetitive_investigation_evidence
+    EG-03 CSE-B02::Period-1: repetitive_investigation_evidence
+    EG-04 CSE-B02::Period-2: repetitive_investigation_evidence
+    EG-05 CSE-A01::Period-2: repeated_asset_activity, repetitive_investigation_evidence
+    EG-06 CSE-B02::Period-2: repeated_asset_activity, repetitive_investigation_evidence
+    NS-01 NS-A01::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+    NS-02 NS-A01::Period-2: repeated_asset_activity, repetitive_investigation_evidence
+    NS-03 NS-B02::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+    NS-04 NS-C03::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+    NS-05 NS-D04::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+    NS-06 NS-D04::Period-2: repeated_asset_activity, repetitive_investigation_evidence
+    OP-04 OP-D04::Period-1: repeated_asset_activity, repetitive_investigation_evidence
+
+14. EVIDENCE TRACEABILITY
+------------------------------------------------------------------------------
+  evidence NOT_EVALUATED            20
+  explanations present 20 of 20 comparable signals
+  record references present 20 of 20
+  traceability counts only comparable signals. Free text is never compared by string equality, so an explanation is recorded as present or absent, never as equal or different.
+
+15. HUMAN ASSESSMENT OF SUPERVISORY USEFULNESS
+------------------------------------------------------------------------------
+  question: Would this signal be difficult to identify from a conventional SOC dashboard?
+  allowed answers: YES, NO, UNCERTAIN
+  no responses recorded
+  supporting evidence for a supervisory-value argument
+  not used as: an accuracy metric or a novelty score
+
+16. VALIDATION STATUS
+------------------------------------------------------------------------------
+
+  CONTROLLED VALIDATION
+  Expert validation pending.
+  No human reviewer has entered any label, so the metrics above
+  are a self-consistency check of SAT-SA against controlled
+  design intent, not expert validation, and must not be quoted as
+  evidence that the signals match expert judgement.
+
+17. LIMITATIONS
+------------------------------------------------------------------------------
+  - The corpus is small and controlled. It is designed to exercise the comparison machinery across the signal families and the scope isolation rules. It cannot estimate how the signals perform on real operational data.
+  - No expert labels exist yet, so no claim about agreement with a human reviewer is supported by this report.
+  - Controlled expectations were written by the framework author from the raw source rows. They are design intent. They are not independent of the system's authors and must not be read as external validation.
+  - execution_gap: no case in this corpus pairs a human-reported indicator with a matching SAT-SA indicator, so precision is not defined for this family.
+  - negative_space: no case in this corpus pairs a human-reported indicator with a matching SAT-SA indicator, so precision is not defined for this family.
+  - operational_pattern: no case in this corpus pairs a human-reported indicator with a matching SAT-SA indicator, so precision is not defined for this family.
+  - Concept collisions were observed, meaning more than one source column feeds a single canonical concept: dataset_capability_rich.csv: INVESTIGATION_EVIDENCE is fed by investigation_notes, root_cause_identified. A finding's evidence value for such a concept is ambiguous unless the columns agree, so those findings need human reading rather than automatic acceptance.
+  - Precision and recall are undefined wherever a family has no positive or no negative case in the corpus. Undefined is reported as undefined rather than as zero or one.
+  - Explanations are recorded as present or absent. Human and tool reasoning is never compared by string equality, so this report cannot and does not measure whether the wording of an explanation is good.
+  - The supervisory-value question is a novelty signal about dashboard visibility, not an accuracy measure, and is not scored numerically.
+
+==============================================================================
+END OF REPORT
+==============================================================================

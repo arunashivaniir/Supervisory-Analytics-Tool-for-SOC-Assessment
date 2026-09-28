@@ -1,0 +1,281 @@
+{
+    "_comment": [
+        "SAT-SA negative-space rule configuration.",
+        "",
+        "NEGATIVE SPACE IS NOT 'A FIELD IS MISSING'",
+        "============================================",
+        "Negative space is: evidence that is expected in a DEFINED CONTEXT is",
+        "absent. So a rule here is only valid when it can state four things:",
+        "",
+        "  1. the expectation          -- what evidence should exist",
+        "  2. the trigger population   -- which records make it expected",
+        "  3. the observable concept   -- how the evidence is observed",
+        "  4. why it is expected       -- the supervisory reasoning",
+        "",
+        "A canonical field being empty is not on its own a weakness. Nothing in",
+        "this file fires because a field is blank; every rule must first prove",
+        "that its trigger population exists.",
+        "",
+        "HOW THIS DIFFERS FROM AN EXECUTION GAP",
+        "======================================",
+        "  execution gap     CRITICAL present AND escalation explicitly says",
+        "                    NOT_ESCALATED  -> a control was contradicted",
+        "",
+        "  negative space    CRITICAL population exists AND no usable escalation",
+        "                    evidence was submitted -> evidence is absent",
+        "",
+        "The two never overlap. This layer counts the PRESENCE of evidence and is",
+        "indifferent to its value; the execution-gap layer judges the VALUE. A",
+        "record with an explicit NOT_ESCALATED has evidence, so it can raise an",
+        "execution gap but never a negative-space signal.",
+        "",
+        "NO POLICY THRESHOLDS",
+        "=====================",
+        "'material_coverage_threshold' is null everywhere in this file, and that",
+        "is deliberate. A configured threshold would be a supervisory policy",
+        "decision about what proportion of missing evidence is tolerable, and",
+        "SAT-SA must not invent one. Complete absence and partial absence are",
+        "reported as different, factual states; how much attention either",
+        "deserves is a later prioritisation phase."
+    ],
+
+    "schema_version": "1.0",
+
+    "value_normalisation": {
+        "_comment": [
+            "Same canonical form as the execution-gap rules: trimmed, upper-cased,",
+            "separators folded to underscores. Reusing one normalisation keeps",
+            "the two layers from disagreeing about what a value means.",
+            "framework/tests/test_negative_space.py asserts the two rule",
+            "configurations agree on the escalation tokens."
+        ],
+        "case_sensitive": false,
+        "separators_folded_to_underscore": [" ", "-", ".", "/"]
+    },
+
+    "value_vocabulary": {
+        "_comment": [
+            "The values that constitute a submitted escalation OUTCOME, i.e.",
+            "evidence that a determination was recorded rather than left open.",
+            "A populated value outside this set is reported separately as",
+            "unusable evidence instead of being silently counted as present.",
+            "A blank, N/A or absent cell is not evidence at all.",
+            "",
+            "The trigger tokens are declared for the same reason the",
+            "escalation tokens are: mappings.json defines no allowed_values for",
+            "any concept, so the supervisory vocabulary is declared explicitly",
+            "here rather than guessed at detection time. N/A and PENDING are",
+            "absent from BOTH sets on purpose. A token that could also mean 'not",
+            "applicable' or 'not yet determined' proves neither that a",
+            "determination was made nor that it was declined, so it establishes",
+            "no expectation outcome in either layer."
+        ],
+        "SECURITY_SEVERITY": {
+            "critical": ["CRITICAL"]
+        },
+        "ESCALATION_STATUS": {
+            "escalated": ["ESCALATED"],
+            "not_escalated": ["NOT_ESCALATED"]
+        }
+    },
+
+    "rules": [
+        {
+            "rule_id": "critical_alerts_expect_escalation_evidence",
+            "name": "Critical alert activity expects escalation evidence",
+            "description": [
+                "An assessment scope containing critical alert activity is",
+                "expected to carry escalation evidence for that same population.",
+                "This is a supervisory expectation, not an observed fact."
+            ],
+            "capability": "ESCALATION",
+            "indicator": "MISSING_ESCALATION_EVIDENCE",
+
+            "expectation": {
+                "statement": "When a scope contains critical alert activity, escalation evidence is expected for those alerts.",
+
+                "basis": "configured supervisory expectation",
+
+                "trigger": {
+                    "concept": "SECURITY_SEVERITY",
+                    "vocabulary_key": "critical",
+                    "population_label": "CRITICAL_ALERT_ACTIVITY"
+                },
+
+                "expected_evidence": [
+                    {
+                        "concept": "ESCALATION_STATUS",
+                        "accepted_vocabulary_keys": ["escalated", "not_escalated"]
+                    }
+                ],
+
+                "why_expected": [
+                    "A critical severity assessment implies a supervisory",
+                    "escalation decision is warranted, so a record of that",
+                    "decision is expected to exist for the population the tool has",
+                    "already identified as critical."
+                ]
+            },
+
+            "classification": {
+                "complete_absence_status": "POTENTIAL_NEGATIVE_SPACE",
+                "partial_absence_status": "PARTIAL_NEGATIVE_SPACE",
+
+                "_comment": [
+                    "Deliberately null. There is no configured policy threshold",
+                    "that turns partial coverage into a failure, because choosing",
+                    "one would be SAT-SA inventing a supervisory policy. The",
+                    "mechanism is honoured if a supervisory authority later",
+                    "supplies a number; until then partial coverage is reported as",
+                    "an observation."
+                ],
+                "material_coverage_threshold": null
+            },
+
+            "evidence_concepts": ["SECURITY_SEVERITY", "ESCALATION_STATUS"],
+
+            "reason_template": [
+                "Critical alert activity is present in this assessment scope,",
+                "but no escalation evidence was submitted for the relevant",
+                "assessment population."
+            ],
+
+            "partial_reason_template": [
+                "Critical alert activity is present and escalation evidence was",
+                "submitted for part of the population only."
+            ],
+
+            "rationale": [
+                "SECURITY_SEVERITY and ESCALATION_STATUS both exist in",
+                "mappings.json and both resolve from ordinary alert submissions,",
+                "so the trigger population is observable and the absence is",
+                "measurable. Note this rule is about evidence PRESENCE: the",
+                "value of a submitted escalation status is the execution-gap",
+                "layer's concern, not this one's."
+            ]
+        }
+    ],
+
+    "unavailable_rules": [
+        {
+            "rule_id": "alert_activity_expects_investigation_evidence",
+            "name": "Alert activity expects investigation evidence",
+            "capability": "INVESTIGATION",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "No canonical concept expresses the relationship between an alert",
+                "and the investigation it should have generated.",
+                "investigation_context.notes maps to INVESTIGATION_EVIDENCE, but",
+                "there is no case or investigation identifier, and no field",
+                "recording whether an investigation was required.",
+                "SECURITY_SEVERITY alone cannot establish the expectation: not",
+                "every alert warrants an investigation, so a scope of low and",
+                "medium alerts would produce a false positive."
+            ],
+            "why_not_implemented": [
+                "Claiming investigation evidence is missing for every alert",
+                "population would convert an unestablished expectation into a",
+                "finding. The expectation itself is unsupported, not merely the",
+                "evidence."
+            ],
+            "would_require": [
+                "A canonical concept recording investigation expectation, such as",
+                "an investigation-required flag or a case reference linking an",
+                "alert to its investigation."
+            ]
+        },
+        {
+            "rule_id": "critical_systems_expect_telemetry",
+            "name": "Critical systems expect telemetry",
+            "capability": "SECURITY_OPERATIONS",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "asset_context.criticality is a canonical field with no concept in",
+                "mappings.json, so no source column can populate it.",
+                "monitoring_context.telemetry_available and coverage_status are",
+                "likewise canonical fields with no concepts.",
+                "No monitoring source inventory exists."
+            ],
+            "why_not_implemented": [
+                "There is no way to establish which systems are critical, so the",
+                "trigger population for this rule cannot be formed."
+            ],
+            "would_require": [
+                "Mapping concepts for asset criticality and monitoring telemetry,",
+                "plus a monitoring source inventory."
+            ]
+        },
+        {
+            "rule_id": "expected_alert_categories_present",
+            "name": "Expected alert categories are present",
+            "capability": "THREAT_DETECTION",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "THREAT_CATEGORY maps to alert_context.category, but no expected",
+                "alert taxonomy exists anywhere in the repository.",
+                "mappings.json declares no allowed_values for the concept."
+            ],
+            "why_not_implemented": [
+                "Without a taxonomy supplied by a supervisory authority, 'the",
+                "expected categories' is undefined. Any list would be SAT-SA's",
+                "own invention."
+            ],
+            "would_require": [
+                "A configured expected-alert taxonomy per Critical Sector Entity."
+            ]
+        },
+        {
+            "rule_id": "activity_not_unexpectedly_low",
+            "name": "Activity is not unexpectedly low",
+            "capability": "THREAT_DETECTION",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "No historical baseline, no expected record volume, and no",
+                "peer group exists."
+            ],
+            "why_not_implemented": [
+                "Low activity is only meaningful relative to an expectation. With",
+                "no baseline of any kind, every period looks low or high and no",
+                "defensible determination is possible."
+            ],
+            "would_require": [
+                "A historical or peer baseline of expected record volume."
+            ]
+        },
+        {
+            "rule_id": "no_monitoring_blind_spots",
+            "name": "No monitoring blind spots",
+            "capability": "SECURITY_OPERATIONS",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "Same as critical_systems_expect_telemetry: no concept for asset",
+                "criticality and no monitoring inventory or coverage status."
+            ],
+            "why_not_implemented": [
+                "A blind spot is a gap between expected and actual monitoring",
+                "coverage. Neither side of that comparison is observable."
+            ],
+            "would_require": [
+                "Monitoring coverage concepts and an inventory of monitored assets."
+            ]
+        },
+        {
+            "rule_id": "no_peer_relative_absence",
+            "name": "No peer-relative absence of evidence",
+            "capability": "GOVERNANCE_OVERSIGHT",
+            "status": "UNAVAILABLE",
+            "missing_evidence": [
+                "No peer group definition, no comparable-entity baseline, and no",
+                "benchmark data in the canonical model."
+            ],
+            "why_not_implemented": [
+                "Peer benchmarking is explicitly out of scope for this phase and",
+                "would additionally require a defensible peer cohort."
+            ],
+            "would_require": [
+                "A peer cohort definition and comparable-entity evidence,",
+                "delivered by a later phase."
+            ]
+        }
+    ]
+}

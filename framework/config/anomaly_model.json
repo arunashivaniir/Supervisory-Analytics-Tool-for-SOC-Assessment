@@ -1,0 +1,678 @@
+{
+    "_comment": [
+        "SAT-SA offline Isolation Forest anomaly discovery configuration.",
+        "",
+        "WHAT THIS LAYER ANSWERS",
+        "=======================",
+        "'Does this AssessmentScope exhibit an unusual combination of operational",
+        "characteristics compared with a reference population?'",
+        "",
+        "WHAT IT DOES NOT ANSWER",
+        "=======================",
+        "It does not answer 'is this CSE insecure'. It cannot establish control",
+        "failure, security incident, severity, risk level, risk score,",
+        "confidence or root cause. Those belong to the execution-gap layer, which",
+        "is the only layer whose logic can establish a contradicted expectation.",
+        "The verdict vocabulary is exactly three values:",
+        "  POTENTIAL_OPERATIONAL_ANOMALY / NO_ANOMALY / NOT_EVALUABLE.",
+        "",
+        "OFFLINE AND CPU-ONLY",
+        "====================",
+        "scikit-learn's IsolationForest runs entirely locally on CPU. There is no",
+        "network call, no cloud API, no GPU path and no external service in this",
+        "layer. The estimator is the only imported model.",
+        "",
+        "RELATIONSHIP TO THE ORPHANED MODEL IN data/generated/",
+        "===================================================",
+        "data/generated/isolation_forest.pkl is an earlier 16-feature artifact.",
+        "It was rejected by the operational-pattern layer and is deliberately not",
+        "reused. Its vector included sla_breach, low_investigation_quality and",
+        "missing_* terms, which are judgements and risk statements rather than",
+        "observable operational properties, and several features required columns",
+        "that no canonical concept resolves. Every feature below instead names a",
+        "canonical concept that semantic mapping already resolves, so renaming a",
+        "source column cannot change the vector.",
+        "",
+        "NO SOURCE COLUMN NAMES",
+        "=======================",
+        "Not one source column name appears in this file or in the feature",
+        "builder. Features are defined over canonical concepts, which the",
+        "EvidenceIndex projection supplies. That is what makes the renamed-column",
+        "generalisation test pass by construction rather than by special case.",
+        "",
+        "MISSING EVIDENCE IS NEVER ZERO",
+        "=============================",
+        "A missing escalation_status does not mean escalation coverage is 0; it",
+        "means escalation coverage cannot be evaluated. Each feature declares a",
+        "missing_policy, and a feature whose required evidence is absent is marked",
+        "unavailable. Because availability_policy.require_all_features is true, a",
+        "scope with any unavailable feature is reported NOT_EVALUABLE rather than",
+        "scored on a vector with invented entries. The model can never turn absent",
+        "evidence into an anomaly."
+    ],
+    "schema_version": "1.0",
+    "feature_schema_version": "1.0.0",
+    "model_version": "1.0.0",
+    "feature_schema": {
+        "_comment": [
+            "The explicit contract shared by training and inference. The builder",
+            "emits exactly one FeatureVector per scope in this shape, and the",
+            "fingerprint below is derived from the ordered feature definitions",
+            "rather than trusted from the file, so editing a feature definition",
+            "without bumping feature_schema_version is detected as a mismatch."
+        ],
+        "structure": {
+            "feature_schema_version": "string",
+            "features": [
+                {
+                    "feature_id": "string",
+                    "value": "float | null",
+                    "available": "boolean",
+                    "source_concepts": [
+                        "string"
+                    ]
+                }
+            ]
+        },
+        "ordering_rule": "The feature order is the order of 'features' below and is the column order of the matrix. A model trained on a different order is rejected."
+    },
+    "availability_policy": {
+        "require_all_features": true,
+        "require_finite_values": true,
+        "_comment": [
+            "require_all_features is deliberately strict. Partially imputing a",
+            "vector would let a scope with little evidence be judged on guesses,",
+            "and a guessed value is exactly what would create a false anomaly."
+        ]
+    },
+    "features": [
+        {
+            "feature_id": "alert_volume",
+            "description": "Count of submitted records in the assessment scope. A structural property of the scope population rather than of any individual record.",
+            "source_concepts": [],
+            "aggregation": "scope_record_count",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_scope_records"
+        },
+        {
+            "feature_id": "severity_critical_share",
+            "description": "Share of records whose alert severity is the top ordinal band of the configured severity vocabulary.",
+            "source_concepts": [
+                "SECURITY_SEVERITY"
+            ],
+            "aggregation": "ordinal_share_equals",
+            "parameters": {
+                "ordinal_vocabulary": "severity_ordinal",
+                "ordinal_equals": "CRITICAL"
+            },
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "severity_mean_ordinal",
+            "description": "Mean position of recognised alert severities on the configured ordinal scale, normalised to 0..1.",
+            "source_concepts": [
+                "SECURITY_SEVERITY"
+            ],
+            "aggregation": "ordinal_mean_normalised",
+            "parameters": {
+                "ordinal_vocabulary": "severity_ordinal"
+            },
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "severity_dispersion",
+            "description": "Normalised Shannon entropy of the recognised alert severity distribution. High means severities are spread across bands, low means one band dominates.",
+            "source_concepts": [
+                "SECURITY_SEVERITY"
+            ],
+            "aggregation": "ordinal_entropy_normalised",
+            "parameters": {
+                "ordinal_vocabulary": "severity_ordinal"
+            },
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "asset_concentration",
+            "description": "Share of records carried by the single most-repeated asset identifier. 1.0 means every record concerns one asset.",
+            "source_concepts": [
+                "ASSET_IDENTIFIER"
+            ],
+            "aggregation": "max_group_share",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "investigation_coverage",
+            "description": "Share of records carrying populated investigation evidence. Describes evidence submission, not investigation quality.",
+            "source_concepts": [
+                "INVESTIGATION_EVIDENCE"
+            ],
+            "aggregation": "populated_share",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "investigation_repetition",
+            "description": "Mean over records of the highest token-set similarity between a record's investigation evidence and any other record's. High means near-duplicate wording. Reuses the operational-pattern layer's tokeniser and Jaccard similarity.",
+            "source_concepts": [
+                "INVESTIGATION_EVIDENCE"
+            ],
+            "aggregation": "mean_max_token_similarity",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "escalation_coverage",
+            "description": "Share of records carrying a populated escalation status. An absent escalation column makes this unevaluable, not zero.",
+            "source_concepts": [
+                "ESCALATION_STATUS"
+            ],
+            "aggregation": "populated_share",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "escalated_share",
+            "description": "Among records with a populated escalation status, the share whose normalised value is in the configured positive vocabulary. Records whose value matches neither vocabulary are not counted as negative.",
+            "source_concepts": [
+                "ESCALATION_STATUS"
+            ],
+            "aggregation": "positive_share",
+            "parameters": {
+                "positive_vocabulary": "escalation_positive",
+                "negative_vocabulary": "escalation_negative"
+            },
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "asset_criticality_mean",
+            "description": "Mean position of recognised asset criticality values on the configured ordinal scale, normalised to 0..1. Describes the criticality mix of the assets a scope touches.",
+            "source_concepts": [
+                "ASSET_CRITICALITY"
+            ],
+            "aggregation": "ordinal_mean_normalised",
+            "parameters": {
+                "ordinal_vocabulary": "criticality_ordinal"
+            },
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        },
+        {
+            "feature_id": "evidence_completeness",
+            "description": "Mean over the configured evidence concepts of the share of records carrying a populated value for that concept. A measure of what was submitted.",
+            "source_concepts": [
+                "SECURITY_SEVERITY",
+                "ASSET_IDENTIFIER",
+                "ASSET_CRITICALITY",
+                "ESCALATION_STATUS",
+                "INVESTIGATION_EVIDENCE"
+            ],
+            "aggregation": "concept_coverage_share",
+            "parameters": {},
+            "minimum_records": 8,
+            "missing_policy": "unavailable_without_source_evidence"
+        }
+    ],
+    "vocabularies": {
+        "severity_ordinal": {
+            "_comment": "Ordinal position of each recognised alert severity. A value outside this map is not recognised and is excluded rather than coerced.",
+            "LOW": 0,
+            "MEDIUM": 1,
+            "HIGH": 2,
+            "CRITICAL": 3
+        },
+        "criticality_ordinal": {
+            "_comment": "Ordinal position of each recognised asset criticality. Deliberately a separate map from severity: they describe different things and may diverge in a later schema version.",
+            "LOW": 0,
+            "MEDIUM": 1,
+            "HIGH": 2,
+            "CRITICAL": 3
+        },
+        "escalation_positive": [
+            "ESCALATED",
+            "ESCALATION_REQUIRED",
+            "YES",
+            "TRUE",
+            "COMPLETED"
+        ],
+        "escalation_negative": [
+            "NOT_ESCALATED",
+            "NO_ESCALATION",
+            "NOT_REQUIRED",
+            "NO",
+            "FALSE",
+            "NONE"
+        ]
+    },
+    "model": {
+        "_comment": [
+            "Parameters live here so the estimator is never configured in code.",
+            "random_state is what makes training reproducible; max_samples='auto' is",
+            "sklearn's own subsample rule and needs no SAT-SA opinion.",
+            "n_estimators=300 is a deliberate over-supply: an Isolation Forest's",
+            "variance falls as 1/sqrt(n_estimators), and the model is small enough",
+            "that a larger forest costs almost nothing at inference.",
+            "",
+            "contamination=0.05 is explicit rather than 'auto' for a measured reason.",
+            "sklearn's 'auto' places the decision boundary near the 25th-30th",
+            "percentile of the training scores, which flags roughly 27% of the",
+            "reference population itself. For a supervisory signal that is noise, not",
+            "a finding: a tool that calls one normal scope in four unusual is not",
+            "usable. 0.05 declares that at most about one scope in twenty is expected",
+            "to sit outside the reference population, which is a statement about the",
+            "reference data, not a cut-point on any feature. Raise it if a genuine",
+            "operating environment legitimately runs that unusual.",
+            "n_jobs=1 keeps the run single-threaded and predictable on a shared CPU."
+        ],
+        "model_type": "sklearn.ensemble.IsolationForest",
+        "random_state": 20260927,
+        "n_estimators": 300,
+        "max_samples": "auto",
+        "contamination": 0.05,
+        "n_jobs": 1
+    },
+    "training": {
+        "minimum_reference_scopes": 25,
+        "require_all_features_available": true,
+        "require_finite_values": true,
+        "reject_on_schema_mismatch": true,
+        "fail_on_insufficient_samples": true,
+        "reject_on_inconsistent_feature_order": true
+    },
+    "registry": {
+        "_comment": "Artifact and metadata are stored as separate files so the metadata is inspectable without unpickling the model. The artifact digest is computed with the existing framework.evidence.integrity.calculate_sha256 utility, not a second SHA-256 implementation.",
+        "artifact_path": "artifacts/anomaly/isolation_forest.pkl",
+        "metadata_path": "artifacts/anomaly/isolation_forest.metadata.json"
+    },
+    "corpus_schema": {
+        "_comment": [
+            "Header names for the generated demonstration corpora.",
+            "",
+            "These live in configuration so that no source-column literal",
+            "appears anywhere in framework/ml/. The feature builder and the",
+            "detector never read this block: they consume the canonical",
+            "concepts that semantic mapping resolves from whatever these",
+            "headers happen to be. The renamed-column generalisation is",
+            "therefore the same generator with a different 'columns' map, which",
+            "is exactly the claim the test is meant to prove."
+        ],
+        "columns": {
+            "entity": "cse",
+            "period": "period",
+            "record": "alert_id",
+            "severity": "priority",
+            "asset": "host",
+            "asset_criticality": "asset_criticality",
+            "escalation": "escalation_status",
+            "investigation": "investigation_notes"
+        },
+        "severity_values": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+        ],
+        "asset_criticality_values": [
+            "LOW",
+            "MEDIUM",
+            "HIGH",
+            "CRITICAL"
+        ],
+        "escalation_positive_value": "ESCALATED",
+        "escalation_negative_value": "NOT_ESCALATED",
+        "unclassified_escalation_value": "PENDING_REVIEW",
+        "asset_pool_size": 24,
+        "entity_label_stem": "REF",
+        "period_label_stem": "PER",
+        "note_pool_size": 6,
+        "note_fresh_word_count": 14,
+        "shared_stem_count": 3,
+        "shared_vocabulary_size": 12,
+        "note_modes": {
+            "_comment": [
+                "Three kinds of investigation wording, deliberately separated",
+                "because the operational-pattern layer already fires on exact",
+                "re-use. The deterministic repetition rule groups records whose",
+                "pairwise token similarity reaches its configured floor of 0.8,",
+                "so 'shared_vocabulary' notes are built to overlap substantially",
+                "without ever reaching that floor: the existing rule cannot see",
+                "them, while the continuous similarity feature the model reads",
+                "can. That is what makes a moderately repetitive profile a",
+                "genuine ML signal rather than a restatement of an existing",
+                "deterministic finding."
+            ],
+            "templated": "exact reuse of one of 'note_pool_size' complete templates",
+            "shared_vocabulary": "'shared_stem_count' stems drawn from 'shared_vocabulary_size', plus a per-record token so no two notes are identical",
+            "fresh": "'note_fresh_word_count' words sampled from a wide bank, giving low pairwise overlap"
+        },
+        "shared_redraw_attempts": 24
+    },
+    "renamed_corpus": {
+        "_comment": [
+            "A second set of the same generated corpora, written with",
+            "different column names. Its purpose is to demonstrate that the",
+            "anomaly layer is independent of source column names: the same",
+            "evidence, described in unfamiliar words, must produce the same",
+            "feature vector and the same verdict.",
+            "",
+            "These names live in configuration rather than in the training",
+            "script so that no executable code in this layer contains a",
+            "source column name. The generator reads whichever map it is",
+            "given, so a deployment can describe its own columns and the",
+            "mapping stays a deployment fact."
+        ],
+        "columns": {
+            "entity": "operating_unit",
+            "period": "reporting_window",
+            "record": "case_reference",
+            "severity": "alert_urgency",
+            "asset": "affected_system",
+            "asset_criticality": "business_impact",
+            "escalation": "referral_state",
+            "investigation": "analyst_remarks"
+        }
+    },
+    "operating_profile_factor": {
+        "_comment": [
+            "WHY THE REFERENCE POPULATION IS NOT A BOX",
+            "=======================================",
+            "",
+            "An Isolation Forest fitted to independently drawn parameters would",
+            "see a filled box, and every interior point of a filled box looks",
+            "ordinary to it. A profile could then only be 'anomalous' by leaving",
+            "the box, which would reduce this layer to a per-feature range check",
+            "-- exactly the fixed-cut-point approach the rest of SAT-SA rejects.",
+            "",
+            "So the reference population is given structure. Each reference",
+            "scope draws one latent factor between 0 and 1, standing for how a",
+            "team actually operates, and several of its parameters are",
+            "expressed as a function of that factor. The couplings below encode",
+            "something true of real security operations: an organisation whose",
+            "escalation culture is strong tends to be mature overall, and",
+            "maturity shows up as decisions recorded for more alerts, triage",
+            "spread across more assets, and less boilerplate investigation",
+            "wording because notes are written per case rather than pasted.",
+            "",
+            "The consequence is the property this layer exists for. A profile",
+            "whose escalation behaviour, asset spread and note wording are each",
+            "individually inside the reference range, but jointly impossible,",
+            "sits far from that structure and is detectable. Detecting a",
+            "contradiction between individually ordinary values is something no",
+            "per-feature range check can do.",
+            "",
+            "value = intercept + coefficient * factor, clamped to 0..1.",
+            "The factor is drawn per reference scope from a configured range and",
+            "is not recorded in the output, because it is a property of the",
+            "generated population, not an observation."
+        ],
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "couplings": {
+            "escalation_positive_share": {
+                "intercept": 0.03,
+                "coefficient": 0.32
+            },
+            "investigation_repetition": {
+                "intercept": 0.45,
+                "coefficient": -0.35
+            },
+            "investigation_shared_vocabulary": {
+                "intercept": 0.03,
+                "coefficient": 0.19
+            },
+            "asset_count_ratio": {
+                "intercept": 0.32,
+                "coefficient": 0.36
+            }
+        }
+    },
+    "reference_corpus": {
+        "_comment": [
+            "The reference population is what ORDINARY operation looks like for this",
+            "tool. Its ranges are deliberately not the full range anyone has ever",
+            "produced. A reference population that spans the whole plausible space",
+            "would make every real profile an interior point of it, and an interior",
+            "point of a filled box is not unusual to any method, model or rule. The",
+            "bands below are ordinary working practice, so a profile sitting well",
+            "outside them is outside ordinary practice, which is the question this",
+            "layer is asked. scope_count 45 is the smallest population that gives a",
+            "stable picture of an 11-dimensional neighbourhood.",
+            "The couplings below are expressed as intercept + coefficient * factor, so the narrowed bands above are what the coupled parameters actually produce across the factor's range. Keeping the two in step matters: narrowing a band while leaving a coupled parameter able to exceed it would put part of the reference population outside the band it is supposed to define."
+        ],
+        "label": "SYNTHETIC_REFERENCE_FOR_DEMONSTRATION",
+        "scope_count": 45,
+        "random_state": 90210,
+        "records_per_scope": {
+            "minimum": 18,
+            "maximum": 64
+        },
+        "asset_count_ratio": {
+            "minimum": 0.3,
+            "maximum": 0.7
+        },
+        "asset_weight_skew": {
+            "minimum": 0.98,
+            "maximum": 1.18
+        },
+        "critical_severity_share": {
+            "minimum": 0.02,
+            "maximum": 0.3
+        },
+        "high_or_above_severity_share": {
+            "minimum": 0.15,
+            "maximum": 0.6
+        },
+        "escalation_positive_share": {
+            "minimum": 0.0,
+            "maximum": 0.5
+        },
+        "escalation_coverage": {
+            "minimum": 0.55,
+            "maximum": 0.95
+        },
+        "investigation_coverage": {
+            "minimum": 0.5,
+            "maximum": 0.9
+        },
+        "investigation_repetition": {
+            "_comment": "Probability that a record reuses a complete template verbatim. Kept below the level at which the deterministic repetition rule fires, so the reference population is not made of profiles that layer already reports.",
+            "minimum": 0.0,
+            "maximum": 0.4
+        },
+        "investigation_shared_vocabulary": {
+            "_comment": "Probability that a record is assembled from a shared stem vocabulary without repeating any note verbatim.",
+            "minimum": 0.0,
+            "maximum": 0.3
+        },
+        "asset_criticality_bias": {
+            "minimum": 0.2,
+            "maximum": 0.6
+        },
+        "evidence_completeness": {
+            "minimum": 0.75,
+            "maximum": 0.95
+        }
+    },
+    "controlled_corpus": {
+        "_comment": [
+            "Controlled inference profiles for the demonstration run.",
+            "",
+            "Each profile states only HOW to generate a scope. It deliberately",
+            "declares no expected verdict: the detector never receives these",
+            "parameters, and the expected verdicts live in the test suite so that",
+            "no executable ML code contains a hardcoded anomaly answer.",
+            "",
+            "Profile 'combined_operational_profile' is the important one. Each of",
+            "its dimensions is only moderately unusual, and each one on its own",
+            "sits inside the reference population's range, so no deterministic",
+            "single-feature rule and no existing SAT-SA pattern flags it. What",
+            "marks it is the combination, which is what the model is for."
+        ],
+        "profiles": [
+            {
+                "profile_id": "concentrated_activity",
+                "description": "Activity concentrated on very few assets within an otherwise ordinary escalation picture. Concentration is the distinguishing characteristic, and the deterministic concentration rule is a reasonable thing for a human to run; the anomaly layer is here to add the whole-profile view, where the concentration sits alongside a high severity mix that the rule never considers.",
+                "records_per_scope": 60,
+                "asset_count_ratio": 0.07,
+                "asset_weight_skew": 1.25,
+                "critical_severity_share": 0.55,
+                "high_or_above_severity_share": 0.92,
+                "escalation_positive_share": 0.2,
+                "escalation_coverage": 1.0,
+                "investigation_coverage": 1.0,
+                "investigation_repetition": 0.08,
+                "investigation_shared_vocabulary": 0.15,
+                "asset_criticality_bias": 0.7,
+                "evidence_completeness": 1.0
+            },
+            {
+                "profile_id": "repetitive_investigation",
+                "description": "Repetitive investigation wording expressed as a limited shared vocabulary rather than identical templates. Measured mean maximum similarity stays near 0.5, which is below the floor at which the deterministic repetition rule groups records, so the repetition is visible to a continuous measure while the existing rule stays silent. This is a deliberate non-duplicate.",
+                "records_per_scope": 50,
+                "asset_count_ratio": 0.55,
+                "asset_weight_skew": 1.03,
+                "critical_severity_share": 0.28,
+                "high_or_above_severity_share": 0.58,
+                "escalation_positive_share": 0.18,
+                "escalation_coverage": 0.9,
+                "investigation_coverage": 0.97,
+                "investigation_repetition": 0.02,
+                "investigation_shared_vocabulary": 0.88,
+                "asset_criticality_bias": 0.42,
+                "evidence_completeness": 0.97
+            },
+            {
+                "profile_id": "unusual_escalation_profile",
+                "description": "An escalation wave. Almost every alert is escalated, and the profile carries the correlates such a wave genuinely comes with: a high severity mix, concentration on the systems involved, and near-complete record submission. Unusual escalation is not judged on the escalation proportion alone, which is why the associated operational shape is part of the demonstration.",
+                "records_per_scope": 43,
+                "asset_count_ratio": 0.34,
+                "asset_weight_skew": 1.1,
+                "critical_severity_share": 0.5,
+                "high_or_above_severity_share": 0.8,
+                "escalation_positive_share": 0.96,
+                "escalation_coverage": 1.0,
+                "investigation_coverage": 0.92,
+                "investigation_repetition": 0.04,
+                "investigation_shared_vocabulary": 0.12,
+                "asset_criticality_bias": 0.52,
+                "evidence_completeness": 0.98
+            },
+            {
+                "profile_id": "combined_operational_profile",
+                "description": "The non-duplicate demonstration. Moderately unusual concentration, moderately unusual escalation and moderately unusual investigation repetition, each of them individually unremarkable next to a dedicated rule, but jointly impossible against the reference population's structure. No deterministic rule reports it: asset concentration stays inside the binomial tail and note similarity stays under the repetition floor. It is reported here only because of the model.",
+                "records_per_scope": 43,
+                "asset_count_ratio": 0.3,
+                "asset_weight_skew": 1.14,
+                "critical_severity_share": 0.53,
+                "high_or_above_severity_share": 0.8,
+                "escalation_positive_share": 0.86,
+                "escalation_coverage": 1.0,
+                "investigation_coverage": 0.97,
+                "investigation_repetition": 0.04,
+                "investigation_shared_vocabulary": 0.6,
+                "asset_criticality_bias": 0.55,
+                "evidence_completeness": 0.99
+            },
+            {
+                "profile_id": "normal_control",
+                "description": "The negative control: moderate concentration, varied investigations, ordinary escalation. It must not be reported. A layer that flags this would be noise, not a finding.",
+                "records_per_scope": 42,
+                "asset_count_ratio": 0.5,
+                "asset_weight_skew": 1.1,
+                "critical_severity_share": 0.15,
+                "high_or_above_severity_share": 0.34,
+                "escalation_positive_share": 0.2,
+                "escalation_coverage": 0.86,
+                "investigation_coverage": 0.8,
+                "investigation_repetition": 0.1,
+                "investigation_shared_vocabulary": 0.12,
+                "asset_criticality_bias": 0.3,
+                "evidence_completeness": 0.88
+            },
+            {
+                "profile_id": "insufficient_evidence",
+                "description": "Too few records to describe an operating profile, with severity and asset criticality withheld from the evidence. Must be NOT_EVALUABLE and must not be reported as normal or as an anomaly.",
+                "records_per_scope": 3,
+                "asset_count_ratio": 0.5,
+                "asset_weight_skew": 1.1,
+                "critical_severity_share": 0.1,
+                "high_or_above_severity_share": 0.2,
+                "escalation_positive_share": 0.0,
+                "escalation_coverage": 0.0,
+                "investigation_coverage": 0.5,
+                "investigation_repetition": 0.0,
+                "investigation_shared_vocabulary": 0.0,
+                "asset_criticality_bias": 0.3,
+                "evidence_completeness": 0.4,
+                "withhold_concepts": [
+                    "ESCALATION_STATUS",
+                    "ASSET_CRITICALITY"
+                ]
+            }
+        ]
+    },
+    "scope_isolation": {
+        "_comment": [
+            "A two-by-two (entity x period) grid used to demonstrate that",
+            "inference never pools scopes. Each cell draws from the shared",
+            "parameter block below, so a cell's evidence depends only on its own",
+            "position in the grid and never on which other cells exist.",
+            "Running any cell alone must therefore produce the same feature",
+            "vector and the same verdict as running the whole grid, which is",
+            "the property the multi-CSE and multi-period tests assert."
+        ],
+        "entity_count": 2,
+        "period_count": 2,
+        "shared_evidence": true,
+        "profiles": [
+            {
+                "profile_id": "grid_baseline",
+                "records_per_scope": 40,
+                "asset_count_ratio": 0.5,
+                "critical_severity_share": 0.12,
+                "high_or_above_severity_share": 0.32,
+                "escalation_positive_share": 0.2,
+                "escalation_coverage": 0.85,
+                "investigation_coverage": 0.78,
+                "investigation_repetition": 0.22,
+                "asset_criticality_bias": 0.3,
+                "evidence_completeness": 0.88,
+                "investigation_shared_vocabulary": 0.1,
+                "asset_weight_skew": 1.1
+            },
+            {
+                "profile_id": "grid_repetitive",
+                "records_per_scope": 40,
+                "asset_count_ratio": 0.5,
+                "critical_severity_share": 0.12,
+                "high_or_above_severity_share": 0.32,
+                "escalation_positive_share": 0.2,
+                "escalation_coverage": 0.85,
+                "investigation_coverage": 0.95,
+                "investigation_repetition": 0.9,
+                "asset_criticality_bias": 0.3,
+                "evidence_completeness": 0.97,
+                "investigation_shared_vocabulary": 0.05,
+                "asset_weight_skew": 1.1
+            }
+        ]
+    },
+    "limitations": [
+        "Isolation Forest identifies unusual operational profiles relative to its reference population. It does not establish that the observed behaviour is malicious, unsafe, non-compliant, or a control failure.",
+        "The human supervisor remains responsible for interpretation.",
+        "The reference population is SYNTHETIC_REFERENCE_FOR_DEMONSTRATION. It is generated, not observed, and it is not a real-world baseline and not ground truth.",
+        "A POTENTIAL_OPERATIONAL_ANOMALY verdict is a request for human review, not a finding of wrongdoing.",
+        "The model decision score is a model-internal distance measure, not a risk score, a severity, or a confidence.",
+        "Feature contributions describe how far an observed value sits from the reference distribution. They are not causal and are not feature importances.",
+        "An unusual profile can arise from legitimate operational change, data-collection practice, or a change in how the scope is defined."
+    ]
+}

@@ -1,0 +1,13 @@
+cse,period,alert_id,priority,threat_type,security_label,host,asset_criticality,telemetry_available,created_time,closed_time,closed_by,escalation_status,investigation_notes,root_cause_identified
+CSE-A01,Period-1,ALRT1001,HIGH,Malware,Malicious,WEB-01,critical,True,2026-01-04,6,Alice,escalated,"Malware binary quarantined and host isolated at the edge proxy",True
+CSE-A01,Period-1,ALRT1002,LOW,Phishing,Suspicious,MBX-07,medium,True,2026-01-06,18,Bob,not_escalated,"Credential reset requested from the mailbox owner",False
+CSE-A01,Period-1,ALRT1003,CRITICAL,Ransomware,Malicious,DB-01,critical,True,2026-01-09,3,Alice,escalated,"Ransomware payload contained, backups verified clean",True
+CSE-A01,Period-2,ALRT1004,MEDIUM,Phishing,Suspicious,WEB-01,critical,True,2026-04-02,25,Carol,not_escalated,"",False
+CSE-A01,Period-2,ALRT1005,HIGH,Malware,Malicious,APP-03,high,True,2026-04-05,9,Carol,escalated,"Persistence mechanism removed, patched build deployed",True
+CSE-A01,Period-2,ALRT1006,LOW,Reconnaissance,Suspicious,EDGE-02,medium,False,2026-04-08,40,Alice,not_escalated,"Scan source blocked at the perimeter",False
+CSE-B02,Period-1,ALRT2001,HIGH,WebIntrusion,Malicious,WEB-11,critical,True,2026-01-05,5,Dan,escalated,"Web shell removed, injection vector patched",True
+CSE-B02,Period-1,ALRT2002,LOW,PolicyViolation,Informational,DB-11,low,True,2026-01-11,30,Dan,not_escalated,"",False
+CSE-B02,Period-1,ALRT2003,MEDIUM,Malware,Malicious,APP-11,high,True,2026-01-15,12,Eve,escalated,"Malware removed from endpoint, no lateral movement observed",True
+CSE-B02,Period-2,ALRT2004,HIGH,Ransomware,Malicious,DB-11,critical,True,2026-04-03,4,Eve,escalated,"Ransomware contained, immutable backup restored",True
+CSE-B02,Period-2,ALRT2005,LOW,Phishing,Suspicious,MBX-11,medium,True,2026-04-09,22,Eve,not_escalated,"",False
+CSE-B02,Period-2,ALRT2006,CRITICAL,WebIntrusion,Malicious,WEB-11,critical,True,2026-04-12,2,Dan,escalated,"Intrusion traced to unpatched public facing service",True
