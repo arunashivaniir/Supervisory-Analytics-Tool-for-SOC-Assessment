@@ -8,8 +8,12 @@
 
 import type {
   AnalysisState,
+  CanonicalContractEntry,
+  CanonicalMappingDecision,
+  CanonicalMappingState,
   DatasetEntry,
   HealthState,
+  Json,
   PipelineResult,
 } from "../types/pipeline";
 import type { EvidenceIntegrity } from "../types/evidence";
@@ -159,4 +163,85 @@ export function completedResult(state: AnalysisState | null): PipelineResult | n
   }
 
   return state.result ?? null;
+}
+
+// ------------------------------------------------------- preview (Batch D)
+
+/** One structured validation issue, as the canonical layer reported it. */
+export interface PreviewIssue {
+  code: string;
+  severity: string;
+  entity?: string | null;
+  field?: string | null;
+  source?: string | null;
+  message: string;
+}
+
+/**
+ * The bounded pre-run preview of one dataset: profile, role, mapping
+ * decisions, validation and relationship summaries. No analytics run to
+ * produce it, and none of its values is a finding. An entry with `error`
+ * set could not be previewed; nothing else on it may be trusted.
+ */
+export interface DatasetPreview {
+  dataset: string;
+  record_count: number;
+  execution_mode: string;
+  detected_role: {
+    role: string;
+    confidence: number | null;
+    reason?: string | null;
+    signals?: string[];
+  };
+  schema: {
+    columns: Array<{
+      column_name?: string;
+      category?: string;
+      sample_values?: Json[];
+    }>;
+  };
+  mapping_decisions: CanonicalMappingDecision[];
+  mapping_states: Partial<Record<CanonicalMappingState, number>>;
+  mapping_collisions: Array<{
+    canonical_path?: string;
+    winner?: string;
+    losers?: string[];
+  }>;
+  mapping_overrides_rejected: Array<{
+    source_field: string;
+    concept?: string | null;
+    reason: string;
+  }>;
+  validation: {
+    error_count: number;
+    warning_count: number;
+    issues: PreviewIssue[];
+  };
+  relationships: Record<string, Json>;
+  canonical_contract: Record<string, CanonicalContractEntry>;
+  previewed_at?: string;
+  error?: string;
+}
+
+/**
+ * Preview submitted datasets without analysing them.
+ *
+ * One call for the whole package; each dataset previews independently and
+ * a file that cannot be previewed reports its own error rather than
+ * failing the rest. Reviewer roles and mapping choices are recomputed by
+ * the backend, never pasted over the automatic values.
+ */
+export function requestPreviews(
+  datasets: string[],
+  explicitRoles?: Record<string, string>,
+  mappingOverrides?: Record<string, Record<string, string | null>>,
+): Promise<{ previews: DatasetPreview[] }> {
+  return request<{ previews: DatasetPreview[] }>("/previews", {
+    method: "POST",
+    body: JSON.stringify({
+      datasets,
+      explicit_roles: explicitRoles ?? {},
+      mapping_overrides: mappingOverrides ?? {},
+    }),
+  });
 }

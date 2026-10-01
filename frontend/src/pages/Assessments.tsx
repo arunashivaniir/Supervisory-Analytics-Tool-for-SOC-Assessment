@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useAnalysis } from "../app/AnalysisContext";
 import {
   capabilityTallyForScope,
+  countByFamily,
   findingsForScope,
   scopeRows,
   unifiedFindings,
@@ -21,7 +22,11 @@ import {
   periodLabel,
   periodResolved,
 } from "../lib/formatters";
-import { anomalyVerdict, capabilityStatus } from "../lib/status";
+import {
+  SIGNAL_FAMILIES,
+  anomalyVerdict,
+  capabilityStatus,
+} from "../lib/status";
 import type { AnomalyScopeResult } from "../types/pipeline";
 
 /**
@@ -169,6 +174,7 @@ export function AssessmentsPage() {
               <HeadCell align="right">Records</HeadCell>
               <HeadCell>Evidence posture</HeadCell>
               <HeadCell align="right">Signals</HeadCell>
+              <HeadCell>Primary signal</HeadCell>
               <HeadCell>Anomaly</HeadCell>
               <HeadCell align="right">Review</HeadCell>
           </TableHead>
@@ -179,6 +185,7 @@ export function AssessmentsPage() {
                   row.assessment_id,
                 );
                 const total = scopeFindings.length;
+                const perFamily = countByFamily(scopeFindings);
                 const tally = capabilityTallyForScope(result, row.assessment_id);
                 const anomaly = anomalyFor(result, row.assessment_id);
 
@@ -227,6 +234,9 @@ export function AssessmentsPage() {
                       )}
                     </TableCell>
                     <TableCell>
+                      <PrimaryFamily perFamily={perFamily} />
+                    </TableCell>
+                    <TableCell>
                       {anomaly ? (
                         <StatusBadge
                           tone={anomalyVerdict(anomaly.verdict).tone}
@@ -260,6 +270,38 @@ export function AssessmentsPage() {
         </Caveat>
       ) : null}
     </>
+  );
+}
+
+/**
+ * The family with the most findings for a scope, ties broken by the
+ * pipeline's own family order. Zero findings is stated as no signal, never
+ * as a judgement about the entity.
+ */
+function PrimaryFamily({ perFamily }: { perFamily: Record<string, number> }) {
+  let best: (typeof SIGNAL_FAMILIES)[number] | null = null;
+  let bestCount = 0;
+
+  for (const family of SIGNAL_FAMILIES) {
+    const count = perFamily[family.id] ?? 0;
+
+    if (count > bestCount) {
+      best = family;
+      bestCount = count;
+    }
+  }
+
+  if (!best) {
+    return (
+      <span className="text-xs text-text-tertiary italic">No signal</span>
+    );
+  }
+
+  return (
+    <span className="whitespace-nowrap text-xs text-text">
+      {best.singular}{" "}
+      <span className="tabular text-text-tertiary">· {bestCount}</span>
+    </span>
   );
 }
 

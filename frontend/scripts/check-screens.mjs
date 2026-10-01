@@ -296,16 +296,24 @@ for (const route of ["/", "/assessments", "/findings", "/evidence", "/reports"])
         : `Evidence shows the blocked submissions the backend reported (${blocked.length})`,
     );
 
-    // Every row is opened in turn. The detail is where a value the backend
+    // Every integrity row is opened in turn. Scoped to the integrity panel:
+    // other tables on this screen (e.g. the canonical mapping review) also
+    // contain buttons, and a page-wide selector would count those rows as
+    // integrity submissions. The detail is where a value the backend
     // returns as a structure is rendered, and rendering one as though it were
     // text takes the whole screen down, so the collapsed state is not enough to
     // have checked: the detail has to be opened to have shown it. One row at a
     // time, because the panel opens one row at a time.
+    const panelSelector = '[data-testid="evidence-integrity-panel"]';
     const rowCount = await page.evaluate(
-      () =>
-        [...document.querySelectorAll("tr")].filter((row) =>
+      (selector) => {
+        const root = document.querySelector(selector) ?? document;
+
+        return [...root.querySelectorAll("tr")].filter((row) =>
           row.querySelector("button"),
-        ).length,
+        ).length;
+      },
+      panelSelector,
     );
 
     let openedRows = 0;
@@ -313,15 +321,20 @@ for (const route of ["/", "/assessments", "/findings", "/evidence", "/reports"])
     let provenanceShown = 0;
 
     for (let index = 0; index < rowCount; index += 1) {
-      const expanded = await page.evaluate((position) => {
-        const rows = [...document.querySelectorAll("tr")].filter((row) =>
-          row.querySelector("button"),
-        );
+      const expanded = await page.evaluate(
+        (position, selector) => {
+          const root = document.querySelector(selector) ?? document;
+          const rows = [...root.querySelectorAll("tr")].filter((row) =>
+            row.querySelector("button"),
+          );
 
-        rows[position]?.click();
+          rows[position]?.click();
 
-        return true;
-      }, index);
+          return true;
+        },
+        index,
+        panelSelector,
+      );
 
       if (!expanded) {
         continue;
@@ -349,13 +362,18 @@ for (const route of ["/", "/assessments", "/findings", "/evidence", "/reports"])
       }
 
       // Close it again before opening the next one.
-      await page.evaluate((position) => {
-        const rows = [...document.querySelectorAll("tr")].filter((row) =>
-          row.querySelector("button"),
-        );
+      await page.evaluate(
+        (position, selector) => {
+          const root = document.querySelector(selector) ?? document;
+          const rows = [...root.querySelectorAll("tr")].filter((row) =>
+            row.querySelector("button"),
+          );
 
-        rows[position]?.click();
-      }, index);
+          rows[position]?.click();
+        },
+        index,
+        panelSelector,
+      );
     }
 
     check(

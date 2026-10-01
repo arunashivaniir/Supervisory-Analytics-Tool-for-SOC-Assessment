@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 
 import { useAnalysis } from "../app/AnalysisContext";
 import {
@@ -6,6 +7,8 @@ import {
   capabilityTallyForScope,
   capabilityScopes,
   scopeRows,
+  unifiedFindings,
+  type UnifiedFinding,
 } from "../app/selectors";
 import { Caveat, PageHeader, Section } from "../components/layout/PageHeader";
 import { EvidenceIntegrityPanel } from "../components/evidence/EvidenceIntegrityPanel";
@@ -33,6 +36,7 @@ import {
 } from "../lib/formatters";
 import { capabilityStatus } from "../lib/status";
 import type { Capability } from "../types/pipeline";
+import { MappingReviewSection } from "../components/assessment/CanonicalMappingReview";
 
 /**
  * What the submitted data can and cannot establish.
@@ -50,6 +54,14 @@ export function EvidencePage() {
   const scopes = useMemo(() => capabilityScopes(result), [result]);
 
   const [scopeId, setScopeId] = useState("all");
+  const [searchParams] = useSearchParams();
+
+  const findings = useMemo(() => unifiedFindings(result), [result]);
+  const linkedKey = searchParams.get("finding");
+  const linkedFinding =
+    linkedKey !== null
+      ? (findings.find((item) => item.key === linkedKey) ?? null)
+      : null;
 
   const activeScopeId =
     scopeId === "all" ? (rows[0]?.assessment_id ?? null) : scopeId;
@@ -110,6 +122,10 @@ export function EvidencePage() {
       />
 
       <EvidenceIntegrityPanel />
+
+      {linkedKey !== null ? (
+        <FindingEvidence finding={linkedFinding} findingKey={linkedKey} />
+      ) : null}
 
       <div className="mb-3 flex flex-wrap items-end gap-3">
         <SelectFilter
@@ -182,6 +198,16 @@ export function EvidencePage() {
           </ul>
         </Card>
       )}
+
+      <MappingReviewSection />
+
+      <Section
+        title="Legacy mapping report (superseded)"
+        description="The pre-C.1 confidence bands, kept for audit only. Authoritative decisions are in the review above."
+        className="mt-6"
+      >
+        <MappingReport />
+      </Section>
 
       <Section
         title="Assessment scope"
@@ -386,5 +412,274 @@ function CapabilityItem({
         </div>
       ) : null}
     </li>
+  );
+}
+
+/**
+ * The legacy pipeline mapping bands, superseded by the C.1 authoritative
+ * review above. Shown for audit only; never presented as final truth.
+ */
+function MappingReport() {
+  const { result } = useAnalysis();
+  const report = result?.mapping_report ?? null;
+
+  if (!report) {
+    return (
+      <Card>
+        <EmptyState
+          title="No mapping reported"
+          description="The pipeline returned no canonical mapping for this assessment."
+        />
+      </Card>
+    );
+  }
+
+  const bands = [
+    { label: "High confidence", entries: report.high_confidence },
+    { label: "Medium confidence", entries: report.medium_confidence },
+    { label: "Low confidence", entries: report.low_confidence },
+  ];
+
+  return (
+    <Card>
+      <div className="border-b border-border px-4 py-2.5 text-xs text-text-secondary">
+        {report.mapped_columns} of {report.dataset_columns} columns mapped ·
+        overall confidence {report.overall_mapping_confidence.toFixed(2)}
+        {report.unmapped_columns.length > 0
+          ? ` · ${report.unmapped_columns.length} unmapped`
+          : ""}
+      </div>
+      <DataTable>
+        <TableHead>
+          <HeadCell>Incoming field</HeadCell>
+          <HeadCell>Canonical concept</HeadCell>
+          <HeadCell align="right">Confidence</HeadCell>
+          <HeadCell>Basis</HeadCell>
+        </TableHead>
+        <TableBody>
+          {bands.flatMap((band) =>
+            band.entries.map((entry) => (
+              <TableRow key={`${band.label}:${entry.source_column}`}>
+                <TableCell className="font-mono micro">
+                  {entry.source_column}
+                </TableCell>
+                <TableCell className="font-mono micro">
+                  {entry.canonical_concept}
+                </TableCell>
+                <TableCell align="right" className="tabular">
+                  {entry.confidence.toFixed(2)}
+                </TableCell>
+                <TableCell className="text-xs text-text-secondary">
+                  {band.label}
+                </TableCell>
+              </TableRow>
+            )),
+          )}
+          {report.unmapped_columns.map((column) => (
+            <TableRow key={`unmapped:${column}`}>
+              <TableCell className="font-mono micro">{column}</TableCell>
+              <TableCell>
+                <span className="text-text-tertiary italic">Unmapped</span>
+              </TableCell>
+              <TableCell align="right" className="tabular">
+                <span className="text-text-tertiary">—</span>
+              </TableCell>
+              <TableCell className="text-xs text-text-secondary">
+                Ambiguous or no candidate; left unmapped rather than guessed
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </DataTable>
+    </Card>
+  );
+}
+
+/**
+ * Evidence for one linked finding: source, canonical, derived, signal.
+ *
+ * Everything here already travelled with the result — no extra fetch,
+ * no full dataset. Source fields are the submission's own values;
+ * canonical fields are the concepts the mapping reported for them;
+ * derived values are what the layer computed; the signal is why the
+ * record mattered. Provenance names the dataset, scope, entity and
+ * period so the finding stays defensible.
+ */
+function FindingEvidence({
+  finding,
+  findingKey,
+}: {
+  finding: UnifiedFinding | null;
+  findingKey: string;
+}) {
+  const { result } = useAnalysis();
+
+  if (!result) {
+    return null;
+  }
+
+  if (!finding) {
+    return (
+      <Section title="Finding evidence">
+        <Card>
+          <EmptyState
+            title="Finding not in this assessment"
+            description={`No finding with the identifier ${findingKey} exists in the loaded result. It may belong to a different dataset or run.`}
+          />
+        </Card>
+      </Section>
+    );
+  }
+
+  const payload = finding.finding as unknown as Record<string, unknown>;
+  const reference =
+    finding.finding.record_reference &&
+    typeof finding.finding.record_reference === "object"
+      ? Object.entries(finding.finding.record_reference).filter(
+          ([, value]) => value !== null && value !== undefined && value !== "",
+        )
+      : [];
+
+  const mappingEntries = [
+    ...result.mapping_report.high_confidence,
+    ...result.mapping_report.medium_confidence,
+    ...result.mapping_report.low_confidence,
+  ];
+  const canonicalFor = (concept: string) =>
+    mappingEntries.filter((entry) => entry.canonical_concept === concept);
+
+  const derived: Array<[string, unknown]> = [];
+  for (const key of ["evidence", "evidence_summary", "population"]) {
+    const value = payload[key];
+    if (value && typeof value === "object") {
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        if (v !== null && v !== undefined && typeof v !== "object") {
+          derived.push([k, v]);
+        }
+      }
+    }
+  }
+
+  return (
+    <Section
+      title="Finding evidence"
+      description={`${finding.familyLabel} · ${finding.indicator}`}
+    >
+      <Card>
+        <div className="grid grid-cols-1 gap-x-8 px-4 py-3 lg:grid-cols-2">
+          <div>
+            <div className="section-label mb-1.5">Source fields</div>
+            {reference.length === 0 ? (
+              <p className="text-xs text-text-tertiary italic">
+                No supporting source records were returned for this finding.
+              </p>
+            ) : (
+              <dl className="divide-y divide-border/70">
+                {reference.map(([key, value]) => (
+                  <DataRow
+                    key={key}
+                    label={key.replace(/_/g, " ")}
+                    value={
+                      <span className="font-mono text-xs">{String(value)}</span>
+                    }
+                  />
+                ))}
+              </dl>
+            )}
+          </div>
+          <div>
+            <div className="section-label mb-1.5">Canonical fields</div>
+            {finding.evidenceConcepts.length === 0 ? (
+              <p className="text-xs text-text-tertiary italic">
+                Canonical field unavailable because the source field could
+                not be mapped with sufficient confidence.
+              </p>
+            ) : (
+              <dl className="divide-y divide-border/70">
+                {finding.evidenceConcepts.map((concept) => {
+                  const mapped = canonicalFor(concept);
+                  return (
+                    <DataRow
+                      key={concept}
+                      label={concept}
+                      value={
+                        mapped.length > 0 ? (
+                          <span className="font-mono micro text-text-secondary">
+                            {mapped
+                              .map(
+                                (entry) =>
+                                  `${entry.source_column} (${entry.confidence.toFixed(2)})`,
+                              )
+                              .join(" · ")}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-text-tertiary italic">
+                            Unmapped in this assessment
+                          </span>
+                        )
+                      }
+                    />
+                  );
+                })}
+              </dl>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-border px-4 py-3">
+          <div className="section-label mb-1.5">Derived values</div>
+          {derived.length === 0 ? (
+            <p className="text-xs text-text-tertiary italic">
+              The layer reported no derived measurements for this finding.
+            </p>
+          ) : (
+            <dl className="divide-y divide-border/70">
+              {derived.slice(0, 12).map(([key, value]) => (
+                <DataRow
+                  key={key}
+                  label={key.replace(/_/g, " ")}
+                  value={<span className="tabular text-xs">{String(value)}</span>}
+                />
+              ))}
+            </dl>
+          )}
+        </div>
+
+        <div className="border-t border-border px-4 py-3">
+          <div className="section-label mb-1.5">Analytical signal</div>
+          <p className="text-[13px] leading-relaxed text-text">{finding.reason}</p>
+          <p className="mt-1 micro text-text-tertiary">
+            {finding.familyLabel}
+            {finding.status ? ` · ${finding.status}` : " · state not reported"}
+          </p>
+        </div>
+
+        <div className="border-t border-border px-4 py-3">
+          <div className="section-label mb-1.5">Provenance</div>
+          <DataRow label="Source dataset" value={<Token>{result.dataset}</Token>} />
+          <DataRow label="Assessment scope" value={<Token>{finding.assessment_id}</Token>} />
+          <DataRow
+            label="Entity"
+            value={
+              entityResolved(finding.entity)
+                ? entityLabel(finding.entity)
+                : "Entity not identified"
+            }
+          />
+          <DataRow
+            label="Period"
+            value={
+              periodResolved(finding.period)
+                ? periodLabel(finding.period)
+                : "Period not determined"
+            }
+          />
+          <p className="mt-1 micro text-text-tertiary">
+            Integrity of the submission is reported by the register above;
+            digests are computed by the evidence trust layer, never here.
+          </p>
+        </div>
+      </Card>
+    </Section>
   );
 }

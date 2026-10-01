@@ -1,8 +1,16 @@
 import { RefreshCw } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 import { useAnalysis } from "../../app/AnalysisContext";
+import { useAssessmentBuilder } from "../../app/AssessmentBuilder";
 import { cn } from "../../lib/cn";
 import { datasetName } from "../../lib/formatters";
+import {
+  entryForDataset,
+  formatRunTime,
+  shortHash,
+  useEvidenceRegister,
+} from "../../services/evidenceRegister";
 import { Button } from "../ui/Button";
 import { StatusBadge } from "../ui/StatusBadge";
 import type { Tone } from "../../lib/status";
@@ -20,8 +28,17 @@ import type { Tone } from "../../lib/status";
  */
 export function TopBar({ onSelectDataset }: { onSelectDataset: () => void }) {
   const { analysis, result, running, pending, refresh } = useAnalysis();
+  const { datasets: packageDatasets } = useAssessmentBuilder();
+  const { items: evidenceItems } = useEvidenceRegister();
+  const navigate = useNavigate();
 
   const subject = result ? datasetName(result.dataset) : null;
+  const evidenceEntry = result
+    ? entryForDataset(evidenceItems, result.dataset)
+    : null;
+  const lastRun = analysis
+    ? (analysis.finished_at ?? analysis.started_at)
+    : null;
 
   const { label, tone } = describeStatus({
     hasRun: Boolean(analysis),
@@ -37,7 +54,13 @@ export function TopBar({ onSelectDataset }: { onSelectDataset: () => void }) {
     >
       <div className="flex min-w-0 items-center gap-4">
         <div className="min-w-0">
-          <div className="section-label">Dataset</div>
+          <div className="section-label">
+            {analysis || result
+              ? "Dataset"
+              : packageDatasets.length > 0
+                ? "Assessment"
+                : "Dataset"}
+          </div>
           {subject ? (
             <div className="truncate text-[13px] font-medium text-text" title={result?.dataset}>
               {subject}
@@ -45,6 +68,16 @@ export function TopBar({ onSelectDataset }: { onSelectDataset: () => void }) {
           ) : analysis ? (
             <div className="truncate text-[13px] font-medium text-text-tertiary italic">
               {analysis.dataset.split("/").pop()}
+            </div>
+          ) : packageDatasets.length > 0 ? (
+            <div
+              className="truncate text-[13px] font-medium text-text"
+              title={packageDatasets.join(", ")}
+            >
+              Assessment package ·{" "}
+              {packageDatasets.length === 1
+                ? "1 dataset"
+                : `${packageDatasets.length} datasets`}
             </div>
           ) : (
             <div className="text-[13px] font-medium text-text-tertiary italic">
@@ -61,6 +94,27 @@ export function TopBar({ onSelectDataset }: { onSelectDataset: () => void }) {
               title={pending.dataset}
             >
               {datasetName(pending.dataset)}
+            </div>
+          </div>
+        ) : null}
+
+        {analysis ? (
+          <div className="hidden min-w-0 border-l border-border pl-4 lg:block">
+            <div className="section-label">Last run</div>
+            <div className="truncate text-[13px] text-text-secondary">
+              {lastRun ? formatRunTime(lastRun) : "Not recorded"}
+              {evidenceItems !== null ? (
+                <span
+                  className="font-mono"
+                  title={
+                    evidenceEntry?.registered_sha256 ??
+                    "This dataset matches no registered submission"
+                  }
+                >
+                  {" "}
+                  · {shortHash(evidenceEntry?.registered_sha256 ?? null)}
+                </span>
+              ) : null}
             </div>
           </div>
         ) : null}
@@ -92,6 +146,16 @@ export function TopBar({ onSelectDataset }: { onSelectDataset: () => void }) {
         <Button size="sm" variant="ghost" onClick={onSelectDataset}>
           {analysis ? "Change dataset" : "Select dataset"}
         </Button>
+        {!analysis && packageDatasets.length > 0 ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate("/assessments/new")}
+            title="Return to the assessment package under review"
+          >
+            Review package
+          </Button>
+        ) : null}
       </div>
     </header>
   );

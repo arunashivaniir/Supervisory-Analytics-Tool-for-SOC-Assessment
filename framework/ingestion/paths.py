@@ -35,6 +35,31 @@ SCANNABLE_SUFFIXES = (".csv", ".tsv", ".txt", ".ndjson", ".jsonl")
 DOCUMENT_SUFFIXES = (".json",)
 
 
+def resolve_source(source: Any) -> Any:
+    """File access path for a submission reference.
+
+    Absolute paths pass through untouched. Relative paths resolve
+    against ``SATSA_DATA_ROOT`` when it names a runtime data directory
+    (packaged builds); otherwise they pass through unchanged, so the
+    working-directory behaviour is exactly as before.
+    """
+
+    if not isinstance(source, (str, os.PathLike)):
+        return source
+
+    text = os.fspath(source)
+
+    if os.path.isabs(text):
+        return source
+
+    root = os.environ.get("SATSA_DATA_ROOT")
+
+    if root:
+        return os.path.join(os.path.abspath(root), text)
+
+    return source
+
+
 def large_path_threshold_bytes() -> int:
     """Size threshold for the large path, in bytes."""
 

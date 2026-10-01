@@ -30,7 +30,12 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-from backend.datasets import list_datasets, repository_root, resolve_dataset
+from backend.datasets import (
+    bundle_root,
+    list_datasets,
+    repository_root,
+    resolve_dataset,
+)
 from backend.jobs import AnalysisStore
 
 # The frontend dev server origin. Fixed, not a wildcard, so the adapter is
@@ -62,8 +67,9 @@ app.add_middleware(
 store = AnalysisStore()
 
 # The React bundle, when it has been built. Served read-only so the whole
-# application can run from one origin with no CDN.
-FRONTEND_DIST = os.path.join(repository_root(), "frontend", "dist")
+# application can run from one origin with no CDN. In a frozen executable
+# this lives inside the bundle; in development it is frontend/dist.
+FRONTEND_DIST = os.path.join(bundle_root(), "frontend", "dist")
 
 
 class AnalysisRequest(BaseModel):
@@ -73,6 +79,86 @@ class AnalysisRequest(BaseModel):
         ...,
         description="Repository-relative path to a dataset file.",
     )
+
+
+class PreviewRequest(BaseModel):
+    """A request to preview submitted datasets without analysing them."""
+
+    datasets: List[str] = Field(
+        ...,
+        description="Repository-relative dataset paths, boundaries preserved.",
+    )
+    explicit_roles: Optional[Dict[str, str]] = Field(
+        default=None,
+        description="Reviewer role per dataset path; detection otherwise.",
+    )
+    mapping_overrides: Optional[Dict[str, Dict[str, Any]]] = Field(
+        default=None,
+        description="Reviewer concept per source field per dataset path.",
+    )
+
+
+@app.post("/api/previews")
+def create_previews(request: PreviewRequest) -> Dict[str, Any]:
+    """Preview each submitted dataset independently. No analytics run.
+
+    Every dataset gets its own preview entry: either the bounded
+    canonical preview or an error entry saying why it could not be
+    previewed. One bad file never fails the rest of the package. The
+    existing single-dataset analysis endpoint is untouched.
+    """
+
+    from backend.serialisation import serialisable_result
+    from framework.canonical.preview import preview_dataset
+    from framework.pipeline import SATSAPipeline
+
+    pipeline = SATSAPipeline()
+    previews: List[Dict[str, Any]] = []
+
+    for dataset in request.datasets or []:
+        try:
+            absolute = resolve_dataset(dataset)
+        except FileNotFoundError:
+            previews.append({"dataset": dataset, "error": "Dataset not found"})
+            continue
+        except ValueError as error:
+            previews.append({"dataset": dataset, "error": str(error)})
+            continue
+
+        relative = os.path.relpath(absolute, repository_root())
+
+        try:
+            from backend.evidence_store import gate_dataset
+
+            gate_dataset(relative)
+        except Exception as error:  # noqa: BLE001 - reported per dataset
+            from backend.evidence_store import EvidenceAnalysisBlocked
+
+            if isinstance(error, EvidenceAnalysisBlocked):
+                previews.append({"dataset": dataset, "error": error.reason})
+                continue
+
+            raise
+
+        try:
+            preview = preview_dataset(
+                dataset,
+                pipeline,
+                explicit_role=(request.explicit_roles or {}).get(dataset),
+                mapping_overrides=(request.mapping_overrides or {}).get(dataset),
+            )
+        except FileNotFoundError:
+            previews.append({"dataset": dataset, "error": "Dataset not found"})
+            continue
+        except Exception as error:  # noqa: BLE001 - reported per dataset
+            previews.append(
+                {"dataset": dataset, "error": f"{type(error).__name__}: {error}"}
+            )
+            continue
+
+        previews.append(preview)
+
+    return serialisable_result({"previews": previews})
 
 
 @app.get("/api/health")

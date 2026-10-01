@@ -24,7 +24,7 @@ from framework.canonical import decisions as mapping_decisions
 from framework.canonical import roles as dataset_roles
 from framework.canonical import relationships as joins
 from framework.canonical import validate as package_validation
-from framework.canonical.contract import MAPPING_STATES
+from framework.canonical.contract import CONCEPTS, MAPPING_STATES
 
 PACKAGE_VERSION = "1"
 
@@ -150,6 +150,7 @@ def _assemble(
         "package_version": PACKAGE_VERSION,
         "source_dataset": source_id,
         "detected_role": role,
+        "canonical_contract": _contract_view(),
         "schema": {
             "columns": [
                 {
@@ -176,6 +177,30 @@ def applied_decisions(
     return mapping_decisions.applied_mapping(
         package.get("mapping_decisions", [])
     )
+
+
+def _contract_view() -> Dict[str, Dict[str, Any]]:
+    """Transported registry view: concept -> contract metadata.
+
+    Additive metadata so the mapping-review UI can filter the strict
+    dropdown (datatype/category/pipeline/path) without duplicating the
+    canonical vocabulary in the frontend. Source of truth remains
+    ``framework.canonical.contract.CONCEPTS``.
+    """
+
+    view: Dict[str, Dict[str, Any]] = {}
+
+    for name, entry in CONCEPTS.items():
+        view[name] = {
+            "canonical_path": entry.get("canonical_path"),
+            "category": entry.get("category"),
+            "pipeline": entry.get("pipeline"),
+            "datatype": entry.get("datatype"),
+            "required": bool(entry.get("required", False)),
+            "cardinality": entry.get("cardinality", "ONE"),
+        }
+
+    return view
 
 
 def mapping_state_names() -> List[str]:

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 
 import { DatasetSwitcher } from "../components/assessment/DatasetSwitcher";
 import { Sidebar } from "../components/layout/Sidebar";
@@ -25,10 +25,11 @@ import { useAnalysis } from "./AnalysisContext";
 export function AppShell() {
   const { analysisError, dismissError, result, pending } = useAnalysis();
   const [switcherOpen, setSwitcherOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen min-h-screen bg-canvas">
-      <Sidebar />
+      <Sidebar onNewAssessment={() => navigate("/assessments/new")} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar onSelectDataset={() => setSwitcherOpen(true)} />

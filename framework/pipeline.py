@@ -141,23 +141,28 @@ class SATSAPipeline:
     def run(self, dataset_file, evidence_id=None):
 
 
-        # Execution-path selection happens before any loader touches the
-        # file: the large path must never materialize rows to decide it
-        # does not need them. Small files take the record flow below,
-        # unchanged; large files take _run_large_scan.
+        # File access goes through the resolved source path; labels keep
+        # the path as given. When SATSA_DATA_ROOT names a runtime data
+        # directory (packaged builds), relative submissions resolve
+        # against it instead of the process working directory. Unset, the
+        # given path is used unchanged, exactly as before.
+
+        from framework.ingestion.paths import resolve_source
+
+        source_path = resolve_source(dataset_file)
 
         from framework.ingestion.paths import select_execution_mode
 
-        if select_execution_mode(dataset_file) == "large":
+        if select_execution_mode(source_path) == "large":
 
-            return self._run_large_scan(dataset_file, evidence_id)
+            return self._run_large_scan(dataset_file, source_path, evidence_id)
 
 
         print("[+] Loading dataset")
 
 
         ingestion = self.ingestion.load(
-            dataset_file
+            source_path
         )
 
 
@@ -542,11 +547,15 @@ class SATSAPipeline:
 
 
 
-    def _run_large_scan(self, dataset_file, evidence_id=None):
+    def _run_large_scan(self, dataset_file, source_path=None, evidence_id=None):
 
         """
         Large-data execution: profile, map, validate and relate a
         submission by analytical scan, with bounded Python memory.
+
+        ``dataset_file`` is the label echoed into the result;
+        ``source_path`` is the file actually opened (defaults to the
+        label, so direct callers are unaffected).
 
         Produces the profile, semantic mapping, mapping report, dataset
         context and canonical package over the full data. Record-level
@@ -567,7 +576,9 @@ class SATSAPipeline:
         print("[+] Opening analytical scan (large-data path)")
 
 
-        scan = open_scan(dataset_file)
+        scan = open_scan(
+            source_path if source_path is not None else dataset_file
+        )
 
 
         try:

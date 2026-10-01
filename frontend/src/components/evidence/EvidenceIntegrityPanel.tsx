@@ -131,7 +131,7 @@ export function EvidenceIntegrityPanel() {
   }, [items]);
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6" data-testid="evidence-integrity-panel">
       <CardHeader
         title="Evidence integrity"
         description={

@@ -10,6 +10,7 @@ truth.
 from __future__ import annotations
 
 import os
+import sys
 from typing import Any, Dict, List, Optional
 
 #: Extensions the ingestion layer can actually open. Used only to keep the
@@ -38,7 +39,42 @@ EXCLUDED_DIRECTORIES = {
 
 
 def repository_root() -> str:
-    """Absolute path to the repository root."""
+    """Absolute path to the repository root.
+
+    Packaging override: when ``SATSA_DATA_ROOT`` is set, it names the
+    runtime data directory instead (datasets, evidence, exports). A
+    frozen executable sets it to the directory beside the executable
+    unless the user already set it. Unset, this behaves exactly as
+    before, so normal development is untouched.
+    """
+
+    override = os.environ.get("SATSA_DATA_ROOT")
+
+    if override:
+        return os.path.abspath(override)
+
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(os.path.abspath(sys.executable))
+
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def bundle_root() -> str:
+    """Absolute path to the bundled read-only resources.
+
+    In a frozen executable this is the bundle directory (``sys._MEIPASS``)
+    holding the frontend build and framework configs; in development it is
+    the repository root. Used only to locate files shipped with the
+    application, never user data.
+    """
+
+    if getattr(sys, "frozen", False):
+        meipass = getattr(sys, "_MEIPASS", None)
+
+        if meipass:
+            return os.path.abspath(meipass)
+
+        return os.path.dirname(os.path.abspath(sys.executable))
 
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

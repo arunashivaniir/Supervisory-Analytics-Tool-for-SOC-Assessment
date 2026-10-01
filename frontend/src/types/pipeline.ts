@@ -527,6 +527,63 @@ export interface MappingEntry {
   confidence: number;
 }
 
+// ------------------------------------------------- canonical mapping review
+// (C.1). Authoritative Phase 1 decisions transported inside
+// `canonical_package`. The legacy `semantic_mapping` / `mapping_report`
+// keys are retained for compatibility but are NOT authoritative.
+
+export type CanonicalMappingState =
+  | "MAPPED"
+  | "LOW_CONFIDENCE"
+  | "AMBIGUOUS"
+  | "UNMAPPED"
+  | "INVALID";
+
+export interface CanonicalCandidate {
+  concept: string;
+  canonical_path?: string | null;
+  confidence: number;
+}
+
+export interface CanonicalMappingDecision {
+  source_field: string;
+  source_column: string;
+  canonical_concept?: string | null;
+  canonical_path?: string | null;
+  confidence: number;
+  mapping_state: CanonicalMappingState;
+  reason: string;
+  candidate_mappings: CanonicalCandidate[];
+  applied: boolean;
+}
+
+export interface CanonicalContractEntry {
+  canonical_path?: string | null;
+  category?: string | null;
+  pipeline?: string | null;
+  datatype?: string | null;
+  required?: boolean;
+  cardinality?: string | null;
+}
+
+export interface CanonicalPackage {
+  package_version?: string;
+  source_dataset?: string;
+  detected_role?: Record<string, Json>;
+  canonical_contract?: Record<string, CanonicalContractEntry>;
+  schema?: {
+    columns?: Array<{ column_name?: string; category?: string }>;
+  };
+  mapping_decisions?: CanonicalMappingDecision[];
+  mapping_collisions?: Array<{
+    canonical_path?: string;
+    winner?: string;
+    losers?: string[];
+  }>;
+  mapping_states?: Partial<Record<CanonicalMappingState, number>>;
+  provenance?: Record<string, Json>;
+}
+
 export interface EntityAssessmentEntry {
   entity: string;
   entity_confidence: number;
@@ -546,6 +603,7 @@ export interface PipelineResult {
   ingestion: IngestionSummary;
   semantic_mapping: Json;
   mapping_report: MappingReport;
+  canonical_package?: CanonicalPackage | null;
   dataset_context: Record<string, Json>;
   assessment: AssessmentResult;
   capability_assessment: CapabilityAssessment;

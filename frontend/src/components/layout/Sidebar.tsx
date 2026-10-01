@@ -3,6 +3,7 @@ import {
   ClipboardList,
   FileText,
   LayoutGrid,
+  Plus,
   ScrollText,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
@@ -13,9 +14,13 @@ import { useAnalysis } from "../../app/AnalysisContext";
 /**
  * The primary navigation.
  *
- * Five destinations, named for what the examiner is doing rather than for the
+ * Four destinations, named for what the examiner is doing rather than for the
  * layers that produced the data. No layer names, no model names, no internal
  * terminology: the intelligence that runs underneath is the backend's concern.
+ *
+ * Reports is an existing record surface. It is kept intact and reachable, but
+ * it is not part of the triage path, so it sits below the four primary
+ * destinations rather than among them.
  */
 
 const NAV = [
@@ -23,10 +28,13 @@ const NAV = [
   { to: "/assessments", label: "Assessments", icon: ClipboardList, end: false },
   { to: "/findings", label: "Findings", icon: Activity, end: false },
   { to: "/evidence", label: "Evidence", icon: ScrollText, end: false },
+] as const;
+
+const SECONDARY_NAV = [
   { to: "/reports", label: "Reports", icon: FileText, end: false },
 ] as const;
 
-export function Sidebar() {
+export function Sidebar({ onNewAssessment }: { onNewAssessment: () => void }) {
   const { result } = useAnalysis();
 
   return (
@@ -46,8 +54,44 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-2 py-3" aria-label="Primary">
+        <button
+          type="button"
+          onClick={onNewAssessment}
+          className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-primary px-2.5 py-2 text-[13px] font-semibold text-white transition-opacity duration-100 hover:opacity-90"
+        >
+          <Plus className="size-3.5 shrink-0" aria-hidden="true" />
+          New assessment
+        </button>
         <ul className="flex flex-col gap-0.5">
           {NAV.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <li key={item.to}>
+                <NavLink
+                  to={item.to}
+                  end={item.end}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex items-center gap-2.5 rounded-[8px] px-2.5 py-1.5",
+                      "text-[13px] font-medium transition-colors duration-100",
+                      isActive
+                        ? "bg-accent-subtle text-accent"
+                        : "text-text-secondary hover:bg-subtle hover:text-text",
+                    )
+                  }
+                >
+                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
+                  {item.label}
+                </NavLink>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="section-label mt-4 px-2.5">Records</div>
+        <ul className="mt-1 flex flex-col gap-0.5">
+          {SECONDARY_NAV.map((item) => {
             const Icon = item.icon;
 
             return (

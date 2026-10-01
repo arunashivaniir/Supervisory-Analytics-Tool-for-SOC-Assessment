@@ -3,3 +3,21 @@ artifacts/
 # never committed (they are hundreds of MB to GBs).
 data/scale/
 benchmarks/results/
+
+# Python generated files
+__pycache__/
+*.pyc
+*.pyo
+
+# Build artifacts
+dist/
+
+# Local environments
+.venv/
+venv/
+
+# Node generated files
+node_modules/
+frontend/dist/
+
+build/

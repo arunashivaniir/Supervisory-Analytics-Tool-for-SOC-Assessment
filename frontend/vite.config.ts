@@ -10,7 +10,12 @@ import path from "node:path";
  * origin. That keeps the API base a relative path in every environment,
  * including the production build served by the adapter itself, and means no
  * external host is ever contacted.
+ *
+ * The proxy target follows `SATSA_API_PORT` (set by dev.sh to the backend's
+ * actual port) and falls back to 8000, so the adapter may live on any free
+ * localhost port without editing this file.
  */
+const apiPort = process.env.SATSA_API_PORT ?? "8000";
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -23,7 +28,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api": {
-        target: "http://127.0.0.1:8000",
+        target: `http://127.0.0.1:${apiPort}`,
         changeOrigin: false,
       },
     },

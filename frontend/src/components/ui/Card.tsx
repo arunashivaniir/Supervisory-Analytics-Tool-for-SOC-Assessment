@@ -9,16 +9,18 @@ import { cn } from "../../lib/cn";
 export function Card({
   className,
   children,
+  ...rest
 }: {
   className?: string;
   children: ReactNode;
-}) {
+} & React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={cn(
         "rounded-[10px] border border-border bg-surface",
         className,
       )}
+      {...rest}
     >
       {children}
     </div>

@@ -1,5 +1,5 @@
 import { useMemo, type ReactNode } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { useAnalysis } from "../app/AnalysisContext";
 import {
@@ -7,9 +7,14 @@ import {
   anomalyForScope,
   anomalyLimitations,
   anomalyModelStatus,
+  attentionForScope,
   capabilitiesForScope,
   capabilityTallyForScope,
+  countByFamily,
+  eligibleCheckCounts,
   findingsForScope,
+  peerContext,
+  reviewSamples,
   scopeRows,
   unifiedFindings,
 } from "../app/selectors";
@@ -19,6 +24,9 @@ import { EmptyState } from "../components/ui/Metric";
 import { StatusBadge, NotAvailable } from "../components/ui/StatusBadge";
 import { ConceptList, DataRow, Token } from "../components/ui/DataDisplay";
 import { FindingDetail } from "../components/findings/FindingDetail";
+import { AlertCaseChain } from "../components/findings/AlertCaseChain";
+import { ReviewBadge } from "../components/findings/ReviewControl";
+import { useFindingReviews } from "../app/reviews";
 import { AnomalyIntelligence } from "../components/anomaly/AnomalyIntelligence";
 import {
   formatCount,
@@ -27,7 +35,7 @@ import {
   periodLabel,
   periodResolved,
 } from "../lib/formatters";
-import { SIGNAL_FAMILIES, capabilityStatus, signalStatus } from "../lib/status";
+import { capabilityStatus, signalStatus } from "../lib/status";
 import type { UnifiedFinding } from "../app/selectors";
 import type { CapabilityStatus } from "../types/pipeline";
 
@@ -40,7 +48,9 @@ import type { CapabilityStatus } from "../types/pipeline";
  */
 export function AssessmentDetailPage() {
   const { assessmentId = "" } = useParams();
-  const { result, running, analysisError } = useAnalysis();
+  const { result, running, analysisError, analysis } = useAnalysis();
+  const navigate = useNavigate();
+  const { reviews } = useFindingReviews(analysis?.job_id ?? null);
 
   const decodedId = decodeURIComponent(assessmentId);
 
@@ -66,6 +76,19 @@ export function AssessmentDetailPage() {
   const anomaly = useMemo(() => anomalyForScope(result, decodedId), [result, decodedId]);
   const modelStatus = anomalyModelStatus(result);
   const schema = anomalyFeatureSchema(result);
+  const scopeAttention = useMemo(
+    () => (result && scope ? attentionForScope(result, scope) : null),
+    [result, scope],
+  );
+  const peers = useMemo(
+    () => peerContext(result, decodedId),
+    [result, decodedId],
+  );
+  const entitySamples = useMemo(
+    () => reviewSamples(findings).filter((s) => s.finding.assessment_id === decodedId),
+    [findings, decodedId],
+  );
+  const checkCounts = useMemo(() => eligibleCheckCounts(result), [result]);
 
   if (!result) {
     return (
@@ -114,8 +137,14 @@ export function AssessmentDetailPage() {
         }
         meta={
           <>
+            Sector: Not available in submission ·{" "}
             {formatCount(scope.record_count)} records analysed · scope{" "}
-            <span className="font-mono">{scope.assessment_id}</span>
+            <span className="font-mono">{scope.assessment_id}</span> ·{" "}
+            {scopeFindings.length > 0 ? (
+              <span className="font-medium text-critical">Requires attention</span>
+            ) : (
+              "No supervisory signal identified in available evidence"
+            )}
           </>
         }
       />
@@ -133,14 +162,39 @@ export function AssessmentDetailPage() {
         </Caveat>
       ) : null}
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-4 gap-3">
         <SummaryTile
-          label="Records analysed"
-          value={formatCount(scope.record_count)}
-          context="Records the scope builder assigned to this scope"
+          label="Supervisory indicator"
+          value={
+            scopeAttention ? (
+              <span>
+                {scopeAttention.score}{" "}
+                <span className="text-sm font-medium text-text-secondary">
+                  · {scopeAttention.level}
+                </span>
+              </span>
+            ) : (
+              <NotAvailable />
+            )
+          }
+          context={
+            scopeAttention
+              ? "Backend attention score, a triage aid — not a verdict"
+              : "The backend reported no attention entry for this scope"
+          }
         />
         <SummaryTile
-          label="Evidence status"
+          label="Execution gaps"
+          value={formatCount(countByFamily(scopeFindings).execution_gap ?? 0)}
+          context="Findings contradicting an expected control"
+        />
+        <SummaryTile
+          label="Negative space"
+          value={formatCount(countByFamily(scopeFindings).negative_space ?? 0)}
+          context="Expected evidence observed absent"
+        />
+        <SummaryTile
+          label="Evidence coverage"
           value={
             posture.length === 0 ? (
               <NotAvailable />
@@ -153,18 +207,69 @@ export function AssessmentDetailPage() {
           }
           context="Capabilities with available evidence, of those assessed for this scope"
         />
-        <SummaryTile
-          label="Signals detected"
-          value={
-            scopeFindings.length === 0 ? (
-              "0"
-            ) : (
-              formatCount(scopeFindings.length)
-            )
-          }
-          context="Findings the pipeline reported for this scope across all four families"
-        />
       </div>
+
+      <Section
+        title="Prioritised manual review"
+        description="The records to inspect first for this entity, in the same provisional order as the Overview. Start here when opening the evidence."
+      >
+        {entitySamples.length === 0 ? (
+          <Card>
+            <EmptyState
+              title="No review samples for this entity"
+              description="None of this entity's findings points at a source record, or it has no findings. Read the signals below for the evidence that is available."
+            />
+          </Card>
+        ) : (
+          <Card>
+            <ul className="divide-y divide-border">
+              {entitySamples.map((sample) => (
+                <li
+                  key={sample.finding.key}
+                  className="cursor-pointer px-4 py-2.5 transition-colors duration-75 hover:bg-subtle"
+                  onClick={() =>
+                    navigate(
+                      `/findings?finding=${encodeURIComponent(sample.finding.key)}`,
+                    )
+                  }
+                >
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="tabular micro text-text-tertiary">
+                      {sample.rank}
+                    </span>
+                    <span className="font-mono text-[13px] font-medium text-text">
+                      {sample.finding.indicator}
+                    </span>
+                    <span className="micro text-text-tertiary">
+                      {sample.finding.familyLabel}
+                    </span>
+                    <span className="ml-auto">
+                      <ReviewBadge review={reviews[sample.finding.key] ?? null} />
+                    </span>
+                  </div>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-text-secondary">
+                    {sample.why}
+                  </p>
+                  <div className="mt-1.5">
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        navigate(
+                          `/evidence?finding=${encodeURIComponent(sample.finding.key)}`,
+                        );
+                      }}
+                      className="text-xs font-medium text-accent underline-offset-2 hover:underline"
+                    >
+                      View Evidence
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
+      </Section>
 
       <Section
         title="Capability evidence"
@@ -199,39 +304,60 @@ export function AssessmentDetailPage() {
       </Section>
 
       <Section
-        title="Supervisory signals"
-        description="Every finding the pipeline reported for this scope, grouped by the layer that produced it."
+        title="Execution gaps"
+        description="Contradictions between an expected control and the evidence submitted for it."
       >
-        {scopeFindings.length === 0 ? (
+        {scopeFindings.filter((item) => item.family === "execution_gap").length === 0 ? (
           <Card>
             <EmptyState
-              title="No signals reported for this scope"
-              description="The four signal layers examined this scope and returned no findings. This is not by itself an indication that the scope's controls are effective."
+              title="No qualifying execution-gap findings identified"
+              description="The execution-gap checks examined this scope and reported no contradictions. Where required evidence was unavailable the check is not evaluable rather than a finding — see the evidence coverage below."
             />
           </Card>
         ) : (
-          <div className="flex flex-col gap-4">
-            {SIGNAL_FAMILIES.map((family) => {
-              const familyFindings = scopeFindings.filter(
-                (item) => item.family === family.id,
-              );
-
-              return (
-                <SignalGroup
-                  key={family.id}
-                  title={family.label}
-                  description={family.description}
-                  findings={familyFindings}
-                />
-              );
-            })}
-          </div>
+          <SignalGroup
+            title="Execution gaps"
+            description="Contradictions between an expected control and the evidence submitted for it."
+            findings={scopeFindings.filter((item) => item.family === "execution_gap")}
+          />
         )}
       </Section>
 
       <Section
+        title="Negative space"
+        description="Observable absence of evidence that a configured expectation says should be present."
+      >
+        {scopeFindings.filter((item) => item.family === "negative_space").length === 0 ? (
+          <Card>
+            <EmptyState
+              title="No qualifying negative-space findings identified"
+              description="The negative-space checks examined this scope and reported no observable absence. Absence of a finding is not proof of coverage."
+            />
+          </Card>
+        ) : (
+          <SignalGroup
+            title="Negative space"
+            description="Observable absence of evidence that a configured expectation says should be present."
+            findings={scopeFindings.filter((item) => item.family === "negative_space")}
+          />
+        )}
+      </Section>
+
+      <Section
+        title="Operational patterns"
+        description="The shape of activity within this scope, judged against that scope's own population."
+      >
+        <SignalGroup
+          title="Operational patterns"
+          description="The shape of activity within this scope, judged against that scope's own population."
+          findings={scopeFindings.filter((item) => item.family === "operational_pattern")}
+          emptyTitle="No qualifying operational-pattern findings identified for this scope."
+        />
+      </Section>
+
+      <Section
         title="Anomaly intelligence"
-        description="What the offline model reported for this scope."
+        description="What the offline model reported for this scope. An anomalous pattern is not a confirmed finding."
       >
         <AnomalyIntelligence
           scope={anomaly}
@@ -239,6 +365,130 @@ export function AssessmentDetailPage() {
           featureSchema={schema}
           limitations={anomalyLimitations(result)}
         />
+      </Section>
+
+      <div className="mt-7 grid grid-cols-2 gap-4">
+        <Section
+          title="Peer context"
+          description="This scope against the assessment's own scopes."
+          className="mt-0"
+        >
+          {peers ? (
+            <Card>
+              <div className="px-4 py-3">
+                <DataRow
+                  label="Peer population"
+                  value={`${peers.population} scopes in this assessment`}
+                />
+                <DataRow label="Comparison basis" value={peers.basis} />
+                <DataRow
+                  label="Peer median"
+                  value={<span className="tabular">{peers.median} signals</span>}
+                />
+                <DataRow
+                  label="Peer range"
+                  value={
+                    <span className="tabular">
+                      {peers.min} – {peers.max} signals
+                    </span>
+                  }
+                />
+                <DataRow
+                  label="This entity"
+                  value={
+                    <span className="tabular">
+                      {peers.entityCount} signals (
+                      {peers.deviation >= 0 ? "+" : ""}
+                      {peers.deviation} vs median)
+                    </span>
+                  }
+                />
+              </div>
+            </Card>
+          ) : (
+            <Card>
+              <EmptyState
+                title="Peer comparison unavailable for this assessment package"
+                description="Fewer than two assessment scopes exist, so there is no peer population to compare against."
+              />
+            </Card>
+          )}
+        </Section>
+
+        <Section
+          title="Trend"
+          description="How this entity's signals changed across assessments."
+          className="mt-0"
+        >
+          <Card>
+            <EmptyState
+              title="Historical trend unavailable for this assessment package"
+              description="A single assessment carries no history. Trend appears when multiple assessment periods are submitted."
+            />
+          </Card>
+        </Section>
+      </div>
+
+      <Section
+        title="Evidence coverage"
+        description="What the submitted evidence permitted for this scope — the same posture the capability layer assessed, summarised."
+      >
+        <Card>
+          <div className="px-4 py-3">
+            <DataRow
+              label="Records analysed"
+              value={<span className="tabular">{formatCount(scope.record_count)}</span>}
+            />
+            <DataRow
+              label="Canonical concepts resolved"
+              value={
+                <span className="tabular">
+                  {formatCount(result.mapping_report.mapped_columns)} of{" "}
+                  {formatCount(result.mapping_report.dataset_columns)}
+                </span>
+              }
+            />
+            <DataRow
+              label="Execution-gap checks evaluated"
+              value={
+                <span className="tabular">
+                  {formatCount(checkCounts.execution_gap ?? 0)}
+                </span>
+              }
+            />
+            <DataRow
+              label="Negative-space checks evaluated"
+              value={
+                <span className="tabular">
+                  {formatCount(checkCounts.negative_space ?? 0)}
+                </span>
+              }
+            />
+            <DataRow
+              label="Findings generated"
+              value={
+                <span className="tabular">{formatCount(scopeFindings.length)}</span>
+              }
+            />
+            <DataRow
+              label="Evidence availability"
+              value={
+                posture.length === 0 ? (
+                  <NotAvailable />
+                ) : (
+                  <span className="text-xs text-text-secondary">
+                    {posture
+                      .map(
+                        (entry) =>
+                          `${entry.count} ${capabilityStatus(entry.status).label.toLowerCase()}`,
+                      )
+                      .join(" · ")}
+                  </span>
+                )
+              }
+            />
+          </div>
+        </Card>
       </Section>
     </>
   );
@@ -312,17 +562,21 @@ function SignalGroup({
   title,
   description,
   findings,
+  emptyTitle,
 }: {
   title: string;
   description: string;
   findings: UnifiedFinding[];
+  emptyTitle?: string;
 }) {
+  const navigate = useNavigate();
+
   if (findings.length === 0) {
     return (
       <Card>
         <CardHeader title={title} description={description} />
         <p className="px-4 py-3 text-xs text-text-tertiary italic">
-          No findings reported in this family for this scope.
+          {emptyTitle ?? "No findings reported in this family for this scope."}
         </p>
       </Card>
     );
@@ -371,7 +625,23 @@ function SignalGroup({
             </div>
 
             <div className="mt-2">
+              <AlertCaseChain finding={item} />
+            </div>
+
+            <div className="mt-2">
               <FindingDetail finding={item} compact />
+            </div>
+
+            <div className="mt-2">
+              <button
+                type="button"
+                onClick={() =>
+                  navigate(`/evidence?finding=${encodeURIComponent(item.key)}`)
+                }
+                className="text-xs font-medium text-accent underline-offset-2 hover:underline"
+              >
+                View Evidence
+              </button>
             </div>
           </li>
         ))}
