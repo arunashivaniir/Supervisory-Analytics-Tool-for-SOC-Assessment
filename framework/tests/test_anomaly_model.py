@@ -1163,9 +1163,11 @@ def test_pipeline_exposes_exactly_one_new_result_key():
     """The layer must be additive.
 
     Everything the pipeline already produced must still be there, and the only
-    additions are the anomaly key and the Phase 1 canonical_package key
+    additions are the anomaly key, the Phase 1 canonical_package key
     (schema-level mapping decisions, role, relationships, validation —
-    additive metadata on its own result key, altering no analytical value).
+    additive metadata on its own result key, altering no analytical value) and
+    the peer_benchmark key (per-scope peer comparison resolved from results
+    the other layers produced, on its own result key).
     """
 
     from framework.pipeline import SATSAPipeline
@@ -1174,9 +1176,11 @@ def test_pipeline_exposes_exactly_one_new_result_key():
 
     assert "anomaly_findings" in result_keys
     assert "canonical_package" in result_keys
-    assert len(result_keys) == 17, (
+    assert "peer_benchmark" in result_keys
+    assert len(result_keys) == 18, (
         f"expected the 15 existing keys plus anomaly_findings plus "
-        f"canonical_package, got {len(result_keys)}: {result_keys}"
+        f"canonical_package plus peer_benchmark, got {len(result_keys)}: "
+        f"{result_keys}"
     )
 
 
@@ -1231,7 +1235,7 @@ def test_pipeline_keeps_working_without_scikit_installed(config, tmp_path):
     assert tree.returncode == 0, tree.stderr
     assert "UNAVAILABLE" in tree.stdout
     assert "scikit-learn is not installed" in tree.stdout
-    assert "PIPELINE_KEYS=17" in tree.stdout
+    assert "PIPELINE_KEYS=18" in tree.stdout
     assert "ANOMALY_STATUS=UNAVAILABLE" in tree.stdout
     assert "PIPELINE_OK=True" in tree.stdout
 

@@ -1,552 +1,441 @@
-import { ChevronRight, ShieldCheck } from "lucide-react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { useState } from "react";
 
+import type { EvidenceIntegrity } from "../../types/evidence";
+import { formatBytes } from "../../lib/formatters";
+import { integrityStatus } from "../../lib/status";
+import { Frame, Note } from "../ui/Surface";
 import {
-  AdapterError,
-  fetchEvidenceIntegrity,
-  verifyEvidenceIntegrity,
-} from "../../services/api";
-import { cn } from "../../lib/cn";
-import { formatBytes, NOT_AVAILABLE } from "../../lib/formatters";
-import { humanise, integrityStatus } from "../../lib/status";
-import type {
-  EvidenceIntegrity,
-  IntegrityComparison,
-} from "../../types/evidence";
-import { Caveat } from "../layout/PageHeader";
-import { Button } from "../ui/Button";
-import { Card, CardBody, CardHeader } from "../ui/Card";
-import {
-  DataTable,
   HeadCell,
+  HeadRow,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-} from "../ui/DataTable";
-import { EmptyState, LoadingRows } from "../ui/Metric";
-import { NotAvailable, StatusBadge } from "../ui/StatusBadge";
+  TableScroller,
+} from "../ui/Table";
+import { EmptyState, StatusBadge } from "../ui/State";
 
 /**
- * Evidence integrity, as reported by the local evidence trust layer.
+ * Evidence integrity, one row per registered submission.
  *
- * This is a read of registered evidence, not an assessment of it. The digests
- * shown were computed in the local service by the same code that gates analysis;
- * the interface displays that comparison and does not recalculate, second-guess
- * or soften it. ``Verify Integrity`` re-runs that comparison, which is why it is
- * a button on each row and not a filter.
+ * What this panel is for
+ * ---------------------
+ * An examiner has to be able to say, before reading anything else on the screen,
+ * "can this evidence be trusted?". That question is answered per submission, so
+ * it is answered in rows: one row per thing that was registered, each carrying
+ * its own verdict and expandable to the comparison behind it.
  *
- * The expanded row is the audit detail: both subjects with their paths, the
- * registered digest beside the digest observed for each copy, and the provenance
- * that was recorded together with the fields that were not stated at
- * submission. Provenance gaps are listed rather than filled, because a blank
- * that reads as a value is worse than an explicit absence.
+ * Why the counts are not a total
+ * ------------------------------
+ * `Verified`, `Digest mismatch` and `Blocked` are three independent facts about
+ * one submission. A submission whose digest no longer matches is *also* refused
+ * by the analysis gate. Presenting them as three slices that sum to the total
+ * would assert a partition the trust layer never made, and would make the
+ * counts impossible to add up. They are stated side by side as what they are,
+ * and the panel says so in as many words.
+ *
+ * Row expansion is the point rather than a convenience: the verdict token is a
+ * summary of a comparison, and a reader who cannot see the comparison cannot
+ * check the summary.
  */
-function readMessage(failure: unknown, fallback: string): string {
-  return failure instanceof AdapterError ? failure.message : fallback;
-}
-
-export function EvidenceIntegrityPanel() {
-  const [items, setItems] = useState<EvidenceIntegrity[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [verifying, setVerifying] = useState<string | null>(null);
-
-  const read = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-
-    try {
-      setItems(await fetchEvidenceIntegrity());
-    } catch (failure) {
-      setError(readMessage(failure, "The evidence register could not be read."));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // The first read happens on mount rather than through `read`, so the states
-  // are already at their starting values and only the response sets anything.
-  useEffect(() => {
-    let cancelled = false;
-
-    fetchEvidenceIntegrity()
-      .then((registered) => {
-        if (!cancelled) {
-          setItems(registered);
-        }
-      })
-      .catch((failure: unknown) => {
-        if (!cancelled) {
-          setError(readMessage(failure, "The evidence register could not be read."));
-        }
-      })
-      .finally(() => {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const verify = useCallback(async (evidenceId: string) => {
-    setVerifying(evidenceId);
-    setError(null);
-
-    try {
-      const verified = await verifyEvidenceIntegrity(evidenceId);
-
-      // Replace only the row that was verified, so the rest of the register
-      // keeps whatever it last reported and nothing is re-summarised locally.
-      setItems((current) =>
-        current
-          ? current.map((item) =>
-              item.evidence_id === verified.evidence_id ? verified : item,
-            )
-          : [verified],
-      );
-    } catch (failure) {
-      setError(readMessage(failure, "Verification could not be completed."));
-    } finally {
-      setVerifying(null);
-    }
-  }, []);
-
-  const summary = useMemo(() => {
-    if (!items) {
-      return null;
-    }
-
-    return {
-      total: items.length,
-      verified: items.filter((item) => item.overall_status === "VERIFIED").length,
-      failed: items.filter((item) => item.overall_status === "INTEGRITY_FAILED")
-        .length,
-      blocked: items.filter((item) => !item.analysis.permitted).length,
-    };
-  }, [items]);
-
-  return (
-    <Card className="mb-6" data-testid="evidence-integrity-panel">
-      <CardHeader
-        title="Evidence integrity"
-        description={
-          summary
-            ? `${summary.total} registered submission${
-                summary.total === 1 ? "" : "s"
-              } · ${summary.verified} verified · ${summary.failed} with a digest mismatch · ${
-                summary.blocked
-              } blocked from analysis`
-            : "Reading the local evidence register…"
-        }
-        action={
-          <Button size="sm" variant="outline" onClick={() => void read()} disabled={loading}>
-            Re-read register
-          </Button>
-        }
-      />
-
-      {error ? (
-        <div className="px-4 py-3">
-          <Caveat tone="caution">{error}</Caveat>
-        </div>
-      ) : null}
-
-      {loading && !items ? (
-        <LoadingRows rows={3} />
-      ) : items && items.length === 0 ? (
-        <CardBody>
-          <EmptyState
-            title="No evidence registered"
-            description="No submission has been registered with the local evidence store."
-          />
-        </CardBody>
-      ) : items ? (
-        <>
-          <DataTable>
-            <TableHead>
-              <HeadCell>Evidence</HeadCell>
-              <HeadCell>Registered digest</HeadCell>
-              <HeadCell>Original</HeadCell>
-              <HeadCell>Working copy</HeadCell>
-              <HeadCell>Overall</HeadCell>
-              <HeadCell>Analysis</HeadCell>
-              <HeadCell align="right">Action</HeadCell>
-            </TableHead>
-            <TableBody>
-              {items.map((item) => {
-                const original = integrityStatus(item.original.status);
-                const working = integrityStatus(item.working.status);
-                const overall = integrityStatus(item.overall_status);
-                const open = expanded === item.evidence_id;
-
-                return (
-                  <Fragment key={item.evidence_id}>
-                    <TableRow
-                      onClick={() => setExpanded(open ? null : item.evidence_id)}
-                      selected={open}
-                    >
-                      <TableCell>
-                        <span className="flex items-center gap-1.5">
-                          <ChevronRight
-                            className={cn(
-                              "size-3 shrink-0 text-text-tertiary transition-transform duration-100",
-                              open && "rotate-90",
-                            )}
-                            aria-hidden="true"
-                          />
-                          <span className="min-w-0">
-                            <span className="block truncate text-[13px] text-text">
-                              {item.source.filename ?? NOT_AVAILABLE}
-                            </span>
-                            <span className="block truncate micro tabular text-text-tertiary">
-                              {item.evidence_id}
-                            </span>
-                          </span>
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <Digest value={item.registered_sha256} />
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          tone={original.tone}
-                          label={original.label}
-                          raw={item.original.status}
-                          showDot={false}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          tone={working.tone}
-                          label={working.label}
-                          raw={item.working.status}
-                          showDot={false}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <StatusBadge
-                          tone={overall.tone}
-                          label={overall.label}
-                          raw={item.overall_status}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        {item.analysis.permitted ? (
-                          <StatusBadge
-                            tone="positive"
-                            label="Permitted"
-                            showDot={false}
-                          />
-                        ) : (
-                          <StatusBadge
-                            tone="critical"
-                            label="Blocked"
-                            showDot={false}
-                            title={item.analysis.blocked_reason ?? undefined}
-                          />
-                        )}
-                      </TableCell>
-                      <TableCell align="right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            void verify(item.evidence_id);
-                          }}
-                          disabled={verifying !== null}
-                        >
-                          <ShieldCheck className="size-3" aria-hidden="true" />
-                          {verifying === item.evidence_id
-                            ? "Verifying…"
-                            : "Verify integrity"}
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-
-                    {open ? <EvidenceDetailRow item={item} /> : null}
-                  </Fragment>
-                );
-              })}
-            </TableBody>
-          </DataTable>
-
-          <div className="border-t border-border px-4 py-2.5">
-            <p className="text-micro leading-relaxed text-text-tertiary">
-              Digests are computed and compared by the local evidence trust
-              layer. A working copy is verified against the digest recorded for
-              the preserved original at registration, and analysis is gated on
-              both copies verifying.
-            </p>
-          </div>
-        </>
-      ) : null}
-    </Card>
-  );
-}
-
-function EvidenceDetailRow({ item }: { item: EvidenceIntegrity }) {
-  return (
-    <tr>
-      <td colSpan={7} className="border-b border-border bg-subtle px-4 py-3">
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div>
-            <h3 className="section-label">Integrity comparison</h3>
-            <ComparisonBlock
-              label="Preserved original"
-              comparison={item.original}
-              registered={item.registered_sha256}
-            />
-            <ComparisonBlock
-              label="Controlled working copy"
-              comparison={item.working}
-              registered={item.registered_sha256}
-            />
-            {item.analysis.blocked_reason ? (
-              <p className="mt-2 text-xs leading-relaxed text-critical">
-                {item.analysis.blocked_reason}
-              </p>
-            ) : null}
-            {item.analysis.target_path ? (
-              <p className="mt-1 break-all text-micro text-text-tertiary">
-                Analysis target: {item.analysis.target_path}
-              </p>
-            ) : null}
-          </div>
-
-          <div>
-            <h3 className="section-label">Provenance</h3>
-            <ProvenanceBlock item={item} />
-          </div>
-        </div>
-      </td>
-    </tr>
-  );
-}
-
-function ComparisonBlock({
-  label,
-  comparison,
-  registered,
+export function EvidenceIntegrityPanel({
+  entries,
+  loading,
+  error,
 }: {
-  label: string;
-  comparison: IntegrityComparison;
-  registered: string | null;
+  entries: EvidenceIntegrity[] | null;
+  loading: boolean;
+  error: string | null;
 }) {
-  const status = integrityStatus(comparison.status);
+  const [openEvidence, setOpenEvidence] = useState<string | null>(null);
 
-  return (
-    <div className="mt-2 rounded-[8px] border border-border bg-surface px-3 py-2">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-[13px] font-medium text-text">{label}</span>
-        <StatusBadge
-          tone={status.tone}
-          label={status.label}
-          raw={comparison.status}
-          showDot={false}
-        />
-      </div>
+  if (error) {
+    return <Note tone="caution">The evidence register could not be read: {error}</Note>;
+  }
 
-      {comparison.path ? (
-        <p className="mt-1 break-all text-micro text-text-tertiary">
-          {comparison.path}
-        </p>
-      ) : null}
-
-      <dl className="mt-2 space-y-1">
-        <div className="flex gap-2">
-          <dt className="w-[92px] shrink-0 text-micro uppercase tracking-[0.06em] text-text-tertiary">
-            Expected
-          </dt>
-          <dd className="min-w-0 break-all font-mono text-micro text-text">
-            {comparison.expected_sha256 ?? registered ?? NOT_AVAILABLE}
-          </dd>
-        </div>
-        <div className="flex gap-2">
-          <dt className="w-[92px] shrink-0 text-micro uppercase tracking-[0.06em] text-text-tertiary">
-            Observed
-          </dt>
-          <dd className="min-w-0 break-all font-mono text-micro text-text">
-            {comparison.observed_sha256 ?? (
-              <NotAvailable>Not observed</NotAvailable>
-            )}
-          </dd>
-        </div>
-      </dl>
-
-      {comparison.detail ? (
-        <p className="mt-1.5 text-micro leading-relaxed text-text-secondary">
-          {comparison.detail}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
-function ProvenanceBlock({ item }: { item: EvidenceIntegrity }) {
-  const provenance = item.provenance;
-
-  if (!provenance) {
+  if (loading || entries === null) {
     return (
-      <p className="mt-2 text-xs text-text-tertiary italic">
-        <NotAvailable>No provenance record was written for this submission</NotAvailable>
-      </p>
+      <EmptyState
+        title="Reading the evidence register"
+        description="The trust layer is being asked what it holds."
+      />
     );
   }
 
-  const stated: Array<[string, string | null | number]> = [
-    ["Received at", provenance.received_at ?? null],
-    ["Status", provenance.status ?? null],
-    ["Original filename", provenance.original_filename ?? null],
-    ["File size", provenance.file_size === null || provenance.file_size === undefined ? null : formatBytes(provenance.file_size)],
-    ["SHA-256 at intake", provenance.sha256 ?? null],
-    ["Package type", provenance.package_type ?? null],
-    ["Source identifier", provenance.source_identifier ?? null],
-    ["Assessment period", provenance.assessment_period ?? null],
-    ["Submitted by", provenance.submitted_by ?? null],
-    ["Received channel", provenance.received_channel ?? null],
-  ];
+  if (entries.length === 0) {
+    return (
+      <EmptyState
+        title="No evidence registered"
+        description="No submission is registered with the local evidence trust layer, so there is no integrity state to report."
+      />
+    );
+  }
+
+  const mismatched = entries.filter(
+    (entry) => entry.overall_status === "INTEGRITY_FAILED",
+  ).length;
+  const blocked = entries.filter((entry) => !entry.analysis.permitted).length;
+  const verified = entries.filter(
+    (entry) => entry.overall_status === "VERIFIED",
+  ).length;
 
   return (
-    <div className="mt-2 space-y-2">
-      <dl className="grid grid-cols-1 gap-x-4 gap-y-1 sm:grid-cols-2">
-        {stated.map(([label, value]) => (
-          <div key={label} className="flex min-w-0 flex-col">
-            <dt className="text-micro uppercase tracking-[0.06em] text-text-tertiary">
-              {label}
-            </dt>
-            <dd className="truncate text-[13px] text-text" title={value === null ? undefined : String(value)}>
-              {value === null || value === "" ? (
-                <NotAvailable>Not stated at submission</NotAvailable>
-              ) : (
-                value
-              )}
-            </dd>
-          </div>
-        ))}
-      </dl>
+    <div className="min-w-0" data-testid="evidence-integrity-panel">
+      <p className="mb-2 text-[13px] text-text">
+        {entries.length === 1
+          ? "1 registered submission"
+          : `${entries.length} registered submissions`}
+        <span className="text-text-tertiary">
+          {" "}
+          — {verified} verified, {mismatched} with a digest mismatch, {blocked}{" "}
+          blocked from analysis.
+        </span>
+      </p>
 
-      {provenance.unavailable_fields.length > 0 ? (
-        <p className="text-micro leading-relaxed text-text-secondary">
-          Not stated at submission:{" "}
-          {provenance.unavailable_fields.map(humanise).join(", ")}.
+      <p className="mb-3 text-[11px] leading-relaxed text-text-tertiary">
+        These counts overlap. A submission whose digest no longer matches is
+        also blocked from analysis, so they are three separate facts about each
+        submission rather than three slices of one total.
+      </p>
+
+      <Frame>
+        <TableScroller>
+          <TableHead>
+            <HeadRow>
+              <HeadCell width="26%">Submission</HeadCell>
+              <HeadCell width="24%">Registered digest</HeadCell>
+              <HeadCell width="15%">Integrity</HeadCell>
+              <HeadCell width="15%">Analysis gate</HeadCell>
+              <HeadCell width="12%" align="right">
+                Files
+              </HeadCell>
+              <HeadCell width="8%" align="right">
+                Detail
+              </HeadCell>
+            </HeadRow>
+          </TableHead>
+
+          <TableBody>
+            {entries.map((entry) => {
+              const integrity = integrityStatus(entry.overall_status);
+              const isOpen = openEvidence === entry.evidence_id;
+
+              return (
+                <IntegrityRow
+                  key={entry.evidence_id}
+                  entry={entry}
+                  integrityTone={integrity.tone}
+                  integrityLabel={integrity.label}
+                  isOpen={isOpen}
+                  onToggle={() =>
+                    setOpenEvidence(isOpen ? null : entry.evidence_id)
+                  }
+                />
+              );
+            })}
+          </TableBody>
+        </TableScroller>
+      </Frame>
+    </div>
+  );
+}
+
+/**
+ * One submission, and its detail.
+ *
+ * The detail row is rendered inside the same table rather than beside it so the
+ * expanded comparison stays attached to the verdict it explains; a detail panel
+ * that pushed the table down would lose that association.
+ */
+function IntegrityRow({
+  entry,
+  integrityTone,
+  integrityLabel,
+  isOpen,
+  onToggle,
+}: {
+  entry: EvidenceIntegrity;
+  integrityTone: "positive" | "critical" | "caution" | "neutral" | "info";
+  integrityLabel: string;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const filename = entry.source.filename ?? entry.source.stored_name ?? "Unnamed submission";
+
+  return (
+    <>
+      <TableRow onSelect={onToggle} selected={isOpen}>
+        <TableCell>
+          <span className="block truncate font-medium text-text" title={filename}>
+            {filename}
+          </span>
+          <span className="mt-0.5 block truncate text-[11px] text-text-tertiary">
+            {entry.evidence_id}
+            {entry.source.modified_at
+              ? ` · ${entry.source.modified_at.slice(0, 10)}`
+              : ""}
+          </span>
+        </TableCell>
+
+        <TableCell>
+          <span className="font-mono text-[11px] text-text-secondary">
+            {entry.registered_sha256
+              ? entry.registered_sha256.slice(0, 12)
+              : "Not registered"}
+          </span>
+        </TableCell>
+
+        <TableCell>
+          <StatusBadge
+            tone={integrityTone}
+            label={integrityLabel}
+            raw={entry.overall_status}
+          />
+        </TableCell>
+
+        <TableCell>
+          <StatusBadge
+            tone={entry.analysis.permitted ? "positive" : "critical"}
+            label={entry.analysis.permitted ? "Permitted" : "Blocked"}
+          />
+        </TableCell>
+
+        <TableCell align="right" className="tabular text-text-secondary">
+          {entry.file_count ?? entry.files.length}
+        </TableCell>
+
+        <TableCell align="right">
+          <button
+            type="button"
+            aria-expanded={isOpen}
+            onClick={(event) => {
+              event.stopPropagation();
+              onToggle();
+            }}
+            className="rounded-[6px] px-1.5 py-0.5 text-[12px] font-medium text-accent underline-offset-2 hover:underline focus-visible:outline-2 focus-visible:outline-accent"
+          >
+            {isOpen ? "Close" : "Open"}
+          </button>
+        </TableCell>
+      </TableRow>
+
+      {isOpen ? (
+        <tr>
+          <td colSpan={6} className="bg-subtle px-4 py-3">
+            <IntegrityDetail entry={entry} />
+          </td>
+        </tr>
+      ) : null}
+    </>
+  );
+}
+
+/**
+ * The detail behind one verdict.
+ *
+ * Three things a reader needs in order to check the verdict rather than accept
+ * it: the comparison that produced it, the custody record of the submission, and
+ * the provenance captured at intake. A value the backend returned as a structure
+ * is rendered as a structure — collapsing one to a string is how an interface
+ * ends up displaying `[object Object]` where a manifest should be.
+ */
+function IntegrityDetail({ entry }: { entry: EvidenceIntegrity }) {
+  const manifest = entry.files ?? [];
+  const custody = entry.provenance?.custody_events ?? [];
+  const provenance = entry.provenance;
+
+  return (
+    <div className="min-w-0 space-y-4">
+      <div>
+        <h3 className="section-label">Integrity comparison</h3>
+        <div className="mt-1.5 grid min-w-0 grid-cols-1 gap-2 md:grid-cols-2">
+          <ComparisonCard
+            subject="Preserved original"
+            comparison={entry.original}
+          />
+          <ComparisonCard subject="Working copy" comparison={entry.working} />
+        </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-text-tertiary">
+          Algorithm {entry.hash_algorithm ?? "not stated"} · manifest schema{" "}
+          {entry.manifest_schema_version ?? "not stated"} ·{" "}
+          {entry.originals_read_only === null ? "read-only status not stated" : entry.originals_read_only ? "originals stored read-only" : "originals are not stored read-only"}.
         </p>
+      </div>
+
+      {!entry.analysis.permitted ? (
+        <Note tone="caution">
+          Blocked from analysis. {entry.analysis.blocked_reason ?? "The trust layer gave no reason."}
+        </Note>
       ) : null}
 
-      {provenance.custody_events.length > 0 ? (
-        <div>
-          <h4 className="text-micro uppercase tracking-[0.06em] text-text-tertiary">
-            Custody events
-          </h4>
-          <ul className="mt-1 space-y-1">
-            {provenance.custody_events.map((event, index) => (
-              <li key={`${event.occurred_at}-${index}`} className="text-micro leading-relaxed">
-                <span className="text-text">
-                  {humanise(event.action)}
-                </span>
-                {event.occurred_at ? (
-                  <span className="text-text-tertiary"> · {event.occurred_at}</span>
-                ) : null}
-                {event.actor ? (
-                  <span className="text-text-secondary"> · {event.actor}</span>
-                ) : null}
-                {event.detail ? (
-                  <span className="block text-text-secondary">{event.detail}</span>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : null}
-
-      {item.files.length > 1 ? (
-        <div>
-          <h4 className="text-micro uppercase tracking-[0.06em] text-text-tertiary">
-            Registered files
-          </h4>
-          <ul className="mt-1 space-y-0.5">
-            {item.files.map((file) => (
+      <div>
+        <h3 className="section-label">Custody events</h3>
+        {custody.length === 0 ? (
+          <p className="mt-1 text-[13px] italic text-text-tertiary">
+            No custody events were recorded at intake.
+          </p>
+        ) : (
+          <ol className="mt-1.5 space-y-1">
+            {custody.map((event, index) => (
               <li
-                key={`${file.role}-${file.relative_path}`}
-                className="break-all text-micro text-text-secondary"
+                key={`${event.action}-${index}`}
+                className="flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[13px]"
               >
-                {file.role} · {file.relative_path} · {formatBytes(file.size)}
+                <span className="font-medium text-text">{event.action}</span>
+                <span className="text-text-tertiary">
+                  {event.actor ?? "actor not stated"}
+                </span>
+                <span className="tabular text-[11px] text-text-tertiary">
+                  {event.occurred_at ?? "time not stated"}
+                </span>
+                {event.detail ? (
+                  <span className="min-w-0 basis-full text-[12px] text-text-secondary">
+                    {event.detail}
+                  </span>
+                ) : null}
               </li>
             ))}
-          </ul>
-        </div>
-      ) : null}
-      {Object.keys(provenance.metadata).length > 0 ? (
+          </ol>
+        )}
+      </div>
+
+      <div>
+        <h3 className="section-label">Provenance</h3>
+        {!provenance ? (
+          <p className="mt-1 text-[13px] italic text-text-tertiary">
+            The trust layer holds no provenance record for this submission.
+          </p>
+        ) : (
+          <>
+            <dl className="mt-1.5 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+              <ProvenanceField label="Original file name" value={provenance.original_filename} />
+              <ProvenanceField label="Package type" value={provenance.package_type} />
+              <ProvenanceField label="Source identifier" value={provenance.source_identifier} />
+              <ProvenanceField label="Assessment period" value={provenance.assessment_period} />
+              <ProvenanceField label="Submitted by" value={provenance.submitted_by} />
+              <ProvenanceField label="Received channel" value={provenance.received_channel} />
+              <ProvenanceField label="Received at" value={provenance.received_at} />
+              <ProvenanceField label="Status" value={provenance.status} />
+            </dl>
+
+            {provenance.unavailable_fields.length > 0 ? (
+              <p className="mt-2 text-[11px] leading-relaxed text-text-tertiary">
+                Not stated at submission:{" "}
+                {provenance.unavailable_fields.join(", ")}. These fields are absent
+                rather than empty, so they must not be read as a value of zero.
+              </p>
+            ) : null}
+          </>
+        )}
+      </div>
+
+      {manifest.length > 0 ? (
         <div>
-          <h4 className="text-micro uppercase tracking-[0.06em] text-text-tertiary">
-            Submission metadata
-          </h4>
-          <dl className="mt-1 space-y-0.5">
-            {Object.entries(provenance.metadata).map(([key, value]) => (
-              <div key={key} className="flex gap-2">
-                <dt className="shrink-0 text-micro text-text-tertiary">
-                  {humanise(key)}
-                </dt>
-                <dd className="min-w-0 break-words text-micro text-text">
-                  {describeValue(value)}
-                </dd>
-              </div>
-            ))}
-          </dl>
+          <h3 className="section-label">Manifest</h3>
+          <Frame className="mt-1.5">
+            <TableScroller>
+              <TableHead>
+                <HeadRow>
+                  <HeadCell>File</HeadCell>
+                  <HeadCell>Role</HeadCell>
+                  <HeadCell align="right">Size</HeadCell>
+                  <HeadCell>Digest</HeadCell>
+                </HeadRow>
+              </TableHead>
+
+              <TableBody>
+                {manifest.map((file) => (
+                  <TableRow key={file.stored_name}>
+                    <TableCell className="truncate font-mono text-[11px]">
+                      {file.name}
+                    </TableCell>
+                    <TableCell className="text-[13px] text-text-secondary">
+                      {file.role}
+                    </TableCell>
+                    <TableCell align="right" className="tabular">
+                      {formatBytes(file.size)}
+                    </TableCell>
+                    <TableCell className="truncate font-mono text-[11px] text-text-secondary">
+                      {file.sha256 ? file.sha256.slice(0, 12) : "Not recorded"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </TableScroller>
+          </Frame>
         </div>
       ) : null}
     </div>
   );
 }
 
-/**
- * A recorded metadata value as text.
- *
- * A recorded value may be a string, a number, a boolean or a nested structure,
- * and a structure is rendered as JSON rather than handed to React as an object,
- * because a value that cannot be shown honestly is better shown literally than
- * not shown at all.
- */
-function describeValue(value: unknown): string {
-  if (typeof value === "string") {
-    return value;
-  }
-
-  if (typeof value === "number" || typeof value === "boolean") {
-    return String(value);
-  }
-
-  if (value === null || value === undefined) {
-    return "Not stated at submission";
-  }
-
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "Recorded as a structured value";
-  }
-}
-/**
- * A digest, shown the way a person reads one: identifiable, never truncated
- * beyond usefulness. The full value is always in the title and in the expanded
- * comparison, so nothing is hidden by the shortening.
- */
-function Digest({ value }: { value: string | null }) {
-  if (!value) {
-    return <NotAvailable>Not recorded</NotAvailable>;
-  }
+function ComparisonCard({
+  subject,
+  comparison,
+}: {
+  subject: string;
+  comparison: EvidenceIntegrity["original"];
+}) {
+  const presentation = integrityStatus(comparison.status);
 
   return (
-    <span
-      className="font-mono text-micro tabular text-text"
-      title={value}
-    >
-      {value.slice(0, 12)}…
-    </span>
+    <div className="min-w-0 rounded-[8px] border border-border bg-surface px-3 py-2">
+      <div className="flex min-w-0 flex-wrap items-center justify-between gap-2">
+        <span className="text-[13px] font-medium text-text">{subject}</span>
+        <StatusBadge
+          tone={presentation.tone}
+          label={presentation.label}
+          raw={comparison.status}
+        />
+      </div>
+
+      <p className="mt-1 text-[12px] leading-relaxed text-text-secondary">
+        {comparison.detail}
+      </p>
+
+      <dl className="mt-1.5 space-y-0.5">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <dt className="shrink-0 text-[11px] text-text-tertiary">Path</dt>
+          <dd className="min-w-0 truncate font-mono text-[11px] text-text-secondary">
+            {comparison.path ?? "Not examined"}
+          </dd>
+        </div>
+        <div className="flex min-w-0 items-baseline gap-2">
+          <dt className="shrink-0 text-[11px] text-text-tertiary">Expected</dt>
+          <dd className="min-w-0 truncate font-mono text-[11px] text-text-secondary">
+            {comparison.expected_sha256
+              ? comparison.expected_sha256.slice(0, 12)
+              : "Not recorded"}
+          </dd>
+        </div>
+        <div className="flex min-w-0 items-baseline gap-2">
+          <dt className="shrink-0 text-[11px] text-text-tertiary">Observed</dt>
+          <dd className="min-w-0 truncate font-mono text-[11px] text-text-secondary">
+            {comparison.observed_sha256
+              ? comparison.observed_sha256.slice(0, 12)
+              : "Not recorded"}
+          </dd>
+        </div>
+      </dl>
+    </div>
+  );
+}
+
+function ProvenanceField({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null | undefined;
+}) {
+  return (
+    <div className="flex min-w-0 items-baseline justify-between gap-3 border-b border-border/60 py-1">
+      <dt className="shrink-0 text-[12px] text-text-secondary">{label}</dt>
+      <dd className="min-w-0 truncate text-[12px] text-text">
+        {value && value.trim() ? value : (
+          <span className="italic text-text-tertiary">Not stated</span>
+        )}
+      </dd>
+    </div>
   );
 }

@@ -1079,6 +1079,10 @@ class TestExistingLayerRegressions:
 
     def test_only_the_new_key_is_added(self, result, baseline):
 
+        # peer_benchmark is a later additive layer, not part of what this
+        # guard measures, so it is removed from both sides first.
+        result = {key: value for key, value in result.items() if key != "peer_benchmark"}
+
         for key, value in baseline.items():
 
             assert key in result, f"{key} disappeared"
@@ -1099,12 +1103,21 @@ class TestExistingLayerRegressions:
         before = pipeline.run(dataset)
         before.pop("operational_pattern_findings", None)
 
+        # peer_benchmark reads this layer's result, so it is compared in its
+        # own right below rather than through this layer's guard.
+        before.pop("peer_benchmark", None)
+        full_without_peer = {
+            key: value for key, value in full.items() if key != "peer_benchmark"
+        }
+
         for key, value in before.items():
 
-            assert key in full
-            assert full[key] == value, f"{dataset}: {key} changed"
+            assert key in full_without_peer
+            assert full_without_peer[key] == value, f"{dataset}: {key} changed"
 
-        assert set(full) - set(before) == {"operational_pattern_findings"}
+        assert set(full_without_peer) - set(before) == {
+            "operational_pattern_findings"
+        }
 
     @pytest.mark.parametrize(
         "dataset", ["dataset_noisy.csv", "dataset_multi_cse.csv"]
@@ -1304,6 +1317,11 @@ def _run_without_operational_patterns():
 
     result = pipeline.run(CONTROLLED)
     result.pop("operational_pattern_findings", None)
+
+    # peer_benchmark is a separate additive layer that reads this layer's
+    # result, so it necessarily differs when that result is stubbed out. It is
+    # excluded here so this guard keeps measuring only what this layer did.
+    result.pop("peer_benchmark", None)
 
     return result
 

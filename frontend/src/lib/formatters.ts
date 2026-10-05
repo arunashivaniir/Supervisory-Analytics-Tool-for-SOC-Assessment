@@ -50,6 +50,23 @@ export function formatCount(value: MaybeNumber | undefined): string {
   return new Intl.NumberFormat("en-GB").format(value);
 }
 
+/**
+ * A proportion from 0 to 1 named as an ordinal percentile: 0.714 reads "71st".
+ *
+ * The suffix follows English usage rather than a plain "th", so 1st, 2nd, 3rd
+ * and the teens (11th, 12th, 13th) are all correct.
+ */
+export function formatPercentile(value: number): string {
+  const whole = Math.round(value * 100);
+  const teens = whole % 100;
+  const suffix =
+    teens >= 10 && teens <= 20
+      ? "th"
+      : { 1: "st", 2: "nd", 3: "rd" }[whole % 10] ?? "th";
+
+  return `${whole}${suffix}`;
+}
+
 /** A proportion from 0 to 1 shown as a percentage, keeping backend precision. */
 export function formatPercent(
   value: MaybeNumber | undefined,

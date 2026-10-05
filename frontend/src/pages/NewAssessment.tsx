@@ -10,21 +10,24 @@ import {
 import { useAnalysis } from "../app/AnalysisContext";
 import { cn } from "../lib/cn";
 import { datasetName, formatBytes, formatCount } from "../lib/formatters";
-import { Caveat, PageHeader, Section } from "../components/layout/PageHeader";
-import { Card } from "../components/ui/Card";
+import { PageHeader } from "../components/layout/PageHeader";
 import { Button } from "../components/ui/Button";
-import { EmptyState, LoadingRows } from "../components/ui/Metric";
-import { TextFilter } from "../components/ui/Filters";
 import {
-  DataTable,
+  EmptyState,
+  LoadingRows,
+  StatusBadge,
+} from "../components/ui/State";
+import { TextFilter } from "../components/ui/Filters";
+import { DataRow, Frame, Note, Section } from "../components/ui/Surface";
+import {
   HeadCell,
+  HeadRow,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-} from "../components/ui/DataTable";
-import { StatusBadge } from "../components/ui/StatusBadge";
-import { DataRow } from "../components/ui/DataDisplay";
+  TableScroller,
+} from "../components/ui/Table";
 import { MappingReviewCore } from "../components/assessment/CanonicalMappingReview";
 import type { DatasetPreview } from "../services/api";
 
@@ -45,8 +48,7 @@ export function NewAssessmentPage() {
     <>
       <PageHeader
         title="New Assessment"
-        subject="Create a new supervisory assessment from submitted SOC operational data."
-        meta="Starts a new assessment package. To change the dataset shown on the current screens instead, use Change dataset in the top bar."
+        supporting="Create a new supervisory assessment from submitted SOC operational data. Starts a new assessment package. To change the dataset shown on the current screens instead, use Change dataset in the top bar."
       />
       <StepIndicator current={step} />
       {step === "select" ? (
@@ -185,7 +187,7 @@ function DataStep() {
       <Section
         title="Selected for this assessment"
         description="Select the operational datasets submitted for this assessment. Each selected dataset is profiled independently before assessment."
-        action={
+        actions={
           selected.length > 0 ? (
             <button
               type="button"
@@ -197,7 +199,7 @@ function DataStep() {
           ) : undefined
         }
       >
-        <Card>
+        <Frame>
           {selected.length === 0 ? (
             <div className="px-4 py-3">
               <p className="text-[13px] font-medium text-text">
@@ -245,11 +247,11 @@ function DataStep() {
               ))}
             </ul>
           )}
-        </Card>
-        <Caveat className="mt-2.5">
+        </Frame>
+        <Note className="mt-2.5">
           Each dataset keeps its own schema and provenance. No cross-file
           linkage is computed at this stage.
-        </Caveat>
+        </Note>
       </Section>
 
       <Section
@@ -266,7 +268,7 @@ function DataStep() {
           />
           <Button
             size="sm"
-            variant="outline"
+            variant="secondary"
             onClick={() => void reloadDatasets()}
             disabled={datasetsLoading}
           >
@@ -276,7 +278,7 @@ function DataStep() {
             {selected.length} selected
           </div>
         </div>
-        <Card>
+        <Frame>
           <div className="max-h-[46vh] min-h-[220px] overflow-y-auto">
             {datasetsError ? (
               <p className="border-b border-border px-4 py-2 text-xs text-critical">
@@ -336,7 +338,7 @@ function DataStep() {
               </ul>
             )}
           </div>
-        </Card>
+        </Frame>
       </Section>
 
       <div className="mt-4 flex items-center justify-end gap-2">
@@ -349,9 +351,9 @@ function DataStep() {
         </Button>
       </div>
       {selected.length === 0 ? (
-        <Caveat className="mt-2.5">
+        <Note className="mt-2.5">
           Select at least one dataset to continue to review.
-        </Caveat>
+        </Note>
       ) : null}
     </>
   );
@@ -399,13 +401,13 @@ function ReviewStep() {
         description="Review detected roles, mapping coverage and validation status before continuing."
       >
         {datasets.length > 1 ? (
-          <Caveat className="mb-2.5">
+          <Note className="mb-2.5">
             {datasets.length} datasets selected. Each is profiled
             independently in this stage — no merged dataset is created and no
             cross-file linkage is computed.
-          </Caveat>
+          </Note>
         ) : null}
-        <Card>
+        <Frame>
           <ul className="divide-y divide-border">
             {datasets.map((path) => {
               const entry = previews[path];
@@ -457,7 +459,7 @@ function ReviewStep() {
                       {!preview || entry?.status === "loading" ? (
                         <LoadingRows rows={3} />
                       ) : entry?.status === "error" ? (
-                        <Caveat tone="caution">
+                        <Note tone="caution">
                           {entry.error ?? "Preview failed."}{" "}
                           <button
                             type="button"
@@ -466,7 +468,7 @@ function ReviewStep() {
                           >
                             Retry preview
                           </button>
-                        </Caveat>
+                        </Note>
                       ) : (
                         <DatasetDetail
                           path={path}
@@ -491,11 +493,11 @@ function ReviewStep() {
               );
             })}
           </ul>
-        </Card>
-        <Caveat className="mt-2.5">
+        </Frame>
+        <Note className="mt-2.5">
           Each selected dataset is profiled independently before assessment.
           No cross-file linkage is computed at this stage.
-        </Caveat>
+        </Note>
       </Section>
 
       <div className="mt-4 flex items-center justify-between gap-2">
@@ -710,7 +712,7 @@ function DatasetDetail({
           Canonical mapping · {effective}
         </div>
         {stale ? (
-          <Caveat tone="caution" className="mb-2.5">
+          <Note tone="caution" className="mb-2.5">
             Mapping changed — preview must be refreshed. Validation and
             readiness below are from the previous mapping.
             <span className="mt-2 block">
@@ -722,7 +724,7 @@ function DatasetDetail({
                 Refresh preview
               </button>
             </span>
-          </Caveat>
+          </Note>
         ) : null}
         <MappingReviewCore
           decisions={preview.mapping_decisions}
@@ -749,11 +751,13 @@ function DatasetDetail({
 
       <div>
         <div className="section-label mb-1.5">Schema</div>
-        <DataTable>
+        <TableScroller>
           <TableHead>
+            <HeadRow>
             <HeadCell>Column</HeadCell>
             <HeadCell>Category</HeadCell>
             <HeadCell>Sample values</HeadCell>
+           </HeadRow>
           </TableHead>
           <TableBody>
             {preview.schema.columns.map((column) => (
@@ -772,7 +776,7 @@ function DatasetDetail({
               </TableRow>
             ))}
           </TableBody>
-        </DataTable>
+        </TableScroller>
       </div>
     </div>
   );
@@ -994,7 +998,7 @@ function RunStep() {
         title="Run Assessment"
         description="Run each dataset as its own assessment. The backend analyses one dataset per run — Overview shows each run progressing, then its results."
       >
-        <Card>
+        <Frame>
           <ul className="divide-y divide-border">
             {datasets.map((path) => {
               const entry = previews[path];
@@ -1043,26 +1047,58 @@ function RunStep() {
               );
             })}
           </ul>
-        </Card>
-        <Caveat className="mt-2.5">
+        </Frame>
+        <Note className="mt-2.5">
           {busy
             ? "A run is already in flight. Overview shows its progress; further runs wait until it finishes."
             : gate.ok
               ? "Each Run starts an independent single-dataset assessment. Overview shows the latest run — earlier runs stay in the service and are not merged."
               : (gate.reason ?? "Refresh every dataset preview before running.")}
-        </Caveat>
-        <Caveat className="mt-2.5">
+        </Note>
+        <Note className="mt-2.5">
           No cross-file linkage is computed. A merged multi-dataset analysis
           is not supported: running this package does not create one combined
           analytical dataset.
-        </Caveat>
+        </Note>
+      </Section>
+
+      <Section
+        title="Peer comparison"
+        description="What a run will and will not be able to say about itself."
+      >
+        <Frame>
+          <dl className="divide-y divide-border/70 px-4">
+            <DataRow
+              label="Cohort comes from"
+              value="The other assessment scopes inside the same run, held to the same period"
+            />
+            <DataRow
+              label="A single-dataset run"
+              value="Holds one scope, so it forms no cohort and reports peer benchmarking as unavailable rather than inventing a comparison"
+            />
+            <DataRow
+              label="Metadata is never inferred"
+              value="Cohorts narrower than a period are only used when the submission carries evidenced sector, class and size"
+            />
+            <DataRow
+              label="Nothing is merged"
+              value="Each Run is compared only within itself; figures from separate runs are never pooled"
+            />
+          </dl>
+        </Frame>
+        <Note className="mt-2.5">
+          A run with no cohort is a normal outcome, not a failure and not a
+          finding. It means the assessment had nothing to compare itself with,
+          and the screens will say exactly that rather than showing a rate
+          against no baseline.
+        </Note>
       </Section>
 
       <div className="mt-4 flex items-center justify-between gap-2">
         <Button variant="ghost" onClick={back}>
           Back
         </Button>
-        <Button variant="outline" onClick={() => navigate("/")}>
+        <Button variant="secondary" onClick={() => navigate("/")}>
           Open Overview
         </Button>
       </div>

@@ -6,9 +6,8 @@ import { useAnalysis } from "../../app/AnalysisContext";
 import { cn } from "../../lib/cn";
 import { datasetName, formatBytes } from "../../lib/formatters";
 import { Button } from "../ui/Button";
-import { EmptyState, LoadingRows } from "../ui/Metric";
+import { EmptyState, LoadingRows, StatusBadge } from "../ui/State";
 import { TextFilter } from "../ui/Filters";
-import { StatusBadge } from "../ui/StatusBadge";
 
 /**
  * Choosing which dataset is on screen.
@@ -170,6 +169,34 @@ function SwitcherBody({ onClose }: { onClose: () => void }) {
             </DialogPrimitive.Close>
           </header>
 
+          {/*
+            The run in progress is reported above the steps rather than inside
+            the Select step, where it used to live.
+
+            A run starts from the Confirm step, and a block that only renders on
+            step one is not on screen at the moment the run begins. So the
+            banner never appeared while a switch was actually in flight, and
+            with it went the only control for abandoning one: starting a switch
+            made it impossible to cancel. Placed here it is visible from every
+            step, which is also what its own wording promises — the loaded
+            assessment stays on screen until the new one is produced, and the
+            examiner can watch that happen or call it off.
+          */}
+          {pending ? (
+            <div className="flex items-center justify-between gap-3 border-b border-border bg-info-subtle px-4 py-2.5">
+              <p className="min-w-0 text-xs text-info">
+                <span className="font-medium">Assessing </span>
+                <span className="truncate font-medium">
+                  {datasetName(pending.dataset)}
+                </span>
+                . The loaded assessment stays on screen until this finishes.
+              </p>
+              <Button size="sm" variant="secondary" onClick={cancelPending}>
+                Cancel switch
+              </Button>
+            </div>
+          ) : null}
+
           {step === 0 ? (
           <>
           <div className="flex items-end gap-3 border-b border-border px-4 py-3">
@@ -182,7 +209,7 @@ function SwitcherBody({ onClose }: { onClose: () => void }) {
             />
             <Button
               size="sm"
-              variant="outline"
+              variant="secondary"
               onClick={() => void reloadDatasets()}
               disabled={datasetsLoading || busy}
             >
@@ -202,21 +229,6 @@ function SwitcherBody({ onClose }: { onClose: () => void }) {
               <p className="border-b border-border px-4 py-2 text-xs text-critical">
                 {datasetsError}
               </p>
-            ) : null}
-
-            {pending ? (
-              <div className="flex items-center justify-between gap-3 border-b border-border bg-info-subtle px-4 py-2.5">
-                <p className="min-w-0 text-xs text-info">
-                  <span className="font-medium">Assessing </span>
-                  <span className="truncate font-medium">
-                    {datasetName(pending.dataset)}
-                  </span>
-                  . The loaded assessment stays on screen until this finishes.
-                </p>
-                <Button size="sm" variant="outline" onClick={cancelPending}>
-                  Cancel switch
-                </Button>
-              </div>
             ) : null}
 
             {datasetsLoading ? (
@@ -353,16 +365,19 @@ function SwitcherBody({ onClose }: { onClose: () => void }) {
                   disabled={!chosen || busy}
                   onClick={() => {
                     if (chosen) {
+                      // The dialog deliberately stays open while the run is in
+                      // flight. Closing it here unmounted the pending banner
+                      // above, and with it the only "Cancel switch" control in
+                      // the product, so starting a switch silently made it
+                      // impossible to abandon. Staying open is also what the
+                      // banner promises: the loaded assessment is on screen
+                      // behind this dialog until the new one is produced, and
+                      // the examiner can watch it happen or cancel it.
                       void run(chosen.path);
-                      onClose();
                     }
                   }}
                 >
-                  {busy
-                    ? "Assessing…"
-                    : currentDataset
-                      ? "Switch to this dataset"
-                      : "Run assessment"}
+                  {busy ? "Assessing…" : currentDataset ? "Switch to this dataset" : "Run assessment"}
                 </Button>
               )}
             </div>

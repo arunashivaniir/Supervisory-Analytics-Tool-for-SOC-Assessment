@@ -1,50 +1,79 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ReactNode } from "react";
 
-import { cn } from "../../lib/cn";
+/**
+ * Buttons.
+ *
+ * Hand-rolled rather than composed from a variant library, because there are
+ * three variants and one size and a dependency to express that is not worth
+ * carrying. Every button declares `type` explicitly: a button inside a form
+ * that submits by accident is a real defect in a tool with destructive actions.
+ */
+export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
+export type ButtonSize = "sm" | "md";
 
-type Variant = "primary" | "secondary" | "ghost" | "outline";
-type Size = "sm" | "md";
-
-const VARIANTS: Record<Variant, string> = {
+const VARIANT_CLASS: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary text-white border border-primary hover:bg-primary-hover hover:border-primary-hover",
+    "border-transparent bg-primary text-white hover:bg-primary-hover disabled:hover:bg-primary",
   secondary:
-    "bg-surface text-text border border-border hover:bg-subtle hover:border-border-strong",
-  outline:
-    "bg-transparent text-text-secondary border border-border hover:text-text hover:bg-subtle",
+    "border-border-strong bg-surface text-text hover:bg-subtle disabled:hover:bg-surface",
   ghost:
-    "bg-transparent text-text-secondary border border-transparent hover:bg-subtle hover:text-text",
+    "border-transparent bg-transparent text-text-secondary hover:bg-subtle hover:text-text disabled:hover:bg-transparent",
+  danger:
+    "border-transparent bg-critical text-white hover:opacity-90 disabled:hover:opacity-100",
 };
 
-const SIZES: Record<Size, string> = {
-  sm: "h-7 px-2.5 text-xs gap-1.5",
-  md: "h-8 px-3 text-[13px] gap-2",
+const SIZE_CLASS: Record<ButtonSize, string> = {
+  sm: "h-7 px-2.5 text-xs",
+  md: "h-8 px-3 text-[13px]",
 };
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: Variant;
-  size?: Size;
+export interface ButtonProps
+  extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
 }
 
 export function Button({
-  className,
   variant = "secondary",
   size = "md",
   type = "button",
-  ...props
+  className = "",
+  children,
+  ...rest
 }: ButtonProps) {
   return (
     <button
       type={type}
-      className={cn(
-        "inline-flex items-center justify-center rounded-[8px] font-medium",
-        "transition-colors duration-100",
-        "disabled:pointer-events-none disabled:opacity-45",
-        VARIANTS[variant],
-        SIZES[size],
-        className,
-      )}
-      {...props}
-    />
+      className={`inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-[8px] border font-medium transition-colors duration-100 disabled:cursor-not-allowed disabled:opacity-45 ${VARIANT_CLASS[variant]} ${SIZE_CLASS[size]} ${className}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+}
+
+/**
+ * A text action inside a table cell.
+ *
+ * A real button, so it is reachable by keyboard and announced as an action,
+ * rather than a styled link or a click handler on a `<td>`.
+ */
+export function CellAction({
+  children,
+  onClick,
+  className = "",
+}: {
+  children: ReactNode;
+  onClick: () => void;
+  className?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`whitespace-nowrap rounded-[6px] px-1.5 py-1 text-xs font-medium text-accent underline-offset-2 hover:bg-accent-subtle hover:underline focus-visible:outline-2 focus-visible:outline-accent ${className}`}
+    >
+      {children}
+    </button>
   );
 }

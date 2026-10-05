@@ -63,6 +63,39 @@ const SIGNAL_STATUS: Record<string, StatusPresentation> = {
   NOT_TRAINED: { tone: "neutral", label: "Not trained" },
 };
 
+/**
+ * Peer baseline statuses, as the benchmarking layer reports them.
+ *
+ * UNAVAILABLE and LIMITED are deliberately different colours. "No cohort"
+ * and "a cohort too small to lean on" are different statements about the
+ * evidence, and collapsing them would let a weak comparison read like a sound
+ * one.
+ */
+const BASELINE_STATUS: Record<string, StatusPresentation> = {
+  ROBUST: { tone: "positive", label: "Robust baseline" },
+  LIMITED: { tone: "caution", label: "Limited baseline" },
+  UNAVAILABLE: { tone: "neutral", label: "No baseline" },
+};
+
+/**
+ * Descriptive deviation bands over the absolute modified Z-score.
+ *
+ * These are not severities. The band selects wording; it never created a
+ * finding and the interface must not promote one into a severity.
+ */
+const DEVIATION_BAND: Record<string, StatusPresentation> = {
+  WITHIN_COHORT_SPREAD: { tone: "neutral", label: "Within cohort spread" },
+  NOTABLE: { tone: "info", label: "Notable deviation" },
+  MATERIAL: { tone: "caution", label: "Material deviation" },
+  NOT_EVALUABLE: { tone: "neutral", label: "Not evaluable" },
+};
+
+/** Statistical availability of a peer statistic. */
+const STATISTICAL_STATUS: Record<string, StatusPresentation> = {
+  COMPUTED: { tone: "neutral", label: "Computed" },
+  NOT_COMPUTABLE: { tone: "neutral", label: "Not computable" },
+};
+
 const FALLBACK: StatusPresentation = { tone: "neutral", label: "" };
 
 function lookup(
@@ -86,6 +119,24 @@ export function anomalyVerdict(verdict: string | null | undefined): StatusPresen
 
 export function signalStatus(status: string | null | undefined): StatusPresentation {
   return lookup(SIGNAL_STATUS, status);
+}
+
+export function baselineStatus(
+  status: string | null | undefined,
+): StatusPresentation {
+  return lookup(BASELINE_STATUS, status);
+}
+
+export function deviationBand(
+  status: string | null | undefined,
+): StatusPresentation {
+  return lookup(DEVIATION_BAND, status);
+}
+
+export function statisticalStatus(
+  status: string | null | undefined,
+): StatusPresentation {
+  return lookup(STATISTICAL_STATUS, status);
 }
 
 /**
@@ -184,3 +235,16 @@ export const SIGNAL_FAMILIES = [
 ] as const;
 
 export type SignalFamilyId = (typeof SIGNAL_FAMILIES)[number]["id"];
+
+/**
+ * A metric's direction, in the words the backend's declaration implies.
+ *
+ * This is what makes a percentile interpretable, and it is the reason no screen
+ * can present a high number as bad on its own initiative. The backend declares
+ * the direction per metric; this only gives the declaration words.
+ */
+export function directionLabel(direction: string): string {
+  return direction === "higher_is_adverse"
+    ? "Higher is the less favourable value"
+    : "Higher is the more favourable value";
+}

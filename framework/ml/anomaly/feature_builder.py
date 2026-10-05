@@ -42,11 +42,9 @@ import os
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 from framework.evidence import calculate_sha256_of_text
+from framework.ml.anomaly.minhash_lsh import find_max_similarities_minhash
 from framework.supervision.execution_gap_detector import has_evidence
-from framework.supervision.operational_pattern_detector import (
-    _jaccard,
-    _tokenise,
-)
+from framework.supervision.text_similarity import _jaccard, _tokenise
 from framework.supervisory.rules.rule_engine import normalise_value
 
 
@@ -874,6 +872,8 @@ class OperationalFeatureBuilder:
         "similar wording". Returns a share, not a pass/fail: the similarity
         floor that the pattern layer needs for grouping is deliberately absent
         here, because the model decides what counts as unusual.
+
+        Uses MinHash LSH for sub-quadratic max-similarity computation.
         """
 
         concept = self._single_concept(definition)
@@ -893,22 +893,11 @@ class OperationalFeatureBuilder:
         if len(usable) < 2:
             return 0.0
 
-        best_matches: List[float] = []
+        max_sims = find_max_similarities_minhash(
+            token_sets, exact_jaccard_fn=_jaccard
+        )
 
-        for index, tokens in enumerate(usable):
-
-            best = 0.0
-
-            for other_index, other in enumerate(usable):
-                if other_index == index:
-                    continue
-                similarity = _jaccard(tokens, other)
-                if similarity > best:
-                    best = similarity
-
-            best_matches.append(best)
-
-        return sum(best_matches) / len(best_matches)
+        return sum(max_sims) / len(max_sims) if max_sims else 0.0
 
     def _positive_share(
         self,

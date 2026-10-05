@@ -14,6 +14,7 @@
 import {
   NOT_AVAILABLE,
   capabilityTally,
+  entityLabel,
   entityResolved,
   periodLabel,
   periodResolved,
@@ -24,16 +25,23 @@ import type {
   AnomalyScopeResult,
   AnomalyVerdict,
   AssessmentScope,
+  BenchmarkScope,
   CanonicalContractEntry,
   CanonicalMappingDecision,
   CanonicalMappingState,
   Capability,
   CapabilityScope,
   CapabilityStatus,
+  CohortTierDefinition,
+  CollectionBenchmarkMetric,
   ExecutionGapFinding,
   FindingIdentity,
+  MetricBenchmark,
+  MetricDefinition,
   NegativeSpaceFinding,
   OperationalPatternFinding,
+  PeerBenchmark,
+  PeerCohort,
   PipelineResult,
   ScopeIdentity,
 } from "../types/pipeline";
@@ -598,60 +606,199 @@ export function reviewSamples(
   });
 }
 
-/**
- * Peer context for one scope: the distribution this scope sits in.
- *
- * The peer population is the assessment's own scopes — same package,
- * same pipeline, same counting basis (reported signal counts). Median,
- * range and the scope's deviation are arithmetic over those counts,
- * never a judgement. Null when fewer than two scopes exist: a
- * population of one cannot be compared with itself.
- */
-export interface PeerContext {
-  population: number;
-  basis: string;
-  median: number;
-  min: number;
-  max: number;
-  entityCount: number;
-  deviation: number;
+// ------------------------------------------------------- peer benchmarking
+//
+// Projections over the backend-authoritative `peer_benchmark` result. Every
+// function here returns a value the backend already produced. None of them
+// computes a median, a Z-score, a percentile, a rank or a cohort, and none of
+// them decides which cohort would be appropriate: that is the backend's
+// resolver, and its decision is rendered rather than re-made here.
+//
+// The React-computed peer context this module used to carry compared raw
+// finding counts inside the browser. That conflated a count with a rate, so a
+// larger submission looked worse purely for being larger, and it compared
+// scopes across periods. Both defects are removed by reading the contract
+// below instead.
+
+export function peerBenchmark(result: PipelineResult | null): PeerBenchmark | null {
+  return result?.peer_benchmark ?? null;
 }
 
-export function peerContext(
+/** True when the backend produced a peer comparison for this assessment. */
+export function peerBenchmarkAvailable(result: PipelineResult | null): boolean {
+  return peerBenchmark(result)?.available === true;
+}
+
+/**
+ * Why the layer produced nothing, if it did.
+ *
+ * A run with no peer comparison is a different state from a run with a peer
+ * comparison in which every cohort was too small, and the two are reported
+ * separately so an empty screen can say which one it is showing.
+ */
+export function peerBenchmarkUnavailableReason(
+  result: PipelineResult | null,
+): string | null {
+  const benchmark = peerBenchmark(result);
+
+  if (!benchmark || benchmark.available) {
+    return null;
+  }
+
+  return benchmark.unavailable_reason ?? "Peer benchmarking produced no result for this assessment";
+}
+
+/** One scope's benchmark record, or null when the backend has none for it. */
+export function benchmarkScope(
   result: PipelineResult | null,
   assessmentId: string,
-): PeerContext | null {
-  if (!result) {
-    return null;
+): BenchmarkScope | null {
+  const benchmark = peerBenchmark(result);
+
+  return benchmark?.scopes.find((scope) => scope.assessment_id === assessmentId) ?? null;
+}
+
+/** Every benchmarked scope, ordered as the backend ordered it. */
+export function benchmarkScopes(result: PipelineResult | null): BenchmarkScope[] {
+  return peerBenchmark(result)?.scopes ?? [];
+}
+
+/** One metric benchmark for a scope, or null when the backend has none. */
+export function metricBenchmark(
+  result: PipelineResult | null,
+  assessmentId: string,
+  metricId: string,
+): MetricBenchmark | null {
+  const scope = benchmarkScope(result, assessmentId);
+
+  return scope?.benchmarks.find((entry) => entry.metric_id === metricId) ?? null;
+}
+
+/** The metric benchmarks for a scope, in the backend's catalogue order. */
+export function metricBenchmarks(
+  result: PipelineResult | null,
+  assessmentId: string,
+): MetricBenchmark[] {
+  return benchmarkScope(result, assessmentId)?.benchmarks ?? [];
+}
+
+/** The declared metric catalogue, for labels and definitions. */
+export function benchmarkMetricCatalogue(
+  result: PipelineResult | null,
+): MetricDefinition[] {
+  return peerBenchmark(result)?.metric_catalogue ?? [];
+}
+
+/**
+ * Metric benchmarks for every scope, keyed by assessment id.
+ *
+ * Used by the cross-scope screens, which show one metric across the cohort
+ * rather than one cohort across metrics.
+ */
+export function benchmarkMatrix(
+  result: PipelineResult | null,
+): Record<string, MetricBenchmark[]> {
+  const matrix: Record<string, MetricBenchmark[]> = {};
+
+  for (const scope of benchmarkScopes(result)) {
+    matrix[scope.assessment_id] = scope.benchmarks;
   }
 
-  const findings = unifiedFindings(result);
+  return matrix;
+}
+
+/** The backend's cohort for a scope, or null when there is none. */
+export function peerCohort(
+  result: PipelineResult | null,
+  assessmentId: string,
+): PeerCohort | null {
+  return benchmarkScope(result, assessmentId)?.cohort ?? null;
+}
+
+/** The collection-level anomaly incidence the backend reported. */
+export function collectionBenchmark(
+  result: PipelineResult | null,
+): CollectionBenchmarkMetric | null {
+  return peerBenchmark(result)?.collection_metrics ?? null;
+}
+
+/**
+ * The configured cohort hierarchy, most specific first.
+ *
+ * Published so a screen can show which cohort was aimed for and which was
+ * reached, rather than only the one that was used.
+ */
+export function cohortHierarchy(
+  result: PipelineResult | null,
+): CohortTierDefinition[] {
+  return peerBenchmark(result)?.cohort_hierarchy ?? [];
+}
+
+/** Benchmarks whose metric resolved to a rate, in catalogue order. */
+export function computedBenchmarks(
+  benchmarks: MetricBenchmark[],
+): MetricBenchmark[] {
+  return benchmarks.filter((entry) => entry.metric_status === "COMPUTED");
+}
+
+/**
+ * Benchmarks whose deviation from the peer median is computable.
+ *
+ * A NOT_COMPUTABLE statistic is not hidden: it is a statement about the
+ * cohort, and the screens that show deviations must be able to say why one is
+ * missing.
+ */
+export function comparableDeviations(
+  benchmarks: MetricBenchmark[],
+): MetricBenchmark[] {
+  return benchmarks.filter((entry) => entry.statistical_status === "COMPUTED");
+}
+
+/**
+ * Benchmarks whose metric expresses evidence presence rather than
+ * performance.
+ *
+ * The backend publishes `measure_type` for exactly this purpose: a coverage
+ * metric describes how much of the submitted data carried a concept, and must
+ * not be presented alongside contradiction rates as though it were one.
+ */
+export function evidenceObservationBenchmarks(
+  benchmarks: MetricBenchmark[],
+): MetricBenchmark[] {
+  return benchmarks.filter((entry) => entry.measure_type === "evidence_observation");
+}
+
+/**
+ * The scope ids in a cohort, resolved to display labels.
+ *
+ * Pure lookup: the ids come from the backend's resolver and the labels from
+ * the assessment the backend resolved them against.
+ */
+export function cohortMembers(
+  result: PipelineResult | null,
+  assessmentId: string,
+): Array<{ assessment_id: string; label: string }> {
+  const cohort = peerCohort(result, assessmentId);
+
+  if (!cohort) {
+    return [];
+  }
+
   const rows = scopeRows(result);
 
-  if (rows.length < 2) {
-    return null;
-  }
+  return cohort.member_assessment_ids.map((id) => {
+    const row = rows.find((candidate) => candidate.assessment_id === id);
 
-  const counts = rows.map(
-    (row) => findingsForScope(findings, row.assessment_id).length,
-  );
-  const mine = findingsForScope(findings, assessmentId).length;
-  const sorted = [...counts].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  const median =
-    sorted.length % 2 === 1
-      ? sorted[mid]
-      : (sorted[mid - 1] + sorted[mid]) / 2;
+    const entity = row?.entity ?? null;
+    const period = row?.period ?? null;
 
-  return {
-    population: rows.length,
-    basis: `reported signal counts across ${rows.length} scopes in this assessment`,
-    median,
-    min: sorted[0],
-    max: sorted[sorted.length - 1],
-    entityCount: mine,
-    deviation: mine - median,
-  };
+    return {
+      assessment_id: id,
+      label: `${entityResolved(entity) ? entityLabel(entity) : "Entity not identified"} · ${
+        periodResolved(period) ? periodLabel(period) : "period not determined"
+      }`,
+    };
+  });
 }
 
 // ------------------------------------------------- canonical mapping review

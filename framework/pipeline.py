@@ -35,6 +35,13 @@ from framework.ml.anomaly.isolation_forest_detector import (
     IsolationForestAnomalyDetector,
 )
 
+from framework.benchmark import (
+    BenchmarkConfigError,
+    DEFAULT_PEER_BENCHMARK_CONFIG,
+    PeerBenchmarkEngine,
+    evaluate_collection_or_report_unavailable,
+)
+
 
 
 
@@ -112,6 +119,37 @@ class SATSAPipeline:
         # trained artifact every scope is reported NOT_EVALUABLE rather than
         # guessed at.
         self.anomaly_detector = self._build_anomaly_detector()
+
+
+        # Peer benchmarking, per assessment scope, against a deterministic
+        # cohort of peer scopes from the same assessment. Resolves raw counts
+        # into rates and publishes robust statistics with their availability
+        # stated. Runs last and reads only results other layers produced, so it
+        # cannot feed back into a finding, a verdict, an evidence state or the
+        # attention score. A missing or unusable configuration leaves the layer
+        # inert and the pipeline reports its absence rather than failing.
+        self.benchmark_engine = self._build_benchmark_engine()
+
+
+
+    @staticmethod
+    def _build_benchmark_engine():
+        """Build the peer benchmarking engine, or stay inert.
+
+        Peer comparison is additive, so a configuration the tool cannot read
+        must not cost the caller an assessment. The layer reports itself
+        unavailable and every other result is unaffected.
+        """
+
+        try:
+
+            return PeerBenchmarkEngine.from_config_path(
+                DEFAULT_PEER_BENCHMARK_CONFIG
+            )
+
+        except Exception:
+
+            return None
 
 
 
@@ -362,6 +400,10 @@ class SATSAPipeline:
 
 
 
+
+
+
+
             print("[+] Mapping dataset into SAT-SA schema")
 
 
@@ -422,6 +464,27 @@ class SATSAPipeline:
             entity_assessment = self.entity_evaluator.evaluate(
                 canonical_records,
                 supervisory_findings
+            )
+
+
+            # Peer benchmarking: each scope against a deterministic cohort of
+            # peers drawn from this same assessment. Placed after every layer
+            # above, and reading only what they produced, so no peer statement
+            # can feed back into the layer it describes. It is also the only
+            # layer that can be absent without invalidating the run, which is
+            # why it degrades to a stated unavailability rather than raising.
+
+            print("[+] Benchmarking scopes against their peers")
+
+
+            peer_benchmark = evaluate_collection_or_report_unavailable(
+                self.benchmark_engine,
+                collection=assessment,
+                capability_assessment=capability_assessment,
+                execution_gap_findings=execution_gap_findings,
+                negative_space_findings=negative_space_findings,
+                operational_pattern_findings=operational_pattern_findings,
+                anomaly_findings=anomaly_findings,
             )
 
 
@@ -512,7 +575,16 @@ class SATSAPipeline:
                 # attention scorer. A scope without the evidence needed for a
                 # feature vector is reported NOT_EVALUABLE and is never turned
                 # into an anomaly.
-                "anomaly_findings": anomaly_findings
+                "anomaly_findings": anomaly_findings,
+
+                # Added by the peer benchmarking layer. Each scope compared
+                # with a deterministic cohort of peer scopes from the same
+                # assessment, using quantities the layers above already
+                # produced. Additive and read-only: it resolves rates and
+                # robust statistics, and writes to no other result key, so
+                # it cannot influence a finding, a verdict, an evidence state
+                # or the attention score.
+                "peer_benchmark": peer_benchmark
 
             }
 
@@ -718,6 +790,15 @@ class SATSAPipeline:
 
                 "anomaly_findings": self._deferred(
                     "anomaly_findings"
+                ),
+
+
+                # Peer benchmarking needs per-scope records materialised, which
+                # the analytical scan deliberately avoids, so it is deferred
+                # with the other scope-level layers rather than approximated
+                # from a scan summary.
+                "peer_benchmark": self._deferred(
+                    "peer_benchmark"
                 )
 
             }

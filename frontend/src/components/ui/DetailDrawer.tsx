@@ -1,15 +1,18 @@
-import * as DialogPrimitive from "@radix-ui/react-dialog";
+import * as Dialog from "@radix-ui/react-dialog";
 import { X } from "lucide-react";
 import type { ReactNode } from "react";
 
-import { cn } from "../../lib/cn";
-
 /**
- * A right-side detail drawer.
+ * A side panel for a detail view.
  *
- * The findings list stays mounted behind it, so opening a finding does not
- * discard the examiner's filters or scroll position. That is the whole reason
- * this is a drawer and not a route.
+ * The list behind it stays mounted. That is the whole reason this is a dialog
+ * over the page rather than a navigation: an examiner comparing two findings
+ * should not lose their filters, their scroll position, or their place in the
+ * list by opening one.
+ *
+ * Radix handles the focus trap, the escape key, the scroll lock and the
+ * `aria-modal` wiring. Writing that by hand is how dialogs end up trapping
+ * focus on a container that is not there.
  */
 export function DetailDrawer({
   open,
@@ -27,67 +30,76 @@ export function DetailDrawer({
   footer?: ReactNode;
 }) {
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
-      <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-primary/20 data-[state=open]:animate-in" />
-        <DialogPrimitive.Content
-          className={cn(
-            "fixed inset-y-0 right-0 z-50 flex w-full max-w-[620px] flex-col",
-            "border-l border-border bg-surface",
-            "focus:outline-none",
-          )}
+    <Dialog.Root open={open} onOpenChange={onOpenChange}>
+      <Dialog.Portal>
+        <Dialog.Overlay className="fixed inset-0 z-40 bg-primary/25" />
+
+        <Dialog.Content
+          className="fixed inset-y-0 right-0 z-50 flex w-full max-w-[min(640px,100vw)] flex-col border-l border-border bg-surface shadow-lg focus:outline-none"
+          data-print-hide
         >
-          <header className="flex items-start justify-between gap-4 border-b border-border px-5 py-3.5">
+          <header className="flex shrink-0 items-start justify-between gap-4 border-b border-border px-5 py-4">
             <div className="min-w-0">
-              <DialogPrimitive.Title className="text-sm font-semibold text-text">
+              <Dialog.Title className="truncate text-[15px] font-semibold text-text">
                 {title}
-              </DialogPrimitive.Title>
+              </Dialog.Title>
+
               {subtitle ? (
-                <DialogPrimitive.Description className="mt-0.5 text-xs text-text-secondary">
+                <Dialog.Description className="mt-0.5 break-words text-xs text-text-secondary">
                   {subtitle}
-                </DialogPrimitive.Description>
+                </Dialog.Description>
               ) : null}
             </div>
-            <DialogPrimitive.Close
-              className="-mr-1 shrink-0 rounded-[6px] p-1 text-text-tertiary hover:bg-subtle hover:text-text"
-              aria-label="Close detail"
-            >
-              <X className="size-4" aria-hidden="true" />
-            </DialogPrimitive.Close>
+
+            <Dialog.Close asChild>
+              <button
+                type="button"
+                aria-label="Close detail"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[6px] text-text-secondary hover:bg-subtle hover:text-text focus-visible:outline-2 focus-visible:outline-accent"
+              >
+                <X aria-hidden="true" className="h-4 w-4" />
+              </button>
+            </Dialog.Close>
           </header>
 
-          <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
+          <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden px-5 py-4">
             {children}
           </div>
 
           {footer ? (
-            <footer className="border-t border-border px-5 py-3">{footer}</footer>
+            <footer className="shrink-0 border-t border-border px-5 py-3">
+              {footer}
+            </footer>
           ) : null}
-        </DialogPrimitive.Content>
-      </DialogPrimitive.Portal>
-    </DialogPrimitive.Root>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   );
 }
 
-/** A labelled block inside the drawer. */
-export function DrawerSection({
+/** A titled block inside a drawer or a detail page. */
+export function DetailSection({
   title,
   description,
   children,
-  className,
+  className = "",
 }: {
-  title: string;
+  title: ReactNode;
   description?: ReactNode;
   children: ReactNode;
   className?: string;
 }) {
   return (
-    <section className={cn("border-t border-border py-4 first:border-t-0 first:pt-0", className)}>
+    <section className={`min-w-0 border-t border-border pt-4 first:border-t-0 first:pt-0 ${className}`}>
       <h3 className="section-label">{title}</h3>
+
       {description ? (
-        <p className="mt-1 text-xs text-text-secondary">{description}</p>
+        <p className="mt-1 max-w-prose text-xs leading-relaxed text-text-secondary">
+          {description}
+        </p>
       ) : null}
-      <div className="mt-2.5">{children}</div>
+
+      <div className="mt-2.5 min-w-0">{children}</div>
     </section>
   );
 }

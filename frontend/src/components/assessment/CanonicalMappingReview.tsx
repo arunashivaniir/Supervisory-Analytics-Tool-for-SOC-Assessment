@@ -23,18 +23,22 @@ import {
   canonicalStates,
   profileCategoryByColumn,
 } from "../../app/selectors";
-import { Card } from "../ui/Card";
-import { EmptyState } from "../ui/Metric";
 import {
-  DataTable,
+  Frame,
+  Note,
+  Section,
+} from "../ui/Surface";
+import {
   HeadCell,
+  HeadRow,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-} from "../ui/DataTable";
-import { StatusBadge } from "../ui/StatusBadge";
-import { Caveat, Section } from "../layout/PageHeader";
+  TableScroller,
+} from "../ui/Table";
+import { EmptyState, StatusBadge } from "../ui/State";
+import { Button } from "../ui/Button";
 import {
   UNMAPPED,
   guardBlocks,
@@ -155,12 +159,10 @@ export function MappingReviewCore({
 
   if (decisions.length === 0) {
     return (
-      <Card>
-        <EmptyState
-          title="No canonical decisions reported"
-          description="No authoritative mapping decisions were provided for this review."
-        />
-      </Card>
+      <EmptyState
+        title="No canonical decisions reported"
+        description="No authoritative mapping decisions were provided for this review."
+      />
     );
   }
 
@@ -219,7 +221,7 @@ export function MappingReviewCore({
 
   return (
     <div>
-      <dl className="mb-3 grid grid-cols-3 gap-2 sm:grid-cols-6">
+      <dl className="mb-3 flex flex-wrap gap-x-7 gap-y-2">
         {(
           [
             ["MAPPED", "Mapped"],
@@ -229,23 +231,16 @@ export function MappingReviewCore({
             ["INVALID", "Invalid"],
           ] as Array<[CanonicalMappingState, string]>
         ).map(([state, label]) => (
-          <div
-            key={state}
-            className="rounded-[8px] border border-border bg-surface px-2.5 py-2"
-          >
-            <dt className="micro uppercase tracking-[0.06em] text-text-tertiary">
-              {label}
-            </dt>
-            <dd className="tabular text-lg font-semibold text-text">
+          <div key={state} className="min-w-0">
+            <dt className="section-label">{label}</dt>
+            <dd className="tabular mt-0.5 text-[17px] font-semibold text-text">
               {states[state] ?? 0}
             </dd>
           </div>
         ))}
-        <div className="rounded-[8px] border border-border bg-surface px-2.5 py-2">
-          <dt className="micro uppercase tracking-[0.06em] text-text-tertiary">
-            Reviewer overrides
-          </dt>
-          <dd className="tabular text-lg font-semibold text-text">
+        <div className="min-w-0">
+          <dt className="section-label">Reviewer overrides</dt>
+          <dd className="tabular mt-0.5 text-[17px] font-semibold text-text">
             {overrideCount}
           </dd>
         </div>
@@ -272,15 +267,25 @@ export function MappingReviewCore({
 
       {banner}
 
-      <Card>
-        <DataTable>
+      <Frame>
+        <TableScroller>
           <TableHead>
-            <HeadCell>Source field</HeadCell>
-            <HeadCell>Canonical concept</HeadCell>
-            <HeadCell align="right">Confidence</HeadCell>
-            <HeadCell>State</HeadCell>
-            <HeadCell>Reason</HeadCell>
-            <HeadCell align="right">Action</HeadCell>
+            <HeadRow>
+            {/*
+              Explicit widths. With auto layout the browser gave these five
+              columns an identical 66px and handed the remaining ~880px to
+              Reason, which pushed unbreakable identifiers like
+              `expected_alert_family` and `CLOSURE_DISPOSITION` out of their
+              cells and over their neighbours. The widths below are the sum of
+              what each column's longest value actually needs.
+            */}
+            <HeadCell width="16%">Source field</HeadCell>
+            <HeadCell width="18%">Canonical concept</HeadCell>
+            <HeadCell width="8%" align="right">Confidence</HeadCell>
+            <HeadCell width="14%">State</HeadCell>
+            <HeadCell width="34%">Reason</HeadCell>
+            <HeadCell width="10%" align="right">Action</HeadCell>
+           </HeadRow>
           </TableHead>
           <TableBody>
             {visible.map((decision) => {
@@ -296,10 +301,10 @@ export function MappingReviewCore({
 
               return (
                 <TableRow key={decision.source_field}>
-                  <TableCell className="font-mono micro">
+                  <TableCell className="break-words font-mono micro">
                     {decision.source_field}
                   </TableCell>
-                  <TableCell className="font-mono micro">
+                  <TableCell className="break-words font-mono micro">
                     {effectiveConcept ?? (
                       <span className="text-text-tertiary italic">—</span>
                     )}
@@ -402,8 +407,8 @@ export function MappingReviewCore({
               );
             })}
           </TableBody>
-        </DataTable>
-      </Card>
+        </TableScroller>
+      </Frame>
 
       {editing ? (
         <EditPanel
@@ -478,23 +483,23 @@ export function CanonicalMappingReview() {
 
   const banner =
     Object.keys(overrides).length > 0 ? (
-      <Caveat tone="caution" className="mb-3">
+      <Note tone="caution" className="mb-3">
         Mapping changed — analysis must be rerun. The figures on screen were
         produced from the previous mapping.
         <span className="mt-2 block">
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant="primary"
             onClick={() => {
               if (dataset) {
                 void run(dataset);
               }
             }}
-            className="rounded-[8px] bg-primary px-3 py-1.5 text-xs font-semibold text-white transition-opacity duration-100 hover:opacity-90"
           >
             Run analysis
-          </button>
+          </Button>
         </span>
-      </Caveat>
+      </Note>
     ) : null;
 
   return (

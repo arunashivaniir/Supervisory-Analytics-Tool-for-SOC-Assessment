@@ -156,6 +156,133 @@ async function pageText(path) {
   return page.evaluate(() => document.body.innerText.replace(/\s+/g, " "));
 }
 
+// ---------------------------------------------------------------------------
+// 0. With no run held at all, the interface must not claim one is in progress.
+//
+// This is a regression check for a real defect. The empty run was given the
+// phase `queued` because `RunPhase` had no member for "holding nothing", and the
+// Overview read that phase as proof of an active run. The result was a first
+// visit — or any moment with no run — showing "No dataset selected" in the top
+// bar beside "Assessment in progress" and "The pipeline is assessing the selected
+// dataset." on the Overview, when no dataset had ever been chosen.
+//
+// The backend is not modified or restarted: a second page intercepts only the
+// run *listing* and reports no runs, which is the same client state as a service
+// that holds none, so the lifecycle is exercised exactly as it is on a first
+// visit.
+// ---------------------------------------------------------------------------
+
+{
+  const virgin = await browser.newPage();
+  await virgin.setViewport({ width: 1440, height: 900 });
+  await virgin.setRequestInterception(true);
+
+  virgin.on("request", (request) => {
+    const url = new URL(request.url());
+
+    if (url.pathname === "/api/analyses" && request.method() === "GET") {
+      return request.respond({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ analyses: [] }),
+      });
+    }
+
+    return request.continue();
+  });
+
+  const errors = [];
+  virgin.on("console", (message) => {
+    if (message.type() === "error") {
+      errors.push(message.text());
+    }
+  });
+  virgin.on("pageerror", (error) => errors.push(`pageerror: ${error.message}`));
+
+  await virgin.goto(`${BASE}/`, { waitUntil: "domcontentloaded" });
+  await virgin.waitForSelector("h1", { timeout: 30000 });
+  await virgin.waitForFunction(
+    () => {
+      const text = document.querySelector("header")?.textContent ?? "";
+      return text.includes("No analysis");
+    },
+    { timeout: 60000, polling: 200 },
+  );
+  await virgin.waitForNetworkIdle({ idleTime: 600, timeout: 30000 });
+
+  const idle = await virgin.evaluate(() => ({
+    header: document.querySelector("header")?.innerText.replace(/\s+/g, " ") ?? "",
+    body: document.body.innerText.replace(/\s+/g, " "),
+  }));
+
+  check(
+    idle.header.includes("No dataset selected"),
+    `with no run held the top bar names no dataset (${idle.header})`,
+  );
+
+  check(
+    idle.header.includes("No analysis"),
+    "with no run held the top bar reports no analysis",
+  );
+
+  check(
+    idle.body.includes("No dataset selected"),
+    "with no run held the Overview states that no dataset is selected",
+  );
+
+  check(
+    idle.body.includes("Select a dataset to begin an assessment."),
+    "with no run held the Overview says how to begin one",
+  );
+
+  // The defect itself.
+  check(
+    !idle.body.includes("Assessment in progress"),
+    "with no run held the Overview never claims an assessment is in progress",
+  );
+
+  check(
+    !idle.body.includes("The pipeline is assessing the selected dataset."),
+    "with no run held the Overview never claims a dataset is being assessed",
+  );
+
+  // The same rule on every screen, because a false active run once differed
+  // between screens: six read `running` from the analysis context while the
+  // Overview and the top bar read the run phase.
+  for (const route of [
+    "/assessments",
+    "/findings",
+    "/evidence",
+    "/reports",
+  ]) {
+    await virgin.goto(`${BASE}${route}`, { waitUntil: "domcontentloaded" });
+
+    // Deliberately not waiting for an `h1`. Findings, Evidence and Reports
+    // return their empty state in place of the page header, so a screen with
+    // nothing loaded has no heading to wait for, and demanding one would be
+    // asserting a heading this state does not render.
+    await virgin.waitForNetworkIdle({ idleTime: 600, timeout: 30000 });
+
+    const quiet = await virgin.evaluate(
+      () => document.body.innerText.replace(/\s+/g, " "),
+    );
+
+    check(
+      !quiet.includes("Assessment in progress"),
+      `with no run held ${route} never claims an assessment is in progress`,
+    );
+
+    check(
+      quiet.includes("No assessment loaded"),
+      `with no run held ${route} states plainly that no assessment is loaded`,
+    );
+  }
+
+  check(errors.length === 0, `no console errors with no run held (${errors.length})`);
+
+  await virgin.close();
+}
+
 for (const route of ["/", "/assessments", "/findings", "/evidence", "/reports"]) {
   const text = await pageText(route);
   check(text.length > 0, `${route} rendered`);
@@ -471,8 +598,26 @@ if (expectedFindings > 0) {
 
   await page.goto(`${BASE}/assessments`, { waitUntil: "domcontentloaded" });
   await page.waitForSelector("tbody tr", { timeout: 30000 });
+  const listHeading = await page.evaluate(
+    () => document.querySelector("h1")?.textContent ?? "",
+  );
+
   await (await page.$("tbody tr")).click();
-  await page.waitForSelector("h1", { timeout: 30000 });
+
+  // The click changes the route but does not navigate the document, so the
+  // list's own `h1` is still mounted for a frame afterwards. Waiting for *an*
+  // `h1` therefore returned immediately and the assertions below ran against the
+  // list, not against the scope. Waiting for the heading to change waits for the
+  // detail screen to actually be the one on screen.
+  await page.waitForFunction(
+    (previous) => {
+      const heading = document.querySelector("h1")?.textContent ?? "";
+
+      return heading.length > 0 && heading !== previous;
+    },
+    { timeout: 30000, polling: 100 },
+    listHeading,
+  );
 
   const detail = await page.evaluate(() => document.body.innerText);
 

@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from "react-router-dom";
 
 import { AppShell } from "./app/AppShell";
 import { AssessmentBuilderProvider } from "./app/AssessmentBuilder";
+import { DashboardProvider } from "./app/DashboardContext";
+import { InvestigationProvider } from "./app/InvestigationContext";
 import { OverviewPage } from "./pages/Overview";
 import { AssessmentsPage } from "./pages/Assessments";
 import { NewAssessmentPage } from "./pages/NewAssessment";
@@ -22,22 +24,34 @@ import { ReportsPage } from "./pages/Reports";
  * survives navigation: starting a package, moving to Overview, and coming
  * back never discards the selection, and Overview can point at a package
  * that is ready for review instead of claiming nothing exists.
+ *
+ * `DashboardProvider` sits above the routes so the whole interface reads one
+ * projection of the loaded run, and `InvestigationProvider` above that so the
+ * entity and finding an examiner is looking at survives every hop between the
+ * five screens.
  */
 export function App() {
   return (
     <AssessmentBuilderProvider>
-      <Routes>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<OverviewPage />} />
-          <Route path="/assessments" element={<AssessmentsPage />} />
-          <Route path="/assessments/new" element={<NewAssessmentPage />} />
-        <Route path="/assessments/:assessmentId" element={<AssessmentDetailPage />} />
-        <Route path="/findings" element={<FindingsPage />} />
-        <Route path="/evidence" element={<EvidencePage />} />
-        <Route path="/reports" element={<ReportsPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Route>
-      </Routes>
+      <DashboardProvider>
+        <InvestigationProvider>
+          <Routes>
+            <Route element={<AppShell />}>
+              <Route path="/" element={<OverviewPage />} />
+              <Route path="/assessments" element={<AssessmentsPage />} />
+              <Route path="/assessments/new" element={<NewAssessmentPage />} />
+              <Route
+                path="/assessments/:assessmentId"
+                element={<AssessmentDetailPage />}
+              />
+              <Route path="/findings" element={<FindingsPage />} />
+              <Route path="/evidence" element={<EvidencePage />} />
+              <Route path="/reports" element={<ReportsPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Route>
+          </Routes>
+        </InvestigationProvider>
+      </DashboardProvider>
     </AssessmentBuilderProvider>
   );
 }

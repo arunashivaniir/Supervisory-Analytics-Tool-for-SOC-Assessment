@@ -1,107 +1,40 @@
 import type { ReactNode } from "react";
 
-import { cn } from "../../lib/cn";
-
 /**
- * A page heading.
+ * A page title.
  *
- * The subject of the assessment, the size of the evidence, and what was
- * produced. One hierarchy per page: heading, then metric row, then content.
+ * One `h1` per screen, and a short supporting line at most. The previous
+ * interface put a paragraph of explanation under every title; the detail
+ * belongs in the section it describes or in a disclosure, not above the fold.
  */
 export function PageHeader({
   title,
-  subject,
-  meta,
+  supporting,
   actions,
-  description,
 }: {
   title: string;
-  subject?: ReactNode;
-  meta?: ReactNode;
+  supporting?: ReactNode;
   actions?: ReactNode;
-  description?: ReactNode;
 }) {
   return (
-    <div className="mb-5 flex items-start justify-between gap-6">
+    <header className="mb-5 flex min-w-0 flex-wrap items-start justify-between gap-x-6 gap-y-3">
       <div className="min-w-0">
-        <h1 className="text-[19px] font-semibold tracking-[-0.01em] text-text">
+        <h1 className="text-[19px] font-semibold leading-tight text-text">
           {title}
         </h1>
-        {subject ? (
-          <p className="mt-1 truncate text-[13px] text-text-secondary">
-            {subject}
-          </p>
-        ) : null}
-        {meta ? (
-          <p className="mt-0.5 text-xs text-text-tertiary">{meta}</p>
-        ) : null}
-        {description ? (
-          <p className="mt-2 max-w-3xl text-xs leading-relaxed text-text-secondary">
-            {description}
+
+        {supporting ? (
+          <p className="mt-1 max-w-3xl break-words text-[13px] text-text-secondary">
+            {supporting}
           </p>
         ) : null}
       </div>
-      {actions ? <div className="shrink-0">{actions}</div> : null}
-    </div>
-  );
-}
 
-/** A titled content band. The label is uppercase and deliberately quiet. */
-export function Section({
-  title,
-  description,
-  action,
-  children,
-  className,
-}: {
-  title: string;
-  description?: ReactNode;
-  action?: ReactNode;
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <section className={cn("mt-7 first:mt-0", className)}>
-      <div className="mb-2.5 flex items-end justify-between gap-4">
-        <div className="min-w-0">
-          <h2 className="section-label">{title}</h2>
-          {description ? (
-            <p className="mt-1 text-xs text-text-secondary">{description}</p>
-          ) : null}
+      {actions ? (
+        <div className="flex min-w-0 shrink-0 flex-wrap items-center gap-2">
+          {actions}
         </div>
-        {action ? <div className="shrink-0">{action}</div> : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-/**
- * A persistent interpretive note.
- *
- * Used where the absence of a finding would otherwise read as a clean result.
- * The wording comes from the backend wherever the backend supplies it.
- */
-export function Caveat({
-  children,
-  className,
-  tone = "neutral",
-}: {
-  children: ReactNode;
-  className?: string;
-  tone?: "neutral" | "caution";
-}) {
-  return (
-    <p
-      className={cn(
-        "rounded-[8px] border px-3 py-2 text-xs leading-relaxed",
-        tone === "caution"
-          ? "border-caution/25 bg-caution-subtle text-caution"
-          : "border-border bg-subtle text-text-secondary",
-        className,
-      )}
-    >
-      {children}
-    </p>
+      ) : null}
+    </header>
   );
 }

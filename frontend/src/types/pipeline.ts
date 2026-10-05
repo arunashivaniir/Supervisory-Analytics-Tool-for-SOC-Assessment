@@ -597,6 +597,229 @@ export interface EntityAssessmentEntry {
 // ------------------------------------------------------------------- result
 
 /** The pipeline result as the adapter transports it. */
+// ------------------------------------------------------- peer benchmarking
+// (Backend-authoritative.) `peer_benchmark` is produced by
+// framework/benchmark/engine.py. Nothing in the frontend computes a peer
+// median, a modified Z-score, a percentile or a cohort; it renders the values
+// and statuses that arrived in the result.
+
+/** Whether a cohort can carry a peer claim at all. */
+export type BaselineStatus = "UNAVAILABLE" | "LIMITED" | "ROBUST";
+
+/** Whether a statistic is computable for the cohort. */
+export type StatisticalStatus = "COMPUTED" | "NOT_COMPUTABLE";
+
+/**
+ * Whether a metric resolved to a rate at all.
+ *
+ * NOT_EVALUABLE is distinct from a measured zero: a zero denominator or a
+ * source layer that produced nothing is not an observation of zero.
+ */
+export type MetricStatus = "COMPUTED" | "NOT_EVALUABLE";
+
+/** Whether a position statistic applies, given no peer baseline exists. */
+export type ApplicabilityStatus = "COMPUTED" | "NOT_APPLICABLE";
+
+/** The configured meaning of a larger value for this metric. */
+export type MetricDirection = "higher_is_adverse" | "higher_is_favourable";
+
+/**
+ * What kind of quantity the metric measures.
+ *
+ * `evidence_observation` metrics describe how much of the submitted data
+ * carried the concept they are measured over. They must not be presented as
+ * performance, and the value is published so a screen cannot infer that.
+ */
+export type MeasureType =
+  | "control_contradiction"
+  | "evidence_absence"
+  | "review_request"
+  | "model_verdict"
+  | "evidence_observation";
+
+/** Wording band over the absolute modified Z-score. Descriptive only. */
+export type DeviationBand = "WITHIN_COHORT_SPREAD" | "NOTABLE" | "MATERIAL" | "NOT_EVALUABLE";
+
+export interface PeerDistribution {
+  count: number;
+  minimum: MaybeNumber;
+  q1: MaybeNumber;
+  median: MaybeNumber;
+  q3: MaybeNumber;
+  maximum: MaybeNumber;
+  iqr: MaybeNumber;
+  mad: MaybeNumber;
+  statistical_status: StatisticalStatus;
+  not_computable_reason: MaybeString;
+}
+
+export interface CohortOutliers {
+  applicable: boolean;
+  reason: MaybeString;
+  lower_fence: MaybeNumber;
+  upper_fence: MaybeNumber;
+  below_lower: number[];
+  above_upper: number[];
+}
+
+export interface CohortTierEvaluation extends CohortTierDefinition {
+  status: string;
+  peer_count: number;
+  excluded_self: boolean;
+  member_assessment_ids: string[];
+  not_available_reason: MaybeString;
+}
+
+/** One rung of the configured cohort hierarchy, most specific first. */
+export interface CohortTierDefinition {
+  tier: number;
+  tier_id: string;
+  label: string;
+  requires: string[];
+  selection_rule: string[];
+}
+
+export interface PeerCohort {
+  cohort_id: MaybeString;
+  tier: MaybeNumber;
+  label: MaybeString;
+  status: string;
+  member_assessment_ids: string[];
+  peer_count: number;
+  selection_rule: string[];
+  /**
+   * The rule of the tier that was finally reached, flattened to one string per
+   * step. Not a list of lists: the backend publishes the selected tier's rule
+   * directly, so each entry is a single sentence.
+   */
+  selection_rule_steps: string[];
+  target_attributes: {
+    sector: MaybeString;
+    entity_class: MaybeString;
+    size_band: MaybeString;
+  };
+  tiers_evaluated: CohortTierEvaluation[];
+  same_period_candidate_count: number;
+  unresolved_period_scope_count: number;
+  excluded_assessment_ids: string[];
+  not_available_reason: MaybeString;
+}
+
+export interface MetricDefinition {
+  metric_id: string;
+  label: string;
+  source_result: string;
+  direction: MetricDirection;
+  measure_type: MeasureType;
+  scope_level: boolean;
+  indicator_category: MaybeString;
+  numerator_definition: string;
+  denominator_definition: string;
+  metric_definition: string[];
+  source_concepts: string[];
+}
+
+/**
+ * One metric, one scope, compared with that scope's cohort.
+ *
+ * Deliberately NOT an extension of `MetricDefinition`. A benchmark repeats the
+ * identifying and semantic fields the frontend needs to describe the number,
+ * but the backend does not restate `scope_level` or `indicator_category` per
+ * scope, so declaring them here would describe a payload that never arrives.
+ */
+export interface MetricBenchmark {
+  metric_id: string;
+  label: string;
+  source_result: string;
+  direction: MetricDirection;
+  measure_type: MeasureType;
+  numerator_definition: string;
+  denominator_definition: string;
+  metric_definition: string[];
+  observed_value: MaybeNumber;
+  numerator: MaybeNumber;
+  denominator: MaybeNumber;
+  metric_status: MetricStatus;
+  not_evaluable_reason: MaybeString;
+  source_concepts: string[];
+  unresolved_concepts: string[];
+  peer_count: number;
+  cohort_size: number;
+  baseline_status: BaselineStatus;
+  baseline_reason: string;
+  peer_distribution: PeerDistribution;
+  cohort_outliers: CohortOutliers;
+  modified_z_score: MaybeNumber;
+  statistical_status: StatisticalStatus;
+  statistical_not_computable_reason: MaybeString;
+  deviation_band: DeviationBand;
+  percentile: MaybeNumber;
+  percentile_status: ApplicabilityStatus;
+  rank_of_observed: MaybeNumber;
+  rank_status: ApplicabilityStatus;
+  interpretation: MaybeString;
+}
+
+export interface BenchmarkScope {
+  assessment_id: string;
+  entity_id: MaybeString;
+  entity_name: MaybeString;
+  entity_available: boolean;
+  period_label: MaybeString;
+  period_available: boolean;
+  record_count: number;
+  cohort: PeerCohort;
+  benchmarks: MetricBenchmark[];
+}
+
+export interface CollectionBenchmarkMetric extends MetricDefinition {
+  metric_scope: "collection";
+  observed_value: MaybeNumber;
+  numerator: MaybeNumber;
+  denominator: MaybeNumber;
+  metric_status: MetricStatus;
+  not_evaluable_reason: MaybeString;
+  scope_count: number;
+  /**
+   * Scopes the anomaly model actually judged. The rate's denominator is this
+   * count, not `scope_count`.
+   */
+  evaluated_scope_count: number;
+  /**
+   * Scopes the model declined to judge. Published so the denominator can never
+   * be read as the whole assessment.
+   */
+  not_evaluable_scope_count: number;
+  note: string;
+}
+
+export interface BaselinePolicy {
+  min_peers_for_baseline: number;
+  robust_min_peers: number;
+  rate_precision: number;
+}
+
+export interface DeviationBandPolicy {
+  notable_at: number;
+  material_at: number;
+  note: string;
+}
+
+export interface PeerBenchmark {
+  schema_version: string;
+  available: boolean;
+  unavailable_reason: MaybeString;
+  config_path?: MaybeString;
+  scope_count: number;
+  baseline_policy?: BaselinePolicy;
+  deviation_bands?: DeviationBandPolicy;
+  cohort_hierarchy?: CohortTierDefinition[];
+  metric_catalogue: MetricDefinition[];
+  scopes: BenchmarkScope[];
+  collection_metrics: CollectionBenchmarkMetric | null;
+  limitations: string[];
+}
+
 export interface PipelineResult {
   dataset: string;
   profile: DatasetProfile;
@@ -611,6 +834,7 @@ export interface PipelineResult {
   negative_space_findings: NegativeSpaceResult;
   operational_pattern_findings: OperationalPatternResult;
   anomaly_findings: AnomalyFindings;
+  peer_benchmark?: PeerBenchmark | null;
   entity_assessment: EntityAssessmentEntry[];
   supervisory_findings: Json[];
 }

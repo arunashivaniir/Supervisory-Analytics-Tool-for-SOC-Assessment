@@ -1,139 +1,103 @@
-import {
-  Activity,
-  ClipboardList,
-  FileText,
-  LayoutGrid,
-  Plus,
-  ScrollText,
-} from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { Plus } from "lucide-react";
 
-import { cn } from "../../lib/cn";
-import { useAnalysis } from "../../app/AnalysisContext";
+import { useDashboard } from "../../app/DashboardContext";
 
 /**
- * The primary navigation.
+ * The five screens, and nothing else.
  *
- * Four destinations, named for what the examiner is doing rather than for the
- * layers that produced the data. No layer names, no model names, no internal
- * terminology: the intelligence that runs underneath is the backend's concern.
- *
- * Reports is an existing record surface. It is kept intact and reachable, but
- * it is not part of the triage path, so it sits below the four primary
- * destinations rather than among them.
+ * The order is the assessment sequence rather than an arbitrary arrangement:
+ * what changed, who it concerns, what was detected, whether the evidence holds,
+ * and the formal record. An examiner walking the product story should be able to
+ * read the navigation as that story.
  */
+const PRIMARY = [
+  { to: "/", label: "Overview", end: true },
+  { to: "/assessments", label: "Assessments", end: false },
+  { to: "/findings", label: "Findings", end: false },
+  { to: "/evidence", label: "Evidence", end: false },
+];
 
-const NAV = [
-  { to: "/", label: "Overview", icon: LayoutGrid, end: true },
-  { to: "/assessments", label: "Assessments", icon: ClipboardList, end: false },
-  { to: "/findings", label: "Findings", icon: Activity, end: false },
-  { to: "/evidence", label: "Evidence", icon: ScrollText, end: false },
-] as const;
+const SECONDARY = [{ to: "/reports", label: "Reports", end: false }];
 
-const SECONDARY_NAV = [
-  { to: "/reports", label: "Reports", icon: FileText, end: false },
-] as const;
+function NavItem({
+  to,
+  label,
+  end,
+}: {
+  to: string;
+  label: string;
+  end: boolean;
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        `block truncate rounded-[8px] px-2.5 py-1.5 text-[13px] transition-colors ${
+          isActive
+            ? "bg-accent-subtle font-medium text-accent"
+            : "text-text-secondary hover:bg-subtle hover:text-text"
+        }`
+      }
+    >
+      {label}
+    </NavLink>
+  );
+}
 
 export function Sidebar({ onNewAssessment }: { onNewAssessment: () => void }) {
-  const { result } = useAnalysis();
+  const { view } = useDashboard();
+  const subject = view.run.datasetName;
 
   return (
     <aside
-      className="flex w-[196px] shrink-0 flex-col border-r border-border bg-surface"
+      className="hidden w-[184px] shrink-0 flex-col border-r border-border bg-surface md:flex"
       data-print-hide
     >
-      <div className="flex h-[52px] items-center border-b border-border px-4">
+      <div className="flex h-[52px] shrink-0 items-center px-3">
         <div className="min-w-0">
-          <div className="text-[13px] font-semibold tracking-tight text-primary">
+          <p className="truncate text-[13px] font-semibold text-primary">
             SAT-SA
-          </div>
-          <div className="micro leading-tight text-text-tertiary">
+          </p>
+          <p className="truncate text-[11px] text-text-tertiary">
             Supervisory Analytics
-          </div>
+          </p>
         </div>
       </div>
 
-      <nav className="flex-1 px-2 py-3" aria-label="Primary">
+      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-2 py-3">
         <button
           type="button"
           onClick={onNewAssessment}
-          className="mb-2 flex w-full items-center justify-center gap-1.5 rounded-[8px] bg-primary px-2.5 py-2 text-[13px] font-semibold text-white transition-opacity duration-100 hover:opacity-90"
+          className="flex h-8 shrink-0 items-center justify-center gap-1.5 rounded-[8px] bg-primary px-2 text-[13px] font-medium text-white transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-accent"
         >
-          <Plus className="size-3.5 shrink-0" aria-hidden="true" />
+          <Plus aria-hidden="true" className="h-3.5 w-3.5" />
           New assessment
         </button>
-        <ul className="flex flex-col gap-0.5">
-          {NAV.map((item) => {
-            const Icon = item.icon;
 
-            return (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-2.5 rounded-[8px] px-2.5 py-1.5",
-                      "text-[13px] font-medium transition-colors duration-100",
-                      isActive
-                        ? "bg-accent-subtle text-accent"
-                        : "text-text-secondary hover:bg-subtle hover:text-text",
-                    )
-                  }
-                >
-                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                  {item.label}
-                </NavLink>
-              </li>
-            );
-          })}
-        </ul>
+        <nav aria-label="Assessment screens" className="min-w-0 space-y-0.5">
+          {PRIMARY.map((item) => (
+            <NavItem key={item.to} {...item} />
+          ))}
+        </nav>
 
-        <div className="section-label mt-4 px-2.5">Records</div>
-        <ul className="mt-1 flex flex-col gap-0.5">
-          {SECONDARY_NAV.map((item) => {
-            const Icon = item.icon;
+        <nav aria-label="Records" className="min-w-0 space-y-0.5">
+          <p className="section-label px-2.5 pb-1">Record</p>
+          {SECONDARY.map((item) => (
+            <NavItem key={item.to} {...item} />
+          ))}
+        </nav>
+      </div>
 
-            return (
-              <li key={item.to}>
-                <NavLink
-                  to={item.to}
-                  end={item.end}
-                  className={({ isActive }) =>
-                    cn(
-                      "flex items-center gap-2.5 rounded-[8px] px-2.5 py-1.5",
-                      "text-[13px] font-medium transition-colors duration-100",
-                      isActive
-                        ? "bg-accent-subtle text-accent"
-                        : "text-text-secondary hover:bg-subtle hover:text-text",
-                    )
-                  }
-                >
-                  <Icon className="size-3.5 shrink-0" aria-hidden="true" />
-                  {item.label}
-                </NavLink>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-      {/*
-        The subject of the current assessment, always visible. An examiner
-        should be able to confirm which evidence is on screen from any page.
-      */}
-      <div className="border-t border-border px-4 py-3" data-print-hide>
-        <div className="section-label">Subject</div>
-        {result ? (
-          <p
-            className="mt-1 truncate micro text-text-secondary"
-            title={result.dataset}
-          >
-            {result.dataset.split("/").pop()}
-          </p>
-        ) : (
-          <p className="mt-1 micro text-text-tertiary italic">No analysis</p>
-        )}
+      <div className="shrink-0 border-t border-border px-3 py-2.5">
+        <p className="section-label">Subject</p>
+        <p
+          className="mt-0.5 truncate text-xs text-text-secondary"
+          title={subject ?? undefined}
+        >
+          {subject ?? "No assessment loaded"}
+        </p>
       </div>
     </aside>
   );

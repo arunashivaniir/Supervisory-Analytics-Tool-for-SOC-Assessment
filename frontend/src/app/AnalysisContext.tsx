@@ -24,6 +24,12 @@ import type {
   HealthState,
   PipelineResult,
 } from "../types/pipeline";
+import {
+  assessmentLifecycle,
+  buildRunView,
+  type AssessmentLifecycle,
+  type RunView,
+} from "./viewModel";
 
 /**
  * Analysis state, shared by every screen.
@@ -67,9 +73,31 @@ export interface AnalysisContextValue {
 
   /** The current run's lifecycle, or null when nothing has been started. */
   analysis: AnalysisState | null;
+  /**
+   * The current run as the screens describe it.
+   *
+   * Named `runView` because `run` below is the action that starts one. Keeping
+   * the run's identity and the command that creates a run under different names
+   * stops one being read where the other is meant.
+   */
+  runView: RunView;
   /** The completed pipeline result, or null when there is not one. */
   result: PipelineResult | null;
-  /** True while the current run is in flight. */
+  /**
+   * The one authoritative lifecycle answer.
+   *
+   * Exposed here as well as on the dashboard view so that a screen reading the
+   * run's identity and a screen reading the view model cannot reach different
+   * conclusions from the same state.
+   */
+  lifecycle: AssessmentLifecycle;
+  /**
+   * True only when a run is genuinely in flight.
+   *
+   * This is `lifecycle === "ASSESSING"`, not a status comparison, so it is false
+   * whenever there is no run to be in flight — including when the backend has no
+   * runs at all, which is the state a first visit starts in.
+   */
   running: boolean;
   /** Set when the current run or fetch failed. */
   analysisError: string | null;
@@ -258,16 +286,30 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
 
   const dismissError = useCallback(() => setAnalysisError(null), []);
 
-  // Poll whichever run is in flight, and only while it genuinely is. A pending
-  // run is polled instead of the current one, so a switch does not stop while
-  // the assessment on screen is finished and idle.
-  const pendingJobId = pending?.jobId ?? null;
-  const currentJobId =
-    analysis?.status === "processing" ? analysis.job_id : null;
-  const jobId = pendingJobId ?? currentJobId;
+  // The run to poll, derived the same way every screen decides whether a run is
+  // in flight. Keying the poll to this rather than to a raw status comparison
+  // is what stops it: when the lifecycle leaves `ASSESSING` the id becomes null,
+  // the effect's cleanup runs, and the loop cannot outlive the run it was
+  // following.
+  const runView = useMemo(
+    () =>
+      buildRunView(
+        analysis,
+        pending !== null && completedResult(analysis) !== null,
+        pending === null ? null : { jobId: pending.jobId, dataset: pending.dataset },
+      ),
+    [analysis, pending],
+  );
+
+  const lifecycle = useMemo(
+    () => assessmentLifecycle(runView, completedResult(analysis) !== null),
+    [runView, analysis],
+  );
+
+  const polledJobId = lifecycle === "ASSESSING" ? (runView.pendingJobId ?? runView.jobId) : null;
 
   useEffect(() => {
-    if (!jobId) {
+    if (!polledJobId) {
       return;
     }
 
@@ -277,7 +319,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       let next: AnalysisState;
 
       try {
-        next = await fetchAnalysis(jobId);
+        next = await fetchAnalysis(polledJobId);
       } catch (error) {
         if (!cancelled) {
           setAnalysisError(
@@ -297,7 +339,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      if (latest.current.pending?.jobId === jobId) {
+      if (latest.current.pending?.jobId === polledJobId) {
         // The switch finished. Promote the run only now, so the screens never
         // show a result that does not exist yet.
         if (next.status === "complete") {
@@ -329,7 +371,7 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       window.clearTimeout(timer);
     };
-  }, [jobId]);
+  }, [polledJobId]);
 
   const value = useMemo<AnalysisContextValue>(() => {
     const result = completedResult(analysis);
@@ -340,8 +382,10 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
       datasetsLoading,
       health,
       analysis,
+      runView,
       result,
-      running: analysis?.status === "processing",
+      lifecycle,
+      running: lifecycle === "ASSESSING",
       analysisError,
       pending,
       switching: pending !== null && result !== null,
@@ -357,6 +401,8 @@ export function AnalysisProvider({ children }: { children: ReactNode }) {
     datasetsLoading,
     health,
     analysis,
+    runView,
+    lifecycle,
     analysisError,
     pending,
     run,

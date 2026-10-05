@@ -53,7 +53,9 @@ import math
 import re
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
+from framework.ml.anomaly.minhash_lsh import find_connected_components_minhash
 from framework.supervision.execution_gap_detector import has_evidence
+from framework.supervision.text_similarity import _jaccard, _tokenise
 from framework.supervisory.rules.rule_engine import normalise_value
 from framework.supervisory.rules.operational_pattern_rules import (
     EVIDENCE_NOT_PRESENT,
@@ -649,9 +651,16 @@ def _binomial_upper_tail(k: int, n: int, p: float) -> float:
 
     Uses integer binomial coefficients from :mod:`math` rather than a
     floating-point recurrence, so the result does not drift with n and needs no
-    numerical library. Long tails underflow to 0.0; use
-    :func:`_binomial_upper_tail_log10` for the magnitude, because reporting a
-    probability of exactly 0.0 would be a false claim of certainty.
+    numerical library.
+
+    The terms are summed in log space. Multiplying a binomial coefficient by
+    ``p ** i * q ** (n - i)`` in linear space coerces the coefficient to a float,
+    and for a population of a few thousand records that coefficient exceeds the
+    range of a float outright: the run raised ``OverflowError`` on a submission
+    whose population was large enough for the coefficient to overflow, losing
+    the whole assessment rather than one statistic. Long tails underflow to 0.0;
+    use :func:`_binomial_upper_tail_log10` for the magnitude, because reporting
+    a probability of exactly 0.0 would be a false claim of certainty.
     """
 
     if k <= 0:
@@ -660,20 +669,12 @@ def _binomial_upper_tail(k: int, n: int, p: float) -> float:
     if k > n:
         return 0.0
 
-    q = 1.0 - p
+    log_total = _binomial_upper_tail_log10(k, n, p)
 
-    total = 0.0
+    if log_total is None:
+        return 0.0
 
-    for i in range(k, n + 1):
-
-        coefficient = math.comb(n, i)
-
-        if coefficient == 0:
-            continue
-
-        total += coefficient * (p ** i) * (q ** (n - i))
-
-    return min(1.0, max(0.0, total))
+    return min(1.0, max(0.0, 10.0**log_total))
 
 
 def _binomial_upper_tail_log10(k: int, n: int, p: float) -> Optional[float]:
@@ -789,15 +790,6 @@ def _tokenise(value: Any) -> Optional[frozenset]:
     return frozenset(tokens)
 
 
-def _jaccard(left: frozenset, right: frozenset) -> float:
-    union = left | right
-
-    if not union:
-        return 0.0
-
-    return len(left & right) / len(union)
-
-
 def _similarity_components(
     token_sets: Sequence[Optional[frozenset]],
     threshold: float,
@@ -807,56 +799,13 @@ def _similarity_components(
     Transitive grouping is used deliberately: if record A matches B and B
     matches C, the three are reported together even if A and C differ, because
     a chain of near-identical notes is itself the pattern of interest.
+
+    Uses exact deduplication + MinHash LSH for sub-quadratic component detection.
     """
 
-    count = len(token_sets)
-
-    parent = list(range(count))
-
-    def find(index: int) -> int:
-
-        while parent[index] != index:
-            parent[index] = parent[parent[index]]
-            index = parent[index]
-
-        return index
-
-    def union(left: int, right: int) -> None:
-
-        root_left, root_right = find(left), find(right)
-
-        if root_left != root_right:
-            parent[max(root_left, root_right)] = min(root_left, root_right)
-
-    compared = False
-
-    for i in range(count):
-
-        if token_sets[i] is None:
-            continue
-
-        for j in range(i + 1, count):
-
-            if token_sets[j] is None:
-                continue
-
-            if _jaccard(token_sets[i], token_sets[j]) >= threshold:
-                union(i, j)
-                compared = True
-
-    if not compared:
-        return []
-
-    grouped: Dict[int, List[int]] = {}
-
-    for index in range(count):
-
-        if token_sets[index] is None:
-            continue
-
-        grouped.setdefault(find(index), []).append(index)
-
-    return list(grouped.values())
+    return find_connected_components_minhash(
+        token_sets, threshold=threshold, exact_jaccard_fn=_jaccard
+    )
 
 
 def _similarity_pairs(

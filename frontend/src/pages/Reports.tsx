@@ -1,31 +1,46 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link } from "react-router-dom";
 
 import { useAnalysis } from "../app/AnalysisContext";
+import { useDashboard } from "../app/DashboardContext";
 import {
   anomalyModelStatus,
   anomalyVerdictCounts,
+  benchmarkScope,
   capabilityScopes,
-  countByFamily,
   scopeRows,
-  unifiedFindings,
 } from "../app/selectors";
-import { Caveat, PageHeader, Section } from "../components/layout/PageHeader";
-import { Card } from "../components/ui/Card";
+import { PageHeader } from "../components/layout/PageHeader";
 import { Button } from "../components/ui/Button";
-import { EmptyState, MetricBlock } from "../components/ui/Metric";
-import { StatusBadge } from "../components/ui/StatusBadge";
 import {
-  DataTable,
+  DataRow,
+  Frame,
+  Note,
+  Section,
+} from "../components/ui/Surface";
+import {
   HeadCell,
+  HeadRow,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
-} from "../components/ui/DataTable";
-import { DataRow, Token } from "../components/ui/DataDisplay";
+  TableScroller,
+} from "../components/ui/Table";
+import {
+  EmptyState,
+  LimitationNote,
+  LoadingRows,
+  LoadingState,
+  StatusBadge,
+} from "../components/ui/State";
 import { fetchAnalysisList, exportUrl, fullExportUrl } from "../services/api";
 import { datasetName, formatCount, optionalText } from "../lib/formatters";
-import { SIGNAL_FAMILIES, anomalyVerdict, capabilityStatus } from "../lib/status";
+import {
+  SIGNAL_FAMILIES,
+  anomalyVerdict,
+  capabilityStatus,
+} from "../lib/status";
 import type { AnalysisState } from "../types/pipeline";
 
 /**
@@ -33,153 +48,209 @@ import type { AnalysisState } from "../types/pipeline";
  *
  * A document view, not a judgement. Every count on this page is a count the
  * pipeline reported, and every sentence is either the backend's own text or a
- * statement about what the record contains. There is no overall score, no
- * grade and no verdict, because the pipeline does not produce one and a
- * report implying otherwise would misrepresent the assessment.
+ * statement about what the record contains. There is no overall score, no grade
+ * and no verdict, because the pipeline does not produce one and a report implying
+ * otherwise would misrepresent the assessment.
+ *
+ * Deliberately no charts. A chart on this page would have to choose an axis and a
+ * scale, and every choice of that kind on a formal record is an argument the
+ * backend did not make. The counts are the record; they are printed as counts.
  */
 export function ReportsPage() {
   const { analysis, result, running, analysisError } = useAnalysis();
+  const { view } = useDashboard();
 
   if (!result || !analysis) {
     return (
-      <div className="py-10">
+      <>
         <PageHeader title="Reports" />
+
         {analysisError ? (
-          <Caveat tone="caution">{analysisError}</Caveat>
+          <Note tone="caution">{analysisError}</Note>
         ) : running ? (
-          <Caveat>The assessment is still being produced.</Caveat>
+          <LoadingState
+            title="Assessment in progress"
+            detail="The record is written once the pipeline completes."
+          />
         ) : (
           <EmptyState
             title="No assessment loaded"
             description="Choose a dataset to produce an assessment."
           />
         )}
-      </div>
+      </>
     );
   }
 
-  const findings = unifiedFindings(result);
   const rows = scopeRows(result);
   const scopes = capabilityScopes(result);
-  const familyCounts = countByFamily(findings);
   const counts = anomalyVerdictCounts(result);
   const modelStatus = anomalyModelStatus(result);
+  const limitations = view.limitations;
 
   return (
     <>
       <PageHeader
         title="Reports"
-        subject={datasetName(result.dataset)}
-        meta={`${formatCount(
-          result.ingestion.record_count,
-        )} records assessed · run ${analysis.job_id.slice(0, 8)}`}
-        description="A printable record of the assessment: what was assessed, the evidence states reached, the signals reported, and the limitations that apply to all of it."
+        supporting={
+          <>
+            {datasetName(result.dataset)} ·{" "}
+            {formatCount(result.ingestion.record_count)} records assessed · run{" "}
+            <span className="font-mono text-[12px]">
+              {analysis.job_id.slice(0, 8)}
+            </span>
+            . A printable record of the assessment: what was assessed, the
+            evidence states reached, the signals reported, and the limitations
+            that apply to all of it.
+          </>
+        }
         actions={
-          <div className="flex items-center gap-2">
+          <>
             <a href={exportUrl(analysis.job_id)} download>
-              <Button variant="secondary">Export JSON</Button>
+              <Button variant="secondary" size="sm">
+                Export JSON
+              </Button>
             </a>
-            <Button onClick={() => window.print()}>Print or save as PDF</Button>
-          </div>
+            <Button variant="primary" size="sm" onClick={() => window.print()}>
+              Print or save as PDF
+            </Button>
+          </>
         }
       />
 
-      <Caveat className="mb-5">
-        This page reproduces the assessment record. It does not grade, score
-        or rank the assessed organisation, and it does not combine the counts
-        below into a single measure. A low finding count is not a good result:
-        it can also mean the evidence was insufficient to report anything.
-      </Caveat>
+      <div className="mb-5">
+        <Note>
+          This page reproduces the assessment record. It does not grade, score or
+          rank the assessed organisation, and it does not combine the counts below
+          into a single measure. A low finding count is not a good result: it can
+          also mean the evidence was insufficient to report anything.
+        </Note>
+      </div>
 
-      <Card className="mb-5">
-        <div className="grid grid-cols-2 gap-x-8 px-5 py-4">
-          <div>
-            <DataRow
-              label="Dataset"
-              value={<Token>{optionalText(result.ingestion.source)}</Token>}
-            />
-            <DataRow
-              label="Read as"
-              value={optionalText(result.ingestion.source_type)}
-            />
-            <DataRow
-              label="Records"
-              value={
-                <span className="tabular">
-                  {formatCount(result.ingestion.record_count)}
-                </span>
-              }
-            />
-            <DataRow
-              label="Columns"
-              value={
-                <span className="tabular">
-                  {formatCount(result.ingestion.column_count)}
-                </span>
-              }
-            />
+      <Section
+        title="The record"
+        description="What was read, and the state the run finished in."
+      >
+        <Frame>
+          <div className="grid grid-cols-1 gap-x-8 px-4 py-3 md:grid-cols-2">
+            <div className="min-w-0">
+              <DataRow
+                label="Dataset"
+                value={<Mono>{optionalText(result.ingestion.source)}</Mono>}
+              />
+              <DataRow
+                label="Read as"
+                value={optionalText(result.ingestion.source_type)}
+              />
+              <DataRow
+                label="Records"
+                value={
+                  <span className="tabular">
+                    {formatCount(result.ingestion.record_count)}
+                  </span>
+                }
+              />
+              <DataRow
+                label="Columns"
+                value={
+                  <span className="tabular">
+                    {formatCount(result.ingestion.column_count)}
+                  </span>
+                }
+              />
+            </div>
+
+            <div className="min-w-0">
+              <DataRow
+                label="Assessment scopes"
+                value={<span className="tabular">{formatCount(rows.length)}</span>}
+              />
+              <DataRow
+                label="Signals reported"
+                value={
+                  <span className="tabular">{formatCount(view.findings.total)}</span>
+                }
+              />
+              <DataRow
+                label="Anomaly model"
+                value={
+                  modelStatus ? (
+                    <StatusBadge
+                      tone={capabilityStatus(modelStatus.status).tone}
+                      label={capabilityStatus(modelStatus.status).label}
+                      raw={modelStatus.status}
+                    />
+                  ) : (
+                    optionalText(null)
+                  )
+                }
+              />
+              <DataRow label="Run" value={<Mono>{analysis.job_id}</Mono>} />
+            </div>
           </div>
-          <div>
-            <DataRow
-              label="Assessment scopes"
-              value={<span className="tabular">{formatCount(rows.length)}</span>}
-            />
-            <DataRow
-              label="Signals reported"
-              value={
-                <span className="tabular">{formatCount(findings.length)}</span>
-              }
-            />
-            <DataRow
-              label="Anomaly model"
-              value={
-                modelStatus ? (
-                  <StatusBadge
-                    tone={capabilityStatus(modelStatus.status).tone}
-                    label={capabilityStatus(modelStatus.status).label}
-                    raw={modelStatus.status}
-                  />
-                ) : (
-                  optionalText(null)
-                )
-              }
-            />
-            <DataRow
-              label="Run"
-              value={<Token>{analysis.job_id}</Token>}
-            />
-          </div>
-        </div>
-      </Card>
+        </Frame>
+      </Section>
 
       <Section
         title="Signal families"
         description="Counts as the pipeline reported them, by family. The families are independent and are not summed into a total judgement."
       >
-        <div className="grid grid-cols-4 gap-3">
-          {SIGNAL_FAMILIES.map((family) => (
-            <MetricBlock
-              key={family.id}
-              label={family.label}
-              value={familyCounts[family.id] ?? 0}
-              context={family.description}
-            />
-          ))}
-        </div>
+        <Frame>
+          <TableScroller>
+            <TableHead>
+              <HeadRow>
+                <HeadCell width="22%">Family</HeadCell>
+                <HeadCell width="9%" align="right">
+                  Reported
+                </HeadCell>
+                <HeadCell>What it measures</HeadCell>
+              </HeadRow>
+            </TableHead>
+
+            <TableBody>
+              {SIGNAL_FAMILIES.map((family) => {
+                const published = view.findings.families.find(
+                  (entry) => entry.id === family.id,
+                );
+
+                return (
+                  <TableRow key={family.id}>
+                    <TableCell className="font-medium">{family.label}</TableCell>
+                    <TableCell align="right" className="tabular">
+                      {published?.count === null || published === undefined ? (
+                        <span className="text-text-tertiary italic">
+                          Not reported
+                        </span>
+                      ) : (
+                        formatCount(published.count)
+                      )}
+                    </TableCell>
+                    <TableCell className="text-[13px] text-text-secondary">
+                      {family.description}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </TableScroller>
+        </Frame>
       </Section>
 
       <Section
         title="Evidence states"
         description="Capability states across the assessed scopes, as the pipeline counted them."
       >
-        <Card>
-          <DataTable>
+        <Frame>
+          <TableScroller>
             <TableHead>
-              <HeadCell>Capability</HeadCell>
-              <HeadCell align="right">Available</HeadCell>
-              <HeadCell align="right">Insufficient evidence</HeadCell>
-              <HeadCell align="right">Not assessed</HeadCell>
+              <HeadRow>
+                <HeadCell>Capability</HeadCell>
+                <HeadCell align="right">Available</HeadCell>
+                <HeadCell align="right">Insufficient evidence</HeadCell>
+                <HeadCell align="right">Not assessed</HeadCell>
+              </HeadRow>
             </TableHead>
+
             <TableBody>
               {result.capability_assessment.summary.capabilities.map((item) => (
                 <TableRow key={item.capability_id}>
@@ -196,20 +267,23 @@ export function ReportsPage() {
                 </TableRow>
               ))}
             </TableBody>
-          </DataTable>
-        </Card>
+          </TableScroller>
+        </Frame>
       </Section>
 
       <Section
         title="Anomaly verdicts"
         description="Recorded, not interpreted. A verdict is a distance from a reference population, not a severity."
       >
-        <Card>
-          <DataTable>
+        <Frame>
+          <TableScroller>
             <TableHead>
-              <HeadCell>Verdict</HeadCell>
-              <HeadCell align="right">Scopes</HeadCell>
+              <HeadRow>
+                <HeadCell>Verdict</HeadCell>
+                <HeadCell align="right">Scopes</HeadCell>
+              </HeadRow>
             </TableHead>
+
             <TableBody>
               {Object.entries(counts).map(([verdict, count]) => {
                 const presentation = anomalyVerdict(verdict);
@@ -230,32 +304,46 @@ export function ReportsPage() {
                 );
               })}
             </TableBody>
-          </DataTable>
-        </Card>
+          </TableScroller>
+        </Frame>
       </Section>
 
       <Section
         title="Assessed scopes"
         description="Each scope the record covers, with the evidence states and signals attached to it."
       >
-        <Card>
-          <DataTable>
+        <Frame>
+          <TableScroller>
             <TableHead>
-              <HeadCell>Scope</HeadCell>
-              <HeadCell align="right">Records</HeadCell>
-              <HeadCell>Evidence states</HeadCell>
-              <HeadCell align="right">Signals</HeadCell>
+              <HeadRow>
+                <HeadCell>Scope</HeadCell>
+                <HeadCell align="right">Records</HeadCell>
+                <HeadCell>Evidence states</HeadCell>
+                <HeadCell align="right">Signals</HeadCell>
+                <HeadCell>Peer cohort</HeadCell>
+              </HeadRow>
             </TableHead>
+
             <TableBody>
               {rows.map((row) => {
                 const scope = scopes.find(
                   (item) => item.assessment_id === row.assessment_id,
                 );
+                const entity = view.entities.find(
+                  (item) => item.assessmentId === row.assessment_id,
+                );
 
                 return (
                   <TableRow key={row.assessment_id}>
                     <TableCell>
-                      <Token>{row.assessment_id}</Token>
+                      <Link
+                        to={`/assessments/${encodeURIComponent(row.assessment_id)}`}
+                        className="text-accent underline-offset-2 hover:underline"
+                      >
+                        {entity?.resolved
+                          ? (entity.entity.name ?? entity.entity.id)
+                          : "Scope with an unidentified entity"}
+                      </Link>
                     </TableCell>
                     <TableCell align="right" className="tabular">
                       {formatCount(row.record_count)}
@@ -270,32 +358,31 @@ export function ReportsPage() {
                         : optionalText(null)}
                     </TableCell>
                     <TableCell align="right" className="tabular">
-                      {
-                        findings.filter(
-                          (item) => item.assessment_id === row.assessment_id,
-                        ).length
-                      }
+                      {formatCount(entity?.signals ?? 0)}
+                    </TableCell>
+                    <TableCell className="text-xs text-text-secondary">
+                      <ReportCohort assessmentId={row.assessment_id} />
                     </TableCell>
                   </TableRow>
                 );
               })}
             </TableBody>
-          </DataTable>
-        </Card>
+          </TableScroller>
+        </Frame>
       </Section>
 
-      {result.anomaly_findings.limitations.length > 0 ? (
+      {limitations.length > 0 ? (
         <Section
           title="Limitations"
-          description="The constraints that apply to this assessment as a whole."
+          description="The constraints the backend states for this assessment as a whole."
         >
-          <Card>
-            <ul className="list-inside list-disc space-y-1.5 px-5 py-4 text-[13px] leading-relaxed text-text-secondary">
-              {result.anomaly_findings.limitations.map((line) => (
-                <li key={line}>{line}</li>
-              ))}
-            </ul>
-          </Card>
+          <ul className="min-w-0 space-y-1.5">
+            {limitations.map((line) => (
+              <li key={line}>
+                <LimitationNote>{line}</LimitationNote>
+              </li>
+            ))}
+          </ul>
         </Section>
       ) : null}
 
@@ -306,6 +393,43 @@ export function ReportsPage() {
         <SavedRuns currentJobId={analysis.job_id} />
       </Section>
     </>
+  );
+}
+
+/** A value the backend supplied verbatim, in the typeface it supplied it in. */
+function Mono({ children }: { children: ReactNode }) {
+  return <span className="font-mono text-[12px]">{children}</span>;
+}
+
+/**
+ * The cohort a scope was compared with, as the record states it.
+ *
+ * A record that printed only the findings would leave a reader to assume the
+ * comparisons were drawn against the entity's own sector, so the cohort and its
+ * size travel with the scope. A scope with no cohort says so with the backend's
+ * reason instead of being left blank.
+ */
+function ReportCohort({ assessmentId }: { assessmentId: string }) {
+  const { result } = useAnalysis();
+  const cohort = benchmarkScope(result, assessmentId)?.cohort ?? null;
+
+  if (!cohort) {
+    return <span className="italic text-text-tertiary">Not reported</span>;
+  }
+
+  if (cohort.cohort_id === null) {
+    return (
+      <span className="italic text-text-tertiary">
+        {cohort.not_available_reason ?? "No cohort"}
+      </span>
+    );
+  }
+
+  return (
+    <span>
+      {cohort.label} · {cohort.peer_count} peer
+      {cohort.peer_count === 1 ? "" : "s"}
+    </span>
   );
 }
 
@@ -335,52 +459,42 @@ function SavedRuns({ currentJobId }: { currentJobId: string }) {
   }, [currentJobId]);
 
   if (error) {
-    return (
-      <Caveat tone="caution">
-        The run listing could not be read: {error}
-      </Caveat>
-    );
+    return <Note tone="caution">The run listing could not be read: {error}</Note>;
   }
 
   if (runs === null) {
-    return (
-      <Card>
-        <EmptyState
-          title="Reading the run listing"
-          description="One moment."
-        />
-      </Card>
-    );
+    return <LoadingRows />;
   }
 
   if (runs.length === 0) {
     return (
-      <Card>
-        <EmptyState
-          title="No runs recorded"
-          description="Analyses produced on this machine will be listed here."
-        />
-      </Card>
+      <EmptyState
+        title="No runs recorded"
+        description="Analyses produced on this machine will be listed here."
+      />
     );
   }
 
   return (
-    <Card>
-      <DataTable>
+    <Frame>
+      <TableScroller>
         <TableHead>
-          <HeadCell>Run</HeadCell>
-          <HeadCell>Dataset</HeadCell>
-          <HeadCell>State</HeadCell>
-          <HeadCell>Exports</HeadCell>
+          <HeadRow>
+            <HeadCell width="16%">Run</HeadCell>
+            <HeadCell>Dataset</HeadCell>
+            <HeadCell width="14%">State</HeadCell>
+            <HeadCell width="16%">Exports</HeadCell>
+          </HeadRow>
         </TableHead>
+
         <TableBody>
           {[...runs].reverse().map((item) => (
             <TableRow key={item.job_id}>
               <TableCell>
-                <Token>
+                <Mono>
                   {item.job_id.slice(0, 8)}
                   {item.job_id === currentJobId ? " · current" : ""}
-                </Token>
+                </Mono>
               </TableCell>
               <TableCell className="text-xs">{datasetName(item.dataset)}</TableCell>
               <TableCell>
@@ -415,7 +529,7 @@ function SavedRuns({ currentJobId }: { currentJobId: string }) {
                     </a>
                   </span>
                 ) : (
-                  <span className="text-xs text-text-tertiary italic">
+                  <span className="text-xs italic text-text-tertiary">
                     {item.status === "error"
                       ? "Not produced"
                       : "Available once the run completes"}
@@ -425,7 +539,7 @@ function SavedRuns({ currentJobId }: { currentJobId: string }) {
             </TableRow>
           ))}
         </TableBody>
-      </DataTable>
-    </Card>
+      </TableScroller>
+    </Frame>
   );
 }

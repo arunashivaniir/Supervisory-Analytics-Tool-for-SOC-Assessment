@@ -65,13 +65,70 @@ const listRuns = async () => {
 const readRun = async (jobId) =>
   jobId ? await (await fetch(`${API}/api/analyses/${jobId}`)).json() : null;
 
-/** Two datasets that are not the same file, chosen by name from the listing. */
+/**
+ * The dataset a switch is performed *to*.
+ *
+ * This is named rather than discovered, and that is the whole point of the
+ * change.
+ *
+ * It used to be `DATASETS.find((path) => path !== first)` — the first entry in
+ * the service's listing that is not the demo. On an unmodified workspace that
+ * resolved to `data.csv`, a 56-byte file with a single column. The run finished
+ * in tens of milliseconds, so the top bar never reached the `Assessing` state
+ * these checks exist to observe, and the check failed on a timeout while
+ * asserting nothing. The failure had nothing to do with the code under test:
+ * the dataset simply did not take long enough to have a lifecycle.
+ *
+ * Listing order is a property of the filesystem, not of this check, so any
+ * dataset it picked was incidental. A switching check must run against a
+ * dataset whose analysis genuinely takes time and genuinely differs from the
+ * loaded one, and those are properties of a specific file rather than of
+ * whatever happens to sort first.
+ *
+ * `soc_asset_inventory_q3_2026.csv` was chosen because it satisfies every
+ * property the checks below depend on:
+ *
+ *   - it is a real submission, not a fixture built to be slow. There is no
+ *     delay in it and none was added; the time is the pipeline's own work
+ *     across every layer (profiling, semantic inference, canonical mapping,
+ *     feature evaluation, supervisory and entity assessment, peer benchmarking).
+ *   - it takes long enough to be observed. Roughly 2.6s end to end against the
+ *     demo's 200s+, which leaves the `Assessing` state on screen for long
+ *     enough to be polled at 200ms without racing the run's completion.
+ *   - it differs from the first dataset in every way a switch is supposed to
+ *     change: a different schema and role (an ASSETS register against an alert
+ *     submission), a different record count (3,970 against 23,630), a
+ *     different scope count (8 against 6), and a different finding profile (no
+ *     findings against 17). A switch that changed nothing would be invisible.
+ *   - it passes validation with `error_count: 0`, so the run is permitted and a
+ *     real assessment is promoted rather than refused.
+ *   - it is small enough to be practical: about 686 KB, and a couple of seconds
+ *     per run, against tens of megabytes and minutes for the larger
+ *     submissions in the workspace.
+ *
+ * If it is replaced, those five properties are what must be preserved. The
+ * absence of any fallback is deliberate: silently falling back to listing order
+ * is precisely what made this check test nothing.
+ */
+const SWITCH_TARGET = "soc_asset_inventory_q3_2026.csv";
+
+/** Every dataset the service can open, as the selector will offer them. */
 const DATASETS = await (await fetch(`${API}/api/datasets`)).json()
   .then((body) => body.datasets ?? [])
   .then((datasets) => datasets.map((item) => item.path));
 
 if (DATASETS.length < 2) {
   console.log("at least two datasets are required to check switching");
+  process.exit(1);
+}
+
+if (!DATASETS.includes(SWITCH_TARGET)) {
+  console.log(
+    `the switch target ${SWITCH_TARGET} is not offered by the service.\n` +
+      "These checks need a real second dataset whose analysis takes long enough\n" +
+      "to observe and differs from the first; substituting an arbitrary one would\n" +
+      "make the checks pass without testing anything. See SWITCH_TARGET above.",
+  );
   process.exit(1);
 }
 
@@ -165,6 +222,19 @@ async function loadedDataset() {
 }
 
 async function openSelector() {
+  // Any dialog already open is closed first.
+  //
+  // The selector stays open while a run is in flight, so a flow that follows
+  // another can find one still on screen — parked on whichever step it was left
+  // at, which is rarely the step that lists datasets. Opening "again" then found
+  // a dialog rather than a new one and carried the previous flow's selection into
+  // the next. Every flow now starts from the same place.
+  if (
+    await page.evaluate(() => Boolean(document.querySelector('[role="dialog"]')))
+  ) {
+    await closeSelector();
+  }
+
   await page.evaluate(() => {
     const button = [...document.querySelectorAll("button")].find((node) =>
       /^(Change|Select) dataset$/.test(node.textContent.trim()),
@@ -187,26 +257,157 @@ async function selectAndRun(path) {
   // Matched on the full path, which the row shows beneath the file name. A file
   // name on its own is not unique: `execution_gap_test.csv` contains
   // `test.csv`, and choosing the wrong row would test the wrong thing.
-  const clicked = await page.evaluate((target) => {
-    const rows = [...document.querySelectorAll('[role="dialog"] li button')];
-    const row = rows.find((node) => node.textContent.includes(target));
+  //
+  // The row is waited for rather than looked for once. The dialog fetches the
+  // list when it opens, and refetches it after a run fails, so a single attempt
+  // made this depend on which flow ran before: the list had not arrived, the row
+  // was never clicked, and the walk below then continued on whatever dataset was
+  // still selected — starting a run for the wrong file and passing the checks
+  // that follow. Absence is now a recorded failure instead of a silent
+  // substitution.
+  let clicked = false;
 
-    if (!row) {
-      return false;
-    }
+  try {
+    await page.waitForFunction(
+      (target) =>
+        [...document.querySelectorAll('[role="dialog"] li button')].some(
+          (node) => node.textContent.includes(target),
+        ),
+      { timeout: 15000, polling: 100 },
+      path,
+    );
 
-    row.click();
-    return true;
-  }, path);
+    clicked = await page.evaluate((target) => {
+      const rows = [...document.querySelectorAll('[role="dialog"] li button')];
+      const row = rows.find((node) => node.textContent.includes(target));
+
+      if (!row) {
+        return false;
+      }
+
+      row.click();
+      return true;
+    }, path);
+  } catch {
+    clicked = false;
+  }
 
   check(clicked, `the selector offers ${path}`);
 
-  await page.evaluate(() => {
-    const button = [...document.querySelectorAll('[role="dialog"] button')].find(
-      (node) => /Switch to this dataset|Run assessment/.test(node.textContent.trim()),
+  if (!clicked) {
+    // Nothing was chosen, so the dataset still selected in the dialog is the one
+    // that was loaded. Walking on to start a run would launch that instead and
+    // report the result as though it belonged to the dataset under test.
+    check(false, `the selector can start a run for ${path}`);
+    return;
+  }
+
+  // Walk the wizard the way an examiner does.
+  //
+  // The selector is a four-step flow: choose a dataset, validate, review the
+  // mapping, confirm. The run button only exists on the final step, so it has
+  // to be reached by pressing Continue until it appears.
+  //
+  // This used to click the run button once, immediately, and tolerate its
+  // absence with `button?.click()`. On the first step no such button exists, so
+  // nothing was clicked, no run was started, and every check after this one was
+  // reasoning about a run that never happened: the silence of `?.` made a broken
+  // check look like a passing one. The click is now confirmed, so a selector
+  // that cannot start a run fails here rather than quietly invalidating the
+  // sequence behind it.
+  //
+  // Each press waits for the step to change before the next one. React captures
+  // `step` in a closure, so pressing Continue several times inside one tick
+  // advances a single step; without the wait the walk stalls on step two and
+  // never reaches the run button.
+  const runButtonShown = () =>
+    page.evaluate(() =>
+      [...(document.querySelector('[role="dialog"]')?.querySelectorAll("button") ?? [])].some(
+        (node) =>
+          /Switch to this dataset|Run assessment/.test(
+            node.textContent.trim(),
+          ),
+      ),
     );
-    button?.click();
-  });
+
+  const activeStep = () =>
+    page.evaluate(() => {
+      const current = document.querySelector(
+        '[role="dialog"] [aria-current="step"]',
+      );
+
+      return current?.textContent?.trim() ?? null;
+    });
+
+  let confirmed = false;
+
+  // Bounded by the wizard's own length, so a selector that never reaches a run
+  // button fails here instead of spinning.
+  for (let step = 0; step < 8; step += 1) {
+    if (await runButtonShown()) {
+      confirmed = await page.evaluate(() => {
+        const run = [
+          ...(document.querySelector('[role="dialog"]')?.querySelectorAll("button") ?? []),
+        ].find((node) =>
+          /Switch to this dataset|Run assessment/.test(
+            node.textContent.trim(),
+          ),
+        );
+
+        if (!run) {
+          return false;
+        }
+
+        run.click();
+        return true;
+      });
+
+      break;
+    }
+
+    const from = await activeStep();
+
+    const advanced = await page.evaluate(() => {
+      const next = [
+        ...(document.querySelector('[role="dialog"]')?.querySelectorAll("button") ?? []),
+      ].find((node) => node.textContent.trim() === "Continue");
+
+      if (!next) {
+        return false;
+      }
+
+      next.click();
+      return true;
+    });
+
+    if (!advanced) {
+      break;
+    }
+
+    await page.waitForFunction(
+      (previous) => {
+        const dialog = document.querySelector('[role="dialog"]');
+
+        if (!dialog) {
+          return false;
+        }
+
+        const reachedRun = [...dialog.querySelectorAll("button")].some((node) =>
+          /Switch to this dataset|Run assessment/.test(
+            node.textContent.trim(),
+          ),
+        );
+
+        const current = dialog.querySelector('[aria-current="step"]');
+
+        return reachedRun || (current?.textContent?.trim() ?? null) !== previous;
+      },
+      { timeout: 15000, polling: 100 },
+      from,
+    );
+  }
+
+  check(confirmed, `the selector can start a run for ${path}`);
 }
 
 /** Wait until the top bar no longer shows a run in progress. */
@@ -225,8 +426,19 @@ async function waitForIdle(timeout = 240000) {
 // interface is looking at a real result when the checks begin.
 // ---------------------------------------------------------------------------
 
+// The run these checks protect: the demo submission, chosen by name because it
+// is the workspace's reference assessment and produces a result rich enough to
+// tell apart from the one that replaces it.
 const first = DATASETS.find((path) => path.includes("demo")) ?? DATASETS[0];
-const second = DATASETS.find((path) => path !== first);
+
+// The run performed against it. See SWITCH_TARGET for why this is named rather
+// than taken from listing order.
+const second = SWITCH_TARGET;
+
+check(
+  first !== second,
+  `the switch target differs from the loaded dataset (${first} -> ${second})`,
+);
 
 const started = await (
   await fetch(`${API}/api/analyses`, {
@@ -581,6 +793,18 @@ const previousRecords = beforeRun?.result?.ingestion?.record_count === undefined
 const distinctive = promotedRecords !== null && promotedRecords.length >= 5;
 const comparable = previousRecords !== null && previousRecords !== promotedRecords;
 
+// Which screens present the run's ingestion record count at all. The findings
+// screen is a triage list of findings and has never carried one; demanding it
+// there would be asserting a figure the screen is not built to show. That
+// screen is instead held to a positive assertion on what it does render, and
+// the stale-count check below still applies to every screen including it.
+const screensWithRecordCount = new Set([
+  "overview",
+  "assessments",
+  "evidence",
+  "reports",
+]);
+
 for (const [route, now] of [
   ["overview", afterOverview],
   ["assessments", afterAssessments],
@@ -593,14 +817,21 @@ for (const [route, now] of [
     `${route} rendered after the switch`,
   );
 
-  if (distinctive) {
+  if (screensWithRecordCount.has(route)) {
+    if (distinctive) {
+      check(
+        now.includes(promotedRecords),
+        `${route} shows the promoted run's record count (${promotedRecords})`,
+      );
+    } else {
+      skip(
+        `${route} record count (${promotedRecords}) is too short to prove the run changed`,
+      );
+    }
+  } else if (distinctive && after) {
     check(
-      now.includes(promotedRecords),
-      `${route} shows the promoted run's record count (${promotedRecords})`,
-    );
-  } else {
-    skip(
-      `${route} record count (${promotedRecords}) is too short to prove the run changed`,
+      now.includes(after),
+      `${route} names the promoted run's dataset (${after})`,
     );
   }
 

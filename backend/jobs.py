@@ -45,6 +45,7 @@ TRANSPORTED_KEYS: tuple = (
     "negative_space_findings",
     "operational_pattern_findings",
     "anomaly_findings",
+    "peer_benchmark",
     "entity_assessment",
     "supervisory_findings",
 )

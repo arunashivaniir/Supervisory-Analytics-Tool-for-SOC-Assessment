@@ -619,6 +619,10 @@ class TestNonInterference:
 
     def test_new_key_is_the_only_addition(self, result, baseline):
 
+        # peer_benchmark is a later additive layer, not part of what this guard
+        # measures, so it is removed from both sides before the key comparison.
+        result = {key: value for key, value in result.items() if key != "peer_benchmark"}
+
         # Every result key that existed before this layer still exists and
         # still holds exactly the same value.
         for key, value in baseline.items():
@@ -718,6 +722,11 @@ def _run_without_negative_space():
 
     result = pipeline.run(DATASET)
     result.pop("negative_space_findings", None)
+
+    # peer_benchmark is a separate additive layer that reads the negative-space
+    # result, so it necessarily differs when that result is stubbed out. It is
+    # excluded here so this guard keeps measuring only what this layer did.
+    result.pop("peer_benchmark", None)
 
     pipeline.negative_space_detector = original
 
