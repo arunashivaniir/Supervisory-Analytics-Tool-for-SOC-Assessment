@@ -16,6 +16,17 @@
 #
 #   SATSA_BACKEND_PORT=8000 SATSA_FRONTEND_PORT=5173 ./dev.sh
 #
+# The dataset listing the picker offers is chosen by the backend, and a
+# demonstration wants the curated set rather than every test and validation
+# file in the repository:
+#
+#   SATSA_DATASET_MODE=demo ./dev.sh              # curated demo datasets only
+#   SATSA_DEMO_DATASETS="a.csv,b.csv" SATSA_DATASET_MODE=demo ./dev.sh
+#
+# Full mode (the default) lists everything, which is what the test suite and
+# ordinary development expect. `status` reports which mode the running backend
+# was started in, so a narrow picker is never a mystery.
+#
 # Everything stays on 127.0.0.1. No outbound network is used.
 #
 # Why this exists: the UI's "local analysis service is not responding"
@@ -148,6 +159,10 @@ do_start() {
       echo "$!" >"$BACKEND_PID"
     )
     echo "$backend_port" >"$BACKEND_PORT_FILE"
+    # Recorded so `status` can say which listing the running backend offers:
+    # a narrowed demo picker should never be a mystery to whoever is looking
+    # at it. The backend reads the variable itself; this only remembers it.
+    echo "${SATSA_DATASET_MODE:-full}" >"$RUNDIR/dataset_mode"
     echo "backend starting on http://127.0.0.1:$backend_port"
 
     if ! wait_for_url "http://127.0.0.1:$backend_port/api/health"; then
@@ -233,6 +248,7 @@ do_status() {
 
   if pid="$(recorded_pid "$BACKEND_PID")"; then
     echo "backend   pid $pid  http://127.0.0.1:$(cat "$BACKEND_PORT_FILE" 2>/dev/null || echo '?')"
+    echo "datasets  mode $(cat "$RUNDIR/dataset_mode" 2>/dev/null || echo full)"
     any=1
   fi
 

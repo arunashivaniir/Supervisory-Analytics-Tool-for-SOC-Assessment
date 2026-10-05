@@ -21,7 +21,15 @@ import pytest
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from backend.datasets import list_datasets, repository_root, resolve_dataset
+from backend.app import datasets
+from backend.datasets import (
+    DEMO_ALLOWLIST,
+    curated_datasets,
+    dataset_mode,
+    list_datasets,
+    repository_root,
+    resolve_dataset,
+)
 from backend.jobs import (
     MAX_RETAINED,
     OMITTED_KEY_REASON,
@@ -161,6 +169,187 @@ def test_adapter_output_directories_are_not_offered_as_evidence():
 def test_paths_are_repository_relative():
     for item in list_datasets():
         assert not os.path.isabs(item["path"])
+
+
+# ------------------------------------------------------------------ demo mode
+#
+# Demo mode is a presentation switch on the listing and nothing else. These
+# checks cover the three things it promises: demo mode offers the curated set,
+# it never offers what the curated set excludes, and full mode is unchanged.
+# They also pin down that it is a listing filter only — an excluded dataset is
+# still in the repository and still analysable.
+
+
+#: Files the curated set deliberately leaves out. Each one is here because its
+#: own preview fails the admission criteria, not because of its name.
+DEMO_EXCLUDED = (
+    "data.csv",
+    "dataset_variant_1.csv",
+    "dataset_variant_2.csv",
+    "execution_gap_test.csv",
+    "data/demo/incident_event_log.csv",
+    "servicenow_style_secops_cases_q3_2026.csv",
+    "servicenow_style_workflow_events_q3_2026.csv",
+    "SAT-SA_demo_Q3_2026.csv",
+    "validation/unsw/UNSW_NB15_testing-set.csv",
+    "validation/unsw/UNSW_NB15_training-set.csv",
+)
+
+
+def test_demo_mode_returns_only_the_curated_allowlist():
+    listed = [item["path"] for item in list_datasets(mode="demo")]
+
+    assert listed == sorted(DEMO_ALLOWLIST)
+
+
+def test_demo_mode_offers_nothing_beyond_the_allowlist():
+    """Stated as a set difference, so a new curated entry cannot pass unseen."""
+
+    listed = {item["path"] for item in list_datasets(mode="demo")}
+
+    assert listed <= set(DEMO_ALLOWLIST)
+
+
+def test_demo_mode_does_not_return_the_excluded_datasets():
+    listed = {item["path"] for item in list_datasets(mode="demo")}
+
+    for path in DEMO_EXCLUDED:
+        assert path not in listed, f"{path} must not be offered in demo mode"
+
+
+def test_demo_mode_entries_are_real_files_with_the_usual_fields():
+    """A curated entry is described exactly as a discovered one is."""
+
+    for item in list_datasets(mode="demo"):
+        absolute = os.path.join(ROOT, item["path"])
+
+        assert os.path.isfile(absolute)
+        assert item["filename"] == os.path.basename(item["path"])
+        assert item["size_bytes"] == os.path.getsize(absolute)
+        assert "recommended" not in item
+        assert "default" not in item
+
+
+def test_full_mode_still_returns_the_whole_repository():
+    full = {item["path"] for item in list_datasets(mode="full")}
+    demo = {item["path"] for item in list_datasets(mode="demo")}
+
+    assert demo < full
+    assert len(full) > len(demo)
+
+
+def test_full_mode_is_the_default_and_needs_no_configuration(monkeypatch):
+    monkeypatch.delenv("SATSA_DATASET_MODE", raising=False)
+    monkeypatch.delenv("SATSA_DEMO_DATASETS", raising=False)
+
+    assert dataset_mode() == "full"
+    assert [item["path"] for item in list_datasets()] == [
+        item["path"] for item in list_datasets(mode="full")
+    ]
+
+
+def test_full_mode_still_offers_the_excluded_datasets():
+    """The excluded files are filtered, not gone."""
+
+    listed = {item["path"] for item in list_datasets(mode="full")}
+
+    for path in DEMO_EXCLUDED:
+        assert path in listed, f"{path} must remain available in full mode"
+
+
+def test_demo_mode_is_selected_by_environment(monkeypatch):
+    monkeypatch.setenv("SATSA_DATASET_MODE", "demo")
+
+    assert dataset_mode() == "demo"
+    assert {item["path"] for item in list_datasets()} == set(DEMO_ALLOWLIST)
+
+
+def test_an_unknown_mode_is_reported_rather_than_silently_widened(monkeypatch):
+    """Falling back to a full walk here would undo the switch quietly."""
+
+    monkeypatch.setenv("SATSA_DATASET_MODE", "demo-ish")
+
+    with pytest.raises(ValueError):
+        dataset_mode()
+
+    with pytest.raises(ValueError):
+        list_datasets()
+
+
+def test_the_curated_set_can_be_replaced_from_the_environment(monkeypatch, tmp_path):
+    (tmp_path / "curated.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+    monkeypatch.setenv("SATSA_DEMO_DATASETS", "curated.csv")
+
+    listed = list_datasets(root=str(tmp_path), mode="demo")
+
+    assert [item["path"] for item in listed] == ["curated.csv"]
+
+
+def test_an_allowlisted_dataset_that_is_absent_is_reported(monkeypatch, tmp_path):
+    found, missing = curated_datasets(
+        allowlist=("here.csv", "gone.csv"), root=str(tmp_path)
+    )
+
+    assert found == []
+    assert missing == ["here.csv", "gone.csv"]
+
+
+def test_a_missing_curated_dataset_is_not_silently_dropped():
+    """``missing`` is what the endpoint reports instead of a shorter picker."""
+
+    found, missing = curated_datasets()
+
+    assert missing == []
+    assert {item["path"] for item in found} == set(DEMO_ALLOWLIST)
+
+
+def test_demo_mode_filters_the_listing_only(monkeypatch):
+    """An excluded dataset is still in the repository and still analysable."""
+
+    monkeypatch.setenv("SATSA_DATASET_MODE", "demo")
+
+    listed = {item["path"] for item in list_datasets()}
+
+    assert "data/demo/incident_event_log.csv" not in listed
+    assert os.path.isfile(
+        resolve_dataset("data/demo/incident_event_log.csv")
+    )
+
+
+def test_the_datasets_endpoint_reports_the_listing_it_gave(monkeypatch):
+    monkeypatch.delenv("SATSA_DATASET_MODE", raising=False)
+
+    body = datasets()
+
+    assert body["mode"] == "full"
+    assert [item["path"] for item in body["datasets"]] == [
+        item["path"] for item in list_datasets(mode="full")
+    ]
+    assert "missing" not in body
+
+
+def test_the_datasets_endpoint_reports_demo_mode_and_no_missing(monkeypatch):
+    monkeypatch.setenv("SATSA_DATASET_MODE", "demo")
+
+    body = datasets()
+
+    assert body["mode"] == "demo"
+    assert [item["path"] for item in body["datasets"]] == sorted(DEMO_ALLOWLIST)
+    assert "missing" not in body
+
+
+def test_the_datasets_endpoint_names_a_curated_dataset_that_is_absent(monkeypatch, tmp_path):
+    monkeypatch.setenv("SATSA_DATASET_MODE", "demo")
+    monkeypatch.setenv("SATSA_DEMO_DATASETS", "absent_demo_dataset.csv")
+    # ``curated_datasets`` resolves the root inside backend.datasets, so that
+    # is the name to replace; patching the app's import would leave the real
+    # repository in play and make this pass for the wrong reason.
+    monkeypatch.setattr("backend.datasets.repository_root", lambda: str(tmp_path))
+
+    body = datasets()
+
+    assert body["datasets"] == []
+    assert body["missing"] == ["absent_demo_dataset.csv"]
 
 
 def test_resolve_rejects_a_path_outside_the_repository():

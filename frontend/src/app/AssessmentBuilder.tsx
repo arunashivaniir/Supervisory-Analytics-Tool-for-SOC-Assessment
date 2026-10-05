@@ -95,6 +95,26 @@ export interface RolesContinue {
   reason: string | null;
 }
 
+/**
+ * One dataset's standing in the package run.
+ *
+ * `runnable` may be analysed. `skipped` is deliberately left out of the run
+ * because its role was never reviewed — the run states the role it analysed,
+ * so an unreviewed role is not a stated one. `blocked` carries a validation
+ * error the examiner has to resolve. `unresolved` has no settled preview yet.
+ */
+export type DatasetGateState =
+  | "runnable"
+  | "skipped"
+  | "blocked"
+  | "unresolved";
+
+export interface DatasetGate {
+  state: DatasetGateState;
+  ok: boolean;
+  reason: string | null;
+}
+
 export interface AssessmentBuilderValue {
   /** Repository-relative dataset paths in the package, in selection order. */
   datasets: string[];
@@ -124,6 +144,8 @@ export interface AssessmentBuilderValue {
   revertMappingOverride: (dataset: string, field: string) => void;
   /** Effective role: reviewer choice, else the detected one. */
   effectiveRole: (dataset: string) => string;
+  /** Whether one dataset may be analysed, and the honest reason when not. */
+  datasetGate: (dataset: string) => DatasetGate;
   /** Whether Roles may continue, and the honest reason when not. */
   rolesContinue: () => RolesContinue;
 }
@@ -498,25 +520,26 @@ export function AssessmentBuilderProvider({
     [],
   );
 
-  const rolesContinue = useCallback((): RolesContinue => {
-    if (datasets.length === 0) {
-      return { ok: false, reason: "Select at least one dataset first." };
-    }
+  /**
+   * One dataset's standing in the run, from its stored preview and reviewer
+   * choices alone.
+   *
+   * This is the single rule for whether a dataset may be analysed; the package
+   * gate below and the Run step both read it, so the two cannot drift apart.
+   * A role the examiner has not reviewed is `skipped` rather than `blocked`,
+   * because skipping says what will happen to that dataset while blocking
+   * says only that something is wrong. Validation errors stay hard: a dataset
+   * that would be run and carries one is `blocked` until it is resolved.
+   */
+  const datasetGate = useCallback(
+    (dataset: string): DatasetGate => {
+      const entry = previews[dataset];
 
-    for (const path of datasets) {
-      const entry = previews[path];
-
-      if (!entry || !entry.preview || entry.status !== "loaded") {
+      if (!entry || !entry.preview) {
         return {
+          state: "unresolved",
           ok: false,
           reason: "Refresh every dataset preview before continuing.",
-        };
-      }
-
-      if ((entry.preview.validation.error_count ?? 0) > 0) {
-        return {
-          ok: false,
-          reason: `Resolve the blocking validation error in ${path}.`,
         };
       }
 
@@ -524,14 +547,69 @@ export function AssessmentBuilderProvider({
 
       if (role === "UNKNOWN" && !entry.roleReviewed) {
         return {
+          state: "skipped",
           ok: false,
-          reason: `Confirm the dataset role for ${path}.`,
+          reason: `Confirm the dataset role for ${dataset} to include it.`,
         };
       }
+
+      if ((entry.preview.validation.error_count ?? 0) > 0) {
+        return {
+          state: "blocked",
+          ok: false,
+          reason: `Resolve the blocking validation error in ${dataset}.`,
+        };
+      }
+
+      // A reviewer change marks the entry stale until its preview is
+      // refreshed; readiness and validation from the old mapping are not
+      // readiness for this one.
+      if (entry.status !== "loaded") {
+        return {
+          state: "unresolved",
+          ok: false,
+          reason: "Refresh every dataset preview before continuing.",
+        };
+      }
+
+      return { state: "runnable", ok: true, reason: null };
+    },
+    [previews],
+  );
+
+  /**
+   * Whether the package may continue to Run.
+   *
+   * Datasets are judged independently: one unreviewed role, one unfinished
+   * preview or one refused file does not hold back the datasets that are
+   * ready. The package continues when at least one dataset is runnable and
+   * none of the runnable ones carries a blocking validation error. When
+   * nothing is runnable the reason names the first thing that would unblock
+   * the package, so an all-unreviewed package still explains itself.
+   */
+  const rolesContinue = useCallback((): RolesContinue => {
+    if (datasets.length === 0) {
+      return { ok: false, reason: "Select at least one dataset first." };
     }
 
-    return { ok: true, reason: null };
-  }, [datasets, previews]);
+    const gates = datasets.map((path) => datasetGate(path));
+    const runnable = gates.filter((item) => item.ok);
+
+    if (runnable.length > 0) {
+      const blocked = gates.find((item) => item.state === "blocked");
+
+      return blocked
+        ? { ok: false, reason: blocked.reason }
+        : { ok: true, reason: null };
+    }
+
+    const reason =
+      gates.find((item) => item.state === "skipped") ??
+      gates.find((item) => item.state === "blocked") ??
+      gates[0];
+
+    return { ok: false, reason: reason.reason };
+  }, [datasets, datasetGate]);
 
   const continueFrom = useCallback(
     (from: BuilderStep) => {
@@ -622,6 +700,7 @@ export function AssessmentBuilderProvider({
       setMappingOverride,
       revertMappingOverride,
       effectiveRole,
+      datasetGate,
       rolesContinue,
     }),
     [
@@ -641,6 +720,7 @@ export function AssessmentBuilderProvider({
       setMappingOverride,
       revertMappingOverride,
       effectiveRole,
+      datasetGate,
       rolesContinue,
     ],
   );

@@ -367,8 +367,10 @@ function DataStep() {
  * decisions, validation and relationship summaries. No analytics run,
  * and no cross-file join is computed or claimed. The canonical mapping
  * review is reused for per-dataset mapping review; a mapping or role
- * change marks that dataset stale until its preview is refreshed, and
- * the wizard cannot continue past a stale, blocked or unreviewed package.
+ * change marks that dataset stale until its preview is refreshed. A dataset
+ * whose role is still UNKNOWN is marked review required and is skipped by the
+ * run rather than holding back the datasets that are ready; a validation error
+ * on a dataset that would be run still stops the package.
  */
 function ReviewStep() {
   const {
@@ -382,6 +384,7 @@ function ReviewStep() {
     setMappingOverride,
     revertMappingOverride,
     effectiveRole,
+    datasetGate,
     rolesContinue,
   } = useAssessmentBuilder();
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -393,6 +396,10 @@ function ReviewStep() {
   }, []);
 
   const gate = rolesContinue();
+
+  // A dataset whose role was never reviewed is skipped rather than blocking
+  // the package, so the reviewer is told here which ones will be left out.
+  const skipped = datasets.filter((path) => datasetGate(path).state === "skipped");
 
   return (
     <>
@@ -498,6 +505,13 @@ function ReviewStep() {
           Each selected dataset is profiled independently before assessment.
           No cross-file linkage is computed at this stage.
         </Note>
+        {skipped.length > 0 ? (
+          <Note tone="caution" className="mt-2.5">
+            {skipped.length === 1 ? "1 dataset is" : `${skipped.length} datasets are`} review required and will be
+            skipped rather than run: {skipped.map((path) => path.split("/").pop() ?? path).join(", ")}. Review
+            each one and choose a role to include it; the rest of the package can continue without it.
+          </Note>
+        ) : null}
       </Section>
 
       <div className="mt-4 flex items-center justify-between gap-2">
@@ -959,33 +973,20 @@ function RelationshipSummary({
  * and run the next dataset.
  */
 function RunStep() {
-  const { datasets, previews, back, rolesContinue } = useAssessmentBuilder();
+  const { datasets, previews, back, rolesContinue, datasetGate } =
+    useAssessmentBuilder();
   const { run, analysis, pending } = useAnalysis();
   const navigate = useNavigate();
   const gate = rolesContinue();
   const busy =
     analysis?.status === "processing" || pending !== null;
 
-  const readiness = (path: string): { ready: boolean; reason: string | null } => {
-    const entry = previews[path];
-    const preview = entry?.preview;
-
-    if (!preview || entry?.status !== "loaded") {
-      return { ready: false, reason: "Preview this dataset before running it." };
-    }
-
-    if ((preview.validation.error_count ?? 0) > 0) {
-      return { ready: false, reason: "Resolve the blocking validation error first." };
-    }
-
-    const role = entry.roleOverride ?? preview.detected_role.role;
-
-    if (role === "UNKNOWN" && !entry.roleReviewed) {
-      return { ready: false, reason: "Confirm the dataset role first." };
-    }
-
-    return { ready: true, reason: null };
-  };
+  // Each dataset is judged on its own preview, so a dataset the examiner has
+  // not confirmed a role for is left out of the run rather than holding back
+  // the datasets that are ready. It is shown as skipped here, never dropped.
+  const states = datasets.map((path) => ({ path, gate: datasetGate(path) }));
+  const runnable = states.filter((item) => item.gate.ok);
+  const skipped = states.filter((item) => item.gate.state === "skipped");
 
   const startRun = async (path: string) => {
     await run(path);
@@ -1000,11 +1001,9 @@ function RunStep() {
       >
         <Frame>
           <ul className="divide-y divide-border">
-            {datasets.map((path) => {
+            {states.map(({ path, gate: state }) => {
               const entry = previews[path];
               const preview = entry?.preview;
-              const blocked = (preview?.validation.error_count ?? 0) > 0;
-              const state = readiness(path);
               const filename = path.split("/").pop() ?? path;
 
               return (
@@ -1020,24 +1019,26 @@ function RunStep() {
                       {preview
                         ? `${formatCount(preview.record_count)} records · ${entry?.roleOverride ?? preview.detected_role.role}`
                         : "Not previewed — return to Review."}
-                      {!state.ready && state.reason ? ` · ${state.reason}` : ""}
+                      {!state.ok && state.reason ? ` · ${state.reason}` : ""}
                       {busy ? " · a run is already in flight" : ""}
                     </span>
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
-                    {!preview ? (
+                    {state.state === "skipped" ? (
+                      <StatusBadge tone="caution" label="Skipped" showDot={false} />
+                    ) : state.state === "blocked" ? (
+                      <StatusBadge tone="critical" label="Blocked" showDot={false} />
+                    ) : !preview ? (
                       <StatusBadge tone="neutral" label="Unreviewed" showDot={false} />
                     ) : entry?.status === "stale" ? (
                       <StatusBadge tone="caution" label="Stale" showDot={false} />
-                    ) : blocked ? (
-                      <StatusBadge tone="critical" label="Blocked" showDot={false} />
                     ) : (
                       <StatusBadge tone="positive" label="Ready" showDot={false} />
                     )}
                     <Button
                       size="sm"
                       variant="primary"
-                      disabled={!state.ready || busy}
+                      disabled={!state.ok || busy}
                       onClick={() => void startRun(path)}
                     >
                       Run
@@ -1055,6 +1056,20 @@ function RunStep() {
               ? "Each Run starts an independent single-dataset assessment. Overview shows the latest run — earlier runs stay in the service and are not merged."
               : (gate.reason ?? "Refresh every dataset preview before running.")}
         </Note>
+        {skipped.length > 0 ? (
+          <Note tone="caution" className="mt-2.5">
+            {skipped.length === 1 ? "1 dataset is" : `${skipped.length} datasets are`} skipped and will not be
+            analysed: {skipped.map((item) => item.path.split("/").pop() ?? item.path).join(", ")}. An
+            unreviewed role is review required — return to Review to confirm a role, and it
+            becomes runnable.
+          </Note>
+        ) : null}
+        {runnable.length > 0 ? (
+          <Note className="mt-2.5">
+            {runnable.length} of {datasets.length} selected{" "}
+            {datasets.length === 1 ? "dataset" : "datasets"} ready to run.
+          </Note>
+        ) : null}
         <Note className="mt-2.5">
           No cross-file linkage is computed. A merged multi-dataset analysis
           is not supported: running this package does not create one combined

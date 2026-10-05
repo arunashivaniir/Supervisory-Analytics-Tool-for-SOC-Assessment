@@ -31,7 +31,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from backend.datasets import (
+    MODE_DEMO,
     bundle_root,
+    curated_datasets,
+    dataset_mode,
     list_datasets,
     repository_root,
     resolve_dataset,
@@ -184,14 +187,37 @@ def health() -> Dict[str, Any]:
 
 @app.get("/api/datasets")
 def datasets() -> Dict[str, Any]:
-    """Every dataset file available for analysis.
+    """Every dataset file offered for analysis.
 
     A listing, not a recommendation. The frontend may present these; it must
     not treat the first, the largest or any particular one as the subject of
     the assessment.
+
+    ``mode`` says which listing this is — ``full`` is the repository walk,
+    ``demo`` the curated set — so a client can tell a narrowed listing from a
+    repository that happens to hold little. In demo mode ``missing`` names
+    allowlisted datasets that are not on disk, so an incomplete curated set is
+    reported rather than quietly offered as a smaller picker.
+
+    Either way this response is the only thing the picker renders from: the
+    frontend filters nothing itself, so the listing cannot disagree with what
+    the adapter is willing to open.
     """
 
-    return {"datasets": list_datasets()}
+    mode = dataset_mode()
+    missing: List[str] = []
+
+    if mode == MODE_DEMO:
+        listed, missing = curated_datasets()
+    else:
+        listed = list_datasets(mode=mode)
+
+    body: Dict[str, Any] = {"datasets": listed, "mode": mode}
+
+    if missing:
+        body["missing"] = missing
+
+    return body
 
 
 @app.post("/api/analyses")

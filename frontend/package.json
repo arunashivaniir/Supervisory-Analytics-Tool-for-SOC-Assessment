@@ -10,6 +10,8 @@
     "lint": "oxlint",
     "check": "node scripts/check-screens.mjs",
     "check:switching": "node scripts/check-dataset-switching.mjs",
+    "check:roles": "node scripts/check-role-gating.mjs",
+    "check:demo": "node scripts/check-demo-datasets.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
