@@ -1,0 +1,62 @@
+alert_id,cse_id,asset_id,finding,severity,anomaly_score,evidence
+ALERT_00009,CSE_013,ASSET_0100,Suspicious Fast Alert Closure,HIGH,-0.0635914653168416,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00020,CSE_014,ASSET_0113,Suspicious Fast Alert Closure,HIGH,-0.0128798644681108,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00021,CSE_005,ASSET_0040,Critical Alert Escalation Gap,CRITICAL,-0.0542569300424565,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00024,CSE_005,ASSET_0040,Potential Superficial Investigation,HIGH,0.0528143783468228,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00029,CSE_015,ASSET_0125,Suspicious Fast Alert Closure,HIGH,-0.0635875185640095,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00030,CSE_004,ASSET_0035,Critical Alert Escalation Gap,CRITICAL,-0.0692078355345334,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00032,CSE_012,ASSET_0091,Suspicious Fast Alert Closure,HIGH,-0.0441575022634979,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00037,CSE_001,ASSET_0006,Suspicious Fast Alert Closure,HIGH,-0.0447052865892206,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00053,CSE_015,ASSET_0122,Potential Superficial Investigation,HIGH,-0.0021538385850538,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00064,CSE_014,ASSET_0118,Suspicious Fast Alert Closure,HIGH,-0.0174481519154766,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00076,CSE_005,ASSET_0047,Critical Alert Escalation Gap,CRITICAL,-0.0494210762101346,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00077,CSE_009,ASSET_0071,Potential Superficial Investigation,HIGH,0.0175422434710544,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00090,CSE_016,ASSET_0138,Potential Superficial Investigation,HIGH,0.0432306661914189,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00104,CSE_011,ASSET_0086,Critical Alert Escalation Gap,CRITICAL,-0.0818791232072689,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00105,CSE_001,ASSET_0005,Potential Superficial Investigation,HIGH,0.0382883649525481,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00106,CSE_003,ASSET_0029,Suspicious Fast Alert Closure,HIGH,-0.039236554110105,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00109,CSE_012,ASSET_0096,Potential Superficial Investigation,HIGH,0.0442632267847035,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00114,CSE_014,ASSET_0114,Potential Superficial Investigation,HIGH,0.0055549750731926,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00131,CSE_003,ASSET_0029,Potential Superficial Investigation,HIGH,0.0436096433053885,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00132,CSE_014,ASSET_0113,Potential Superficial Investigation,HIGH,0.0267378939764409,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00142,CSE_003,ASSET_0020,Potential Superficial Investigation,HIGH,0.0434971534768733,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00156,CSE_003,ASSET_0028,Potential Superficial Investigation,HIGH,0.0447466581159485,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00165,CSE_016,ASSET_0135,Potential Superficial Investigation,HIGH,0.0454951748541476,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00168,CSE_011,ASSET_0083,Potential Superficial Investigation,HIGH,0.0482995034444416,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00202,CSE_014,ASSET_0110,Suspicious Fast Alert Closure,HIGH,-0.0606521033875818,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00208,CSE_018,ASSET_0152,Suspicious Fast Alert Closure,HIGH,-0.0370051178796365,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00210,CSE_012,ASSET_0090,Critical Alert Escalation Gap,CRITICAL,-0.1007326791852935,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00211,CSE_018,ASSET_0152,Potential Superficial Investigation,CRITICAL,-0.0679908707040959,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00227,CSE_002,ASSET_0019,Suspicious Fast Alert Closure,HIGH,-0.0080640098507347,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00236,CSE_017,ASSET_0142,Critical Alert Escalation Gap,CRITICAL,-0.0533647118531545,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00243,CSE_014,ASSET_0113,Potential Superficial Investigation,HIGH,0.0514067368582969,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00244,CSE_001,ASSET_0007,Potential Superficial Investigation,HIGH,0.0421402483443131,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00267,CSE_019,ASSET_0156,Suspicious Fast Alert Closure,HIGH,-0.0786935610753719,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00280,CSE_001,ASSET_0003,Suspicious Fast Alert Closure,CRITICAL,-0.1020912532079484,High severity alert closed unusually quickly | Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00282,CSE_003,ASSET_0023,Critical Alert Escalation Gap,CRITICAL,-0.0690840937613876,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00286,CSE_014,ASSET_0110,Potential Superficial Investigation,HIGH,-0.0385259785740076,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00297,CSE_005,ASSET_0049,Suspicious Fast Alert Closure,HIGH,-0.0215517119338571,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00302,CSE_011,ASSET_0082,Potential Superficial Investigation,HIGH,-0.0340702986637779,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00306,CSE_005,ASSET_0040,Potential Superficial Investigation,HIGH,0.0213291283083552,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00310,CSE_005,ASSET_0047,Critical Alert Escalation Gap,CRITICAL,-0.0474358929554717,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00311,CSE_008,ASSET_0066,Potential Superficial Investigation,HIGH,0.0266532511065191,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00321,CSE_005,ASSET_0037,Potential Superficial Investigation,HIGH,0.0340649114326906,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00337,CSE_006,ASSET_0053,Critical Alert Escalation Gap,CRITICAL,-0.0337511965093463,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00358,CSE_007,ASSET_0059,Suspicious Fast Alert Closure,HIGH,-0.0536253658642075,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00370,CSE_015,ASSET_0133,Suspicious Fast Alert Closure,HIGH,-0.0231670149941494,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00378,CSE_001,ASSET_0008,Potential Superficial Investigation,HIGH,0.0546291169803684,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00382,CSE_006,ASSET_0051,Potential Superficial Investigation,HIGH,-0.0078835365798091,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00383,CSE_012,ASSET_0096,Potential Superficial Investigation,HIGH,0.0346144335277843,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00402,CSE_014,ASSET_0118,Potential Superficial Investigation,HIGH,-0.0843187956583325,No investigation evidence recorded | Root cause not identified | No remediation action recorded | High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00408,CSE_018,ASSET_0151,Potential Superficial Investigation,HIGH,0.0261649449604642,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00419,CSE_014,ASSET_0111,Potential Superficial Investigation,HIGH,-0.0154781349593817,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00434,CSE_016,ASSET_0137,Potential Superficial Investigation,HIGH,-0.0332213919165937,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00441,CSE_012,ASSET_0090,Critical Alert Escalation Gap,CRITICAL,-0.0738472245168511,Critical alert lacks escalation record | Detected as anomalous by Isolation Forest
+ALERT_00452,CSE_019,ASSET_0157,Potential Superficial Investigation,HIGH,-0.0517134315369091,No investigation evidence recorded | Root cause not identified | No remediation action recorded | High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00458,CSE_014,ASSET_0106,Potential Superficial Investigation,HIGH,0.0285490288207129,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00461,CSE_005,ASSET_0042,Potential Superficial Investigation,HIGH,0.0039039119039613,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00464,CSE_012,ASSET_0097,Potential Superficial Investigation,HIGH,0.0344565084844393,No investigation evidence recorded | Root cause not identified | No remediation action recorded
+ALERT_00468,CSE_019,ASSET_0155,Potential Superficial Investigation,HIGH,-0.0255566692294516,No investigation evidence recorded | Root cause not identified | No remediation action recorded | Detected as anomalous by Isolation Forest
+ALERT_00471,CSE_003,ASSET_0023,Suspicious Fast Alert Closure,HIGH,-0.0531217109445831,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00473,CSE_015,ASSET_0125,Suspicious Fast Alert Closure,HIGH,-0.0726315706653727,High severity alert closed unusually quickly | Detected as anomalous by Isolation Forest
+ALERT_00494,CSE_006,ASSET_0057,Potential Superficial Investigation,HIGH,0.0412145151683358,No investigation evidence recorded | Root cause not identified | No remediation action recorded

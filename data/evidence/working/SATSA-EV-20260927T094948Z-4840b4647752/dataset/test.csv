@@ -1,0 +1,4 @@
+alert_id,priority,host,created_time,closed_time,closed_by,investigation_notes,random_field,department
+ALRT001,HIGH,WEB-PROD-01,2026-01-01,120,Alice,"Root cause identified",XYZ,Finance
+ALRT002,LOW,DB-PROD-02,2026-01-02,300,Bob,"",ABC,HR
+ALRT003,CRITICAL,APP-SERVER-01,2026-01-03,60,Charlie,"Malware analysis completed",TEST,Operations

@@ -1,0 +1,43 @@
+cse,period,alert_id,priority,host,asset_criticality,escalation_status,investigation_notes
+REF-905,PER-001,REF-905-PER-001-0001,HIGH,ref-asset-019,HIGH,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0002,MEDIUM,ref-asset-021,LOW,,provisional across boundary recurring payload traced during behaviour sampling authentication window stakeholders handshake memory
+REF-905,PER-001,REF-905-PER-001-0003,MEDIUM,ref-asset-012,HIGH,,review scrutinising closure compared confirmation chain affected contents narrative with components interval review packets
+REF-905,PER-001,REF-905-PER-001-0004,CRITICAL,ref-asset-020,LOW,NOT_ESCALATED,session token replay detected on the affected endpoint file integrity baseline compared and no change detected process ancestry traced back to the initiating service ref 20483
+REF-905,PER-001,REF-905-PER-001-0005,HIGH,ref-asset-015,LOW,,confirmation payload traced deviation recurring tuning validated scrutinising latency header rotation matched of observations
+REF-905,PER-001,REF-905-PER-001-0006,HIGH,ref-asset-012,CRITICAL,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0007,CRITICAL,ref-asset-013,MEDIUM,NOT_ESCALATED,authentication offset boundary traced queue for packets threshold ledger pattern closure summary scrutinising across
+REF-905,PER-001,REF-905-PER-001-0008,HIGH,ref-asset-013,LOW,NOT_ESCALATED,interval deviation sequence annotated boundary indicator authentication queue matched baseline pattern expected telemetry summary
+REF-905,PER-001,REF-905-PER-001-0009,HIGH,ref-asset-018,LOW,NOT_ESCALATED,calibration handshake scrutinising endpoints header packets closure summary submitted validated unapproved before authentication correlation
+REF-905,PER-001,REF-905-PER-001-0010,HIGH,ref-asset-005,LOW,NOT_ESCALATED,appendix chain pattern rotation provisional closure observations components boundary observed summary segment latency window
+REF-905,PER-001,REF-905-PER-001-0011,MEDIUM,ref-asset-014,HIGH,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0012,MEDIUM,ref-asset-005,HIGH,NOT_ESCALATED,components documented for retrospective certificate appendix capturing annotated window memory pattern ownership rotation inventory
+REF-905,PER-001,REF-905-PER-001-0013,CRITICAL,ref-asset-018,LOW,NOT_ESCALATED,certificate confirmation worksheet indicator ledger ancestry integrity scrutinising guidance memory entries review summary components
+REF-905,PER-001,REF-905-PER-001-0014,CRITICAL,ref-asset-016,MEDIUM,NOT_ESCALATED,handshake submitted retrospective observations window expected closure inspected boundary analysed certificate baseline deviation consolidated
+REF-905,PER-001,REF-905-PER-001-0015,CRITICAL,ref-asset-014,LOW,ESCALATED,submitted header contents narrative chain rotation inspected matched batch across observed stakeholders of compared
+REF-905,PER-001,REF-905-PER-001-0016,CRITICAL,ref-asset-018,MEDIUM,NOT_ESCALATED,summary header and interval earlier certificate queue components calibration window traced narrative checksum scrutinising
+REF-905,PER-001,REF-905-PER-001-0017,CRITICAL,ref-asset-009,LOW,NOT_ESCALATED,payload indicator unapproved authentication verification tuning across consolidated padding window annotated sampling recommendation inventory
+REF-905,PER-001,REF-905-PER-001-0018,HIGH,ref-asset-019,MEDIUM,NOT_ESCALATED,log source rotated and earlier entries unavailable for review session token replay detected on the affected endpoint network segment isolated pending further correlation ref 74580
+REF-905,PER-001,REF-905-PER-001-0019,MEDIUM,ref-asset-016,LOW,NOT_ESCALATED,ownership contents earlier segment expected correlation observed threshold privilege of ancestry components deviation certificate
+REF-905,PER-001,REF-905-PER-001-0020,MEDIUM,ref-asset-020,MEDIUM,NOT_ESCALATED,outbound connection attempted to an unapproved destination authentication handshake retried several times before success process ancestry traced back to the initiating service ref 68033
+REF-905,PER-001,REF-905-PER-001-0021,HIGH,ref-asset-013,LOW,NOT_ESCALATED,for checksum across region endpoints inventory matched certificate closure annotated entries indicator baseline interval
+REF-905,PER-001,REF-905-PER-001-0022,CRITICAL,ref-asset-012,HIGH,ESCALATED,payload worksheet privilege topology recommendation traced boundary documented validated telemetry scrutinising sequence affected memory
+REF-905,PER-001,REF-905-PER-001-0023,MEDIUM,ref-asset-006,MEDIUM,NOT_ESCALATED,padding during privilege deviation annotated summary destination closure entries baseline window confirmation scrutinising payload
+REF-905,PER-001,REF-905-PER-001-0024,LOW,ref-asset-010,MEDIUM,ESCALATED,padding window consolidated stakeholders summary unapproved correlation rotation review behaviour expected destination queue matched
+REF-905,PER-001,REF-905-PER-001-0025,MEDIUM,ref-asset-002,CRITICAL,NOT_ESCALATED,outbound connection attempted to an unapproved destination session token replay detected on the affected endpoint process ancestry traced back to the initiating service ref 8690
+REF-905,PER-001,REF-905-PER-001-0026,MEDIUM,ref-asset-015,MEDIUM,NOT_ESCALATED,ancestry offset latency for contents across worksheet with observations certificate before validated ownership compared
+REF-905,PER-001,REF-905-PER-001-0027,CRITICAL,ref-asset-016,LOW,,log source rotated and earlier entries unavailable for review authentication handshake retried several times before success outbound connection attempted to an unapproved destination ref 93861
+REF-905,PER-001,REF-905-PER-001-0028,CRITICAL,ref-asset-014,CRITICAL,NOT_ESCALATED,pattern during calibration sampling interval closure padding stakeholders validated correlation with expected inventory documented
+REF-905,PER-001,REF-905-PER-001-0029,CRITICAL,ref-asset-020,HIGH,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0030,CRITICAL,ref-asset-020,HIGH,NOT_ESCALATED,annotated telemetry batch behaviour authentication guidance scrutinising components calibration topology queue certificate inspected observed
+REF-905,PER-001,REF-905-PER-001-0031,CRITICAL,ref-asset-021,MEDIUM,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0032,CRITICAL,ref-asset-019,LOW,NOT_ESCALATED,correlation certificate rotation closure interval scrutinising authentication components integrity ancestry affected handshake compared summary
+REF-905,PER-001,REF-905-PER-001-0033,CRITICAL,ref-asset-021,MEDIUM,NOT_ESCALATED,sampling authentication calibration rotation affected observations of indicator chain across contents before queue stakeholders
+REF-905,PER-001,REF-905-PER-001-0034,MEDIUM,ref-asset-014,MEDIUM,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0035,MEDIUM,ref-asset-010,LOW,ESCALATED,topology traced payload documented provisional analysed padding sensitivity ownership observed recurring interval unapproved correlation
+REF-905,PER-001,REF-905-PER-001-0036,CRITICAL,ref-asset-007,LOW,NOT_ESCALATED,region threshold annotated authentication scrutinising pattern contents tuning expected review window validated worksheet payload
+REF-905,PER-001,REF-905-PER-001-0037,LOW,ref-asset-017,LOW,NOT_ESCALATED,memory documented analysed closure ownership retrospective matched ancestry earlier stakeholders provisional appendix baseline compared
+REF-905,PER-001,REF-905-PER-001-0038,LOW,ref-asset-013,LOW,NOT_ESCALATED,narrative region ancestry sensitivity consolidated closure behaviour submitted integrity destination tuning deviation sequence affected
+REF-905,PER-001,REF-905-PER-001-0039,CRITICAL,ref-asset-014,LOW,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0040,HIGH,ref-asset-021,LOW,ESCALATED,consolidated window ledger batch compared topology correlation matched observations before across recommendation annotated worksheet
+REF-905,PER-001,REF-905-PER-001-0041,CRITICAL,ref-asset-013,HIGH,NOT_ESCALATED,
+REF-905,PER-001,REF-905-PER-001-0042,LOW,ref-asset-021,LOW,NOT_ESCALATED,calibration recurring destination certificate checksum boundary privilege for review topology with confirmation authentication endpoints

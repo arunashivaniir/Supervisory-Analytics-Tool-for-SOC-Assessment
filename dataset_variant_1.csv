@@ -1,0 +1,4 @@
+alert_level,server_name,resolution_duration
+CRITICAL,APP_SERVER_01,25
+MEDIUM,DB_SERVER_02,80
+LOW,WEB_SERVER_03,150

@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "SATSA-EV-20260927T183725Z-41ea7e922bd2",
+  "received_at": "2026-09-27T18:37:25Z",
+  "status": "REGISTERED",
+  "original_filename": "dataset_operational_pattern_controlled.csv",
+  "file_size": 16350,
+  "sha256": "41ea7e922bd2c78d99adb725d480088b8fe137a1a049718522fcfa58521ea96d",
+  "package_type": "csv",
+  "source_identifier": "resume-verify",
+  "assessment_period": null,
+  "submitted_by": null,
+  "received_channel": null,
+  "unavailable_fields": [
+    "submitted_by",
+    "assessment_period",
+    "received_channel"
+  ],
+  "custody_events": [
+    {
+      "action": "EVIDENCE_RECEIVED",
+      "actor": null,
+      "detail": "Registered 1 file(s) from dataset_operational_pattern_controlled.csv",
+      "occurred_at": "2026-09-27T18:37:25Z"
+    },
+    {
+      "action": "ORIGINAL_PRESERVED",
+      "actor": null,
+      "detail": "Original evidence preserved; application-level write protection enabled: True. This is a handling control, not a cryptographic guarantee.",
+      "occurred_at": "2026-09-27T18:37:25Z"
+    },
+    {
+      "action": "ANALYSIS_COPY_CREATED",
+      "actor": null,
+      "detail": "Working copy available for the SAT-SA pipeline: data/evidence/working/SATSA-EV-20260927T183725Z-41ea7e922bd2/dataset/dataset_operational_pattern_controlled.csv",
+      "occurred_at": "2026-09-27T18:37:25Z"
+    }
+  ],
+  "metadata": {}
+}

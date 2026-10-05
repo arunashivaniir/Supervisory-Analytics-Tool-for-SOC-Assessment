@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+/**
+ * SAT-SA design tokens.
+ *
+ * Values are declared once here and consumed as Tailwind theme variables, so a
+ * colour cannot drift between two screens. The palette is a neutral enterprise
+ * range: near-white canvas, white surfaces, a deep navy for primary text and
+ * chrome, and a single teal accent used sparingly.
+ *
+ * Fonts are a system stack. No webfont is fetched, so the application renders
+ * identically with no network access.
+ */
+
+@theme {
+  --color-canvas: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-subtle: #fbfcfd;
+
+  --color-primary: #172a46;
+  --color-primary-hover: #1f3a5f;
+  --color-primary-muted: #334a68;
+
+  --color-text: #172033;
+  --color-text-secondary: #667085;
+  --color-text-tertiary: #98a2b3;
+
+  --color-border: #e5e7eb;
+  --color-border-strong: #d4d8de;
+
+  --color-accent: #0f766e;
+  --color-accent-hover: #0d635c;
+  --color-accent-subtle: #eef4f3;
+
+  --color-positive: #3f7d5c;
+  --color-positive-subtle: #edf5f0;
+  --color-caution: #9a6b23;
+  --color-caution-subtle: #fbf4e8;
+  --color-critical: #a03d3d;
+  --color-critical-subtle: #fbeeed;
+  --color-neutral-tone: #5a6474;
+  --color-neutral-subtle: #f1f3f6;
+  --color-info: #3a628f;
+  --color-info-subtle: #eef2f7;
+
+  /* The platform's own interface font, and no other. Naming a webfont that is
+     not bundled would make the interface look different on every machine and
+     imply a download the tool is not allowed to make. */
+  --font-sans:
+    system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  --micro: 0.6875rem;
+}
+
+/**
+ * The one semantic mapping used on every screen.
+ *
+ * Declared once so a state cannot be green on one page and amber on another.
+ * `tone` values are consumed by `lib/status.ts`, which turns them into classes;
+ * nothing in a component decides a colour of its own.
+ *
+ * The four signal families keep stable, non-semantic colours here. They are not
+ * a severity scale: a family is a *kind* of detection, and colouring them as if
+ * one were more serious than another would be an interpretation the backend
+ * never made.
+ */
+@theme {
+  --color-family-execution-gap: #3a628f;
+  --color-family-negative-space: #6b5b95;
+  --color-family-operational-pattern: #0f766e;
+  --color-family-anomaly: #9a6b23;
+}
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /*
+   * Every table cell opts into a bounded width so one long backend string
+   * cannot push a column wider than its container and give the page a
+   * horizontal scrollbar. `max-width: 0` is what makes `width: 100%` on the
+   * table resolve against the container rather than against the content.
+   */
+  th,
+  td {
+    max-width: 0;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background-color: var(--color-accent-subtle);
+  }
+}
+
+@layer components {
+  /*
+   * Truncation for values that must stay on one line, with the full value
+   * reachable through the element's `title`. Applied to a cell rather than
+   * written inline at each site so the behaviour is identical everywhere.
+   */
+  .truncate-cell {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Two-line clamp for prose that must be read in full via the detail view. */
+  .clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .section-label {
+    font-size: var(--micro);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+  }
+
+  .micro {
+    font-size: var(--micro);
+  }
+}
+
+/**
+ * Print styles for the report preview.
+ *
+ * The tool has no server-side PDF renderer, and adding one would be a second
+ * reporting engine. The preview is therefore a faithful rendering of pipeline
+ * output, and "Export PDF" hands it to the browser's own print-to-PDF. These
+ * rules make that output a document rather than a screenshot: chrome is
+ * removed and the content is allowed to flow across pages.
+ */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  [data-print-hide] {
+    display: none !important;
+  }
+
+  [data-print-block] {
+    display: block !important;
+    break-inside: avoid;
+  }
+
+  main {
+    overflow: visible !important;
+    height: auto !important;
+  }
+
+  a[href]::after {
+    content: "";
+  }
+}

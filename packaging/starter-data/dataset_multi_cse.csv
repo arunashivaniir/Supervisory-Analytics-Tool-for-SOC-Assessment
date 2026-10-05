@@ -1,0 +1,9 @@
+cse,period,alert_id,priority,host,created_time,investigation_notes
+CSE-001,Period-1,ALRT001,HIGH,WEB-PROD-01,2026-01-05,Root cause identified
+CSE-001,Period-1,ALRT002,LOW,DB-PROD-02,2026-01-06,
+CSE-001,Period-2,ALRT003,CRITICAL,APP-SERVER-01,2026-04-02,Malware analysis completed
+CSE-001,Period-2,ALRT004,MEDIUM,WEB-PROD-01,2026-04-03,Ticket escalated
+CSE-002,Period-1,ALRT005,HIGH,EDGE-NODE-07,2026-01-04,Suspicious login
+CSE-002,Period-1,ALRT006,LOW,DB-NODE-08,2026-01-07,
+CSE-002,Period-2,ALRT007,LOW,EDGE-NODE-07,2026-04-01,Configuration drift found
+CSE-002,Period-2,ALRT008,HIGH,APP-NODE-09,2026-04-05,Credential theft suspected

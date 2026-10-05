@@ -1,0 +1,34 @@
+asset_id,cse_id,finding,severity,evidence
+ASSET_0003,CSE_001,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0003,CSE_001,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,NETWORK_ANOMALY,UNAUTHORIZED_ACCESS"
+ASSET_0011,CSE_001,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,PRIVILEGE_ESCALATION,DATA_EXFILTRATION"
+ASSET_0014,CSE_001,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,PRIVILEGE_ESCALATION,NETWORK_ANOMALY"
+ASSET_0017,CSE_002,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,NETWORK_ANOMALY,UNAUTHORIZED_ACCESS"
+ASSET_0021,CSE_003,Missing Monitoring Coverage,HIGH,"Missing controls: PRIVILEGE_ESCALATION,MALWARE,UNAUTHORIZED_ACCESS"
+ASSET_0023,CSE_003,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0023,CSE_003,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,PRIVILEGE_ESCALATION"
+ASSET_0027,CSE_003,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0027,CSE_003,Missing Monitoring Coverage,HIGH,"Missing controls: PRIVILEGE_ESCALATION,MALWARE,UNAUTHORIZED_ACCESS,DATA_EXFILTRATION"
+ASSET_0037,CSE_005,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0037,CSE_005,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE"
+ASSET_0038,CSE_005,Missing Monitoring Coverage,HIGH,"Missing controls: MALWARE,UNAUTHORIZED_ACCESS"
+ASSET_0040,CSE_005,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,PRIVILEGE_ESCALATION,UNAUTHORIZED_ACCESS"
+ASSET_0064,CSE_008,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,MALWARE,DATA_EXFILTRATION"
+ASSET_0068,CSE_008,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,DATA_EXFILTRATION"
+ASSET_0071,CSE_009,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0071,CSE_009,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,MALWARE"
+ASSET_0077,CSE_010,Missing Monitoring Coverage,HIGH,"Missing controls: RANSOMWARE,MALWARE"
+ASSET_0092,CSE_012,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE,MALWARE,DATA_EXFILTRATION"
+ASSET_0096,CSE_012,Missing Monitoring Coverage,HIGH,"Missing controls: UNAUTHORIZED_ACCESS,DATA_EXFILTRATION"
+ASSET_0100,CSE_013,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0100,CSE_013,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE,PRIVILEGE_ESCALATION,MALWARE"
+ASSET_0104,CSE_013,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE,MALWARE"
+ASSET_0115,CSE_014,Unexpectedly Low Security Activity,MEDIUM,Critical asset generated no security alerts
+ASSET_0117,CSE_014,Missing Monitoring Coverage,HIGH,"Missing controls: MALWARE,UNAUTHORIZED_ACCESS"
+ASSET_0121,CSE_015,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0121,CSE_015,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE"
+ASSET_0134,CSE_016,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0134,CSE_016,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,PRIVILEGE_ESCALATION,UNAUTHORIZED_ACCESS"
+ASSET_0140,CSE_017,Potential Monitoring Blind Spot,HIGH,Critical asset has no telemetry availability
+ASSET_0140,CSE_017,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,UNAUTHORIZED_ACCESS"
+ASSET_0162,CSE_020,Missing Monitoring Coverage,HIGH,"Missing controls: PHISHING,RANSOMWARE,DATA_EXFILTRATION"

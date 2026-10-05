@@ -1,0 +1,4 @@
+risk_rating,asset_tag,incident_duration,attack_type
+HIGH,SRV001,45,Exploit
+CRITICAL,SRV002,20,Malware
+LOW,SRV003,300,Normal

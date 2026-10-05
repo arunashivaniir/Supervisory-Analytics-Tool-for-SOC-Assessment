@@ -1,0 +1,332 @@
+[
+    {
+        "cse_id": "CSE_001",
+        "risk_level": "MEDIUM",
+        "review_priority": "TARGETED REVIEW",
+        "recommended_actions": [
+            "Assess detection use cases and alert handling maturity",
+            "Review investigation documentation and evidence collection practices",
+            "Review monitoring coverage for important assets",
+            "Conduct targeted review of identified control weaknesses"
+        ],
+        "reason": [
+            "Detection capability requires improvement",
+            "Investigation process requires monitoring",
+            "Potential visibility gaps detected"
+        ],
+        "risk_drivers": [
+            "5 execution gap indicators ",
+            " 4 monitoring coverage gaps ",
+            " Investigation maturity concerns ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_002",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators ",
+            " 1 monitoring coverage gaps"
+        ]
+    },
+    {
+        "cse_id": "CSE_003",
+        "risk_level": "MEDIUM",
+        "review_priority": "TARGETED REVIEW",
+        "recommended_actions": [
+            "Assess detection use cases and alert handling maturity",
+            "Review investigation documentation and evidence collection practices",
+            "Review monitoring coverage for important assets",
+            "Conduct targeted review of identified control weaknesses"
+        ],
+        "reason": [
+            "Detection capability requires improvement",
+            "Investigation process requires monitoring",
+            "Potential visibility gaps detected"
+        ],
+        "risk_drivers": [
+            "6 execution gap indicators ",
+            " 5 monitoring coverage gaps ",
+            " Investigation maturity concerns ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_004",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_005",
+        "risk_level": "HIGH",
+        "review_priority": "IMMEDIATE REVIEW",
+        "recommended_actions": [
+            "Assess detection use cases and alert handling maturity",
+            "Perform SOC investigation workflow review and validate RCA quality",
+            "Review monitoring coverage for important assets",
+            "Conduct detailed supervisory examination and sample-based validation"
+        ],
+        "reason": [
+            "Detection capability requires improvement",
+            "Investigation maturity weakness detected",
+            "Potential visibility gaps detected",
+            "Entity requires immediate supervisory attention"
+        ],
+        "risk_drivers": [
+            "8 execution gap indicators ",
+            " 4 monitoring coverage gaps ",
+            " Investigation maturity concerns ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_006",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "3 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_007",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_008",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_009",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_010",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 monitoring coverage gaps"
+        ]
+    },
+    {
+        "cse_id": "CSE_011",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "3 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_012",
+        "risk_level": "MEDIUM",
+        "review_priority": "TARGETED REVIEW",
+        "recommended_actions": [
+            "Assess detection use cases and alert handling maturity",
+            "Review investigation documentation and evidence collection practices",
+            "Conduct targeted review of identified control weaknesses"
+        ],
+        "reason": [
+            "Detection capability requires improvement",
+            "Investigation process requires monitoring"
+        ],
+        "risk_drivers": [
+            "6 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Investigation maturity concerns ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_013",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators ",
+            " 3 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_014",
+        "risk_level": "MEDIUM",
+        "review_priority": "TARGETED REVIEW",
+        "recommended_actions": [
+            "Assess detection use cases and alert handling maturity",
+            "Perform SOC investigation workflow review and validate RCA quality",
+            "Conduct targeted review of identified control weaknesses"
+        ],
+        "reason": [
+            "Detection capability requires improvement",
+            "Investigation maturity weakness detected"
+        ],
+        "risk_drivers": [
+            "10 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Investigation maturity concerns ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_015",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "4 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_016",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "3 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_017",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 execution gap indicators ",
+            " 2 monitoring coverage gaps ",
+            " Critical asset visibility concerns"
+        ]
+    },
+    {
+        "cse_id": "CSE_018",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "3 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_019",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "3 execution gap indicators"
+        ]
+    },
+    {
+        "cse_id": "CSE_020",
+        "risk_level": "LOW",
+        "review_priority": "ROUTINE REVIEW",
+        "recommended_actions": [
+            "Continue periodic supervisory monitoring"
+        ],
+        "reason": [
+            "No significant supervisory concern identified"
+        ],
+        "risk_drivers": [
+            "1 monitoring coverage gaps"
+        ]
+    }
+]

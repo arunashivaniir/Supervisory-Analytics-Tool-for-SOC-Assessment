@@ -1,0 +1,41 @@
+cse,period,alert_id,priority,host,asset_criticality,escalation_status,investigation_notes
+REF-001,PER-002,REF-001-PER-002-0001,LOW,ref-asset-011,MEDIUM,NOT_ESCALATED,validated packet capture and closed after verification step
+REF-001,PER-002,REF-001-PER-002-0002,LOW,ref-asset-010,MEDIUM,,reviewed queued alert and confirmed recurring pattern on endpoint
+REF-001,PER-002,REF-001-PER-002-0003,MEDIUM,ref-asset-016,MEDIUM,NOT_ESCALATED,and authentication chain behaviour documented observations affected destination during window for ledger sequence packets
+REF-001,PER-002,REF-001-PER-002-0004,HIGH,ref-asset-017,MEDIUM,,payload header checksum mismatch observed in transit certificate chain validated against the trusted store memory region contents sampled during the incident window ref 69804
+REF-001,PER-002,REF-001-PER-002-0005,LOW,ref-asset-001,CRITICAL,ESCALATED,correlated with change window and marked as expected behaviour
+REF-001,PER-002,REF-001-PER-002-0006,MEDIUM,ref-asset-020,CRITICAL,NOT_ESCALATED,compared against baseline and observed no deviation from normal
+REF-001,PER-002,REF-001-PER-002-0007,LOW,ref-asset-002,LOW,,inspected process list and found no further suspicious activity
+REF-001,PER-002,REF-001-PER-002-0008,HIGH,ref-asset-011,LOW,NOT_ESCALATED,matched known indicator and escalated to on call for guidance
+REF-001,PER-002,REF-001-PER-002-0009,HIGH,ref-asset-019,LOW,NOT_ESCALATED,provisional pattern correlation worksheet sensitivity confirmation telemetry indicator scrutinising annotated queue closure inventory observed
+REF-001,PER-002,REF-001-PER-002-0010,LOW,ref-asset-012,MEDIUM,NOT_ESCALATED,baseline appendix validated verification tuning behaviour region expected retrospective integrity sampling confirmation checksum boundary
+REF-001,PER-002,REF-001-PER-002-0011,MEDIUM,ref-asset-002,LOW,ESCALATED,window header closure submitted recommendation padding matched compared confirmation topology verification annotated checksum inventory
+REF-001,PER-002,REF-001-PER-002-0012,LOW,ref-asset-020,LOW,NOT_ESCALATED,header indicator correlation unapproved with confirmation telemetry rotation earlier behaviour for closure padding affected
+REF-001,PER-002,REF-001-PER-002-0013,LOW,ref-asset-013,MEDIUM,NOT_ESCALATED,window provisional ledger queue scrutinising documented padding calibration contents matched baseline unapproved boundary pattern
+REF-001,PER-002,REF-001-PER-002-0014,MEDIUM,ref-asset-019,MEDIUM,NOT_ESCALATED,during packets capturing indicator scrutinising checksum integrity traced sensitivity tuning inspected rotation of closure
+REF-001,PER-002,REF-001-PER-002-0015,CRITICAL,ref-asset-009,MEDIUM,NOT_ESCALATED,
+REF-001,PER-002,REF-001-PER-002-0016,LOW,ref-asset-020,MEDIUM,ESCALATED,boundary payload observations memory analysed provisional during narrative closure topology across confirmation of annotated
+REF-001,PER-002,REF-001-PER-002-0017,LOW,ref-asset-018,MEDIUM,NOT_ESCALATED,queue boundary inspected worksheet correlation with calibration annotated confirmation ancestry behaviour ledger capturing memory
+REF-001,PER-002,REF-001-PER-002-0018,HIGH,ref-asset-001,HIGH,NOT_ESCALATED,integrity destination interval payload with memory verification packets padding baseline ownership summary chain narrative
+REF-001,PER-002,REF-001-PER-002-0019,LOW,ref-asset-013,CRITICAL,,retrospective memory provisional capturing components documented during annotated telemetry tuning padding topology authentication inventory
+REF-001,PER-002,REF-001-PER-002-0020,CRITICAL,ref-asset-015,LOW,ESCALATED,appendix memory queue payload compared correlation stakeholders contents documented review analysed verification handshake traced
+REF-001,PER-002,REF-001-PER-002-0021,HIGH,ref-asset-011,MEDIUM,ESCALATED,integrity calibration closure boundary with contents capturing handshake matched checksum validated baseline threshold sequence
+REF-001,PER-002,REF-001-PER-002-0022,LOW,ref-asset-018,LOW,NOT_ESCALATED,payload behaviour expected summary ancestry analysed submitted review during review tuning topology chain sensitivity
+REF-001,PER-002,REF-001-PER-002-0023,MEDIUM,ref-asset-020,HIGH,NOT_ESCALATED,narrative authentication correlation observations rotation threshold indicator telemetry ledger privilege unapproved traced destination ancestry
+REF-001,PER-002,REF-001-PER-002-0024,HIGH,ref-asset-015,LOW,,behaviour sampling handshake region affected closure annotated packets boundary stakeholders topology contents and batch
+REF-001,PER-002,REF-001-PER-002-0025,MEDIUM,ref-asset-016,CRITICAL,NOT_ESCALATED,
+REF-001,PER-002,REF-001-PER-002-0026,LOW,ref-asset-018,CRITICAL,NOT_ESCALATED,indicator validated verification for closure provisional threshold chain review sensitivity calibration destination capturing documented
+REF-001,PER-002,REF-001-PER-002-0027,MEDIUM,ref-asset-015,LOW,NOT_ESCALATED,
+REF-001,PER-002,REF-001-PER-002-0028,LOW,ref-asset-013,MEDIUM,NOT_ESCALATED,
+REF-001,PER-002,REF-001-PER-002-0029,LOW,ref-asset-020,LOW,NOT_ESCALATED,behaviour analysed integrity appendix rotation stakeholders before header compared across entries indicator annotated ancestry
+REF-001,PER-002,REF-001-PER-002-0030,LOW,ref-asset-014,LOW,NOT_ESCALATED,endpoints payload header compared correlation review correlation entries submitted affected across boundary of inspected
+REF-001,PER-002,REF-001-PER-002-0031,MEDIUM,ref-asset-013,LOW,,handshake calibration correlation closure baseline indicator provisional window queue expected stakeholders review padding consolidated
+REF-001,PER-002,REF-001-PER-002-0032,LOW,ref-asset-017,LOW,NOT_ESCALATED,pattern scrutinising handshake across baseline region integrity confirmation closure sampling calibration threshold topology window
+REF-001,PER-002,REF-001-PER-002-0033,CRITICAL,ref-asset-020,MEDIUM,NOT_ESCALATED,compared and consolidated during topology inventory affected sampling batch scrutinising checksum observations certificate tuning
+REF-001,PER-002,REF-001-PER-002-0034,CRITICAL,ref-asset-020,HIGH,,pattern summary consolidated rotation calibration with window ancestry analysed region expected padding integrity header
+REF-001,PER-002,REF-001-PER-002-0035,CRITICAL,ref-asset-015,MEDIUM,,appendix of calibration inventory rotation certificate indicator telemetry behaviour during before correlation affected for
+REF-001,PER-002,REF-001-PER-002-0036,HIGH,ref-asset-019,LOW,NOT_ESCALATED,topology privilege interval closure stakeholders inventory for narrative capturing during worksheet entries threshold matched
+REF-001,PER-002,REF-001-PER-002-0037,CRITICAL,ref-asset-010,HIGH,,telemetry verification submitted interval appendix capturing review summary unapproved latency correlation compared components tuning
+REF-001,PER-002,REF-001-PER-002-0038,LOW,ref-asset-017,HIGH,NOT_ESCALATED,compared observations recommendation checksum summary inspected confirmation correlation closure earlier payload and capturing components
+REF-001,PER-002,REF-001-PER-002-0039,MEDIUM,ref-asset-020,CRITICAL,,ownership topology certificate summary latency ancestry telemetry retrospective pattern annotated interval for expected endpoints
+REF-001,PER-002,REF-001-PER-002-0040,MEDIUM,ref-asset-001,MEDIUM,,validated across handshake interval inspected endpoints integrity scrutinising retrospective threshold privilege destination rotation inventory

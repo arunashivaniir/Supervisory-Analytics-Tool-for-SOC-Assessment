@@ -1,0 +1,333 @@
+{
+  "_comment": [
+    "SAT-SA peer benchmarking configuration.",
+    "",
+    "This file is the ONLY place a peer benchmark metric is declared. The",
+    "benchmarking engine contains no metric arithmetic of its own: it reads",
+    "these declarations and resolves them against values other layers have",
+    "already produced. That is what keeps a peer statement consistent with",
+    "the same quantity shown elsewhere in the assessment.",
+    "",
+    "EVERY NUMBER HERE IS JUSTIFIED, NOT CHOSEN",
+    "=========================================",
+    "",
+    "  min_peers / robust_min_peers",
+    "      Minimum cohort size before a peer median is published at all, and",
+    "      the size at which the cohort is described as robust. Below the",
+    "      first threshold no baseline is produced, because a median of two",
+    "      observations is not a distribution. Between the two thresholds",
+    "      the baseline is published and explicitly labelled limited, so a",
+    "      reviewer can see the difference between a weak baseline and no",
+    "      baseline.",
+    "",
+    "  deviation bands",
+    "      |modified z| at or above which a deviation is reported as",
+    "      NOTABLE or MATERIAL. These are descriptive bands for choosing",
+    "      wording, not supervisory policy and not control-failure",
+    "      thresholds. No band creates a finding, changes a verdict, or",
+    "      alters an evidence state.",
+    "",
+    "PERCENTILE IS NOT A RISK SCORE",
+    "==============================",
+    "",
+    "Each metric declares a direction. The direction is the only thing that",
+    "makes a percentile interpretable, and it is declared here rather than",
+    "inferred in the interface, so no screen can decide on its own that a",
+    "high number is bad.",
+    "",
+    "  higher_is_adverse     a larger value is the less favourable one",
+    "  higher_is_favourable  a larger value is the more favourable one",
+    "",
+    "A metric that expresses evidence presence rather than performance",
+    "('how much of the submitted data carried the concept this metric is",
+    "measured over') is marked measure_type 'evidence_observation'. Those",
+    "metrics are reported, compared and labelled, and the interface is",
+    "told through this field not to present them as performance.",
+    "",
+    "NO NEW INTELLIGENCE",
+    "===================",
+    "",
+    "No metric introduces a judgement the supervisory layers did not reach.",
+    "Each names the existing result key it is resolved from. A value that",
+    "those layers declined to produce is reported as NOT_EVALUABLE with the",
+    "reason the underlying layer gave, never as zero and never imputed."
+  ],
+
+  "schema_version": "1.0",
+
+  "baseline_policy": {
+    "_comment": [
+      "Cohort-size policy for publishing a peer baseline. Applied",
+      "identically to every metric and every scope."
+    ],
+    "min_peers_for_baseline": 3,
+    "robust_min_peers": 8,
+    "rate_precision": 6
+  },
+
+  "deviation_bands": {
+    "_comment": [
+      "Descriptive bands over the absolute modified Z-score. They select",
+      "wording only. They are not thresholds of failure and they never",
+      "produce or suppress a finding."
+    ],
+    "notable_at": 1.5,
+    "material_at": 3.5
+  },
+
+  "interpretation_templates": {
+    "higher_is_adverse_above": [
+      "{scope_label} reported {observed}, above the peer median of {peer_median} ",
+      "({modified_z} reference spreads from that median across {peer_count} ",
+      "peer scopes at the {percentile_ordinal} percentile of this cohort)."
+    ],
+    "higher_is_adverse_below": [
+      "{scope_label} reported {observed}, below the peer median of {peer_median} ",
+      "({modified_z} reference spreads from that median across {peer_count} ",
+      "peer scopes at the {percentile_ordinal} percentile of this cohort)."
+    ],
+    "higher_is_favourable_above": [
+      "{scope_label} reported {observed}, above the peer median of {peer_median} ",
+      "({modified_z} reference spreads from that median across {peer_count} ",
+      "peer scopes at the {percentile_ordinal} percentile of this cohort)."
+    ],
+    "higher_is_favourable_below": [
+      "{scope_label} reported {observed}, below the peer median of {peer_median} ",
+      "({modified_z} reference spreads from that median across {peer_count} ",
+      "peer scopes at the {percentile_ordinal} percentile of this cohort)."
+    ],
+    "within_cohort_spread": [
+      "{scope_label} reported {observed}, inside the peer median of ",
+      "{peer_median} ({modified_z} reference spreads from that median across ",
+      "{peer_count} peer scopes at the {percentile_ordinal} percentile of this cohort)."
+    ]
+  },
+
+  "metrics": [
+    {
+      "metric_id": "execution_gap_incidence",
+      "label": "Execution gap incidence",
+      "source_result": "execution_gap_findings",
+      "direction": "higher_is_adverse",
+      "measure_type": "control_contradiction",
+      "numerator_definition": "Records in the scope carrying at least one POTENTIAL_EXECUTION_GAP finding.",
+      "denominator_definition": "Records in the assessment scope.",
+      "metric_definition": [
+        "Share of records in the scope where the same submitted evidence",
+        "states an expectation and contradicts it. This is the only",
+        "measure in the catalogue derived from a contradiction the",
+        "execution-gap layer could actually establish, and it inherits",
+        "that layer's record-level traceability."
+      ],
+      "source_concepts": [
+        "SECURITY_SEVERITY",
+        "ESCALATION_STATUS"
+      ],
+      "_source_concepts_comment": [
+        "Declared as the concepts the configured execution-gap rules read.",
+        "A concept the scope's evidence did not resolve is reported as",
+        "unresolved in source_concepts rather than silently included."
+      ]
+    },
+    {
+      "metric_id": "negative_space_incidence",
+      "label": "Negative space incidence",
+      "source_result": "negative_space_findings",
+      "direction": "higher_is_adverse",
+      "measure_type": "evidence_absence",
+      "numerator_definition": "Records inside a triggered negative-space population that carried no usable expected evidence.",
+      "denominator_definition": "Records inside a triggered negative-space population.",
+      "metric_definition": [
+        "Share of the applicable population for which evidence that the",
+        "configured expectation says should exist was absent or unusable.",
+        "Only expectations whose trigger population is actually present in",
+        "the scope enter the denominator, so a scope without the trigger",
+        "population is reported as not evaluable rather than as perfect."
+      ],
+      "source_concepts": [
+        "ESCALATION_STATUS"
+      ],
+      "_source_concepts_comment": [
+        "Declared as the concepts the configured negative-space rules",
+        "measure expectation coverage over."
+      ]
+    },
+    {
+      "metric_id": "operational_pattern_incidence",
+      "label": "Operational pattern incidence",
+      "source_result": "operational_pattern_findings",
+      "direction": "higher_is_adverse",
+      "measure_type": "review_request",
+      "numerator_definition": "Records in the scope appearing in at least one POTENTIAL_OPERATIONAL_ANOMALY cluster.",
+      "denominator_definition": "Records in the assessment scope.",
+      "metric_definition": [
+        "Share of records the operational-shape layer placed in a cluster",
+        "it could not explain by chance. Records outside every pattern's",
+        "population cannot be flagged, so this is an upper bound on",
+        "flagged activity within the scope rather than a complete count.",
+        "A signal here is a request for human review, not a control failure."
+      ],
+      "source_concepts": [
+        "ASSET_IDENTIFIER",
+        "INVESTIGATION_EVIDENCE"
+      ]
+    },
+    {
+      "metric_id": "anomaly_scope_verdict",
+      "label": "Anomalous scope",
+      "source_result": "anomaly_findings",
+      "direction": "higher_is_adverse",
+      "measure_type": "model_verdict",
+      "numerator_definition": "Scopes the anomaly layer returned a POTENTIAL_OPERATIONAL_ANOMALY verdict for.",
+      "denominator_definition": "Scopes the anomaly layer evaluated.",
+      "metric_definition": [
+        "Share of evaluated scopes the anomaly model returned a potential",
+        "operational anomaly verdict for. The verdict belongs to the model",
+        "layer and its reference population; this catalogue only counts it",
+        "and reports the cohort it was counted across."
+      ],
+      "scope_level": false,
+      "source_concepts": []
+    },
+    {
+      "metric_id": "evidence_coverage",
+      "label": "Capability evidence coverage",
+      "source_result": "capability_assessment",
+      "direction": "higher_is_favourable",
+      "measure_type": "evidence_observation",
+      "numerator_definition": "Capabilities the capability layer reported AVAILABLE.",
+      "denominator_definition": "Capabilities the capability layer evaluated for the scope.",
+      "metric_definition": [
+        "Share of configured capabilities for which the submitted data",
+        "carried enough canonical evidence to assess. This describes the",
+        "submission, not the strength of a control: a capability reported",
+        "INSUFFICIENT_EVIDENCE counts in the denominator, never as a failure."
+      ],
+      "source_concepts": []
+    },
+    {
+      "metric_id": "escalation_coverage",
+      "label": "Escalation evidence coverage",
+      "source_result": "capability_assessment",
+      "direction": "higher_is_favourable",
+      "measure_type": "evidence_observation",
+      "scope_of": "indicator_category",
+      "indicator_category": "ESCALATION_GAP",
+      "numerator_definition": "Capabilities declaring ESCALATION_GAP and reported AVAILABLE.",
+      "denominator_definition": "Capabilities declaring ESCALATION_GAP and evaluated for the scope.",
+      "metric_definition": [
+        "Share of the capabilities whose configured indicator category is",
+        "escalation gap where enough evidence existed to assess them.",
+        "Describes evidence availability for escalation, not escalation",
+        "performance."
+      ],
+      "source_concepts": [
+        "ESCALATION_STATUS"
+      ]
+    },
+    {
+      "metric_id": "investigation_quality",
+      "label": "Investigation evidence coverage",
+      "source_result": "capability_assessment",
+      "direction": "higher_is_favourable",
+      "measure_type": "evidence_observation",
+      "scope_of": "indicator_category",
+      "indicator_category": "INVESTIGATION_QUALITY",
+      "numerator_definition": "Capabilities declaring INVESTIGATION_QUALITY and reported AVAILABLE.",
+      "denominator_definition": "Capabilities declaring INVESTIGATION_QUALITY and evaluated for the scope.",
+      "metric_definition": [
+        "Share of the capabilities whose configured indicator category is",
+        "investigation quality where enough evidence existed to assess",
+        "them. This measures whether investigation evidence was submitted",
+        "at all, which is not the same as whether the investigation that",
+        "was submitted was thorough."
+      ],
+      "source_concepts": [
+        "INVESTIGATION_EVIDENCE"
+      ]
+    },
+    {
+      "metric_id": "monitoring_visibility",
+      "label": "Monitoring visibility evidence coverage",
+      "source_result": "capability_assessment",
+      "direction": "higher_is_favourable",
+      "measure_type": "evidence_observation",
+      "scope_of": "indicator_category",
+      "indicator_category": "MONITORING_VISIBILITY_GAP",
+      "numerator_definition": "Capabilities declaring MONITORING_VISIBILITY_GAP and reported AVAILABLE.",
+      "denominator_definition": "Capabilities declaring MONITORING_VISIBILITY_GAP and evaluated for the scope.",
+      "metric_definition": [
+        "Share of the capabilities whose configured indicator category is",
+        "monitoring visibility where enough evidence existed to assess",
+        "them. Describes whether monitoring could be evidenced, not whether",
+        "monitoring was effective."
+      ],
+      "source_concepts": [
+        "ASSET_IDENTIFIER"
+      ]
+    }
+  ],
+
+  "cohort_tiers": [
+    {
+      "tier": 1,
+      "tier_id": "SAME_PERIOD_SECTOR_CLASS_SIZE",
+      "label": "Same period, sector, class and size",
+      "requires": [
+        "sector",
+        "entity_class",
+        "size_band"
+      ],
+      "selection_rule": [
+        "Scopes resolved to the same period label as the target, and whose",
+        "evidenced sector, entity class and size band all equal the",
+        "target's evidenced values. Every attribute must be evidenced on",
+        "the target; a target missing any of them cannot enter this tier."
+      ]
+    },
+    {
+      "tier": 2,
+      "tier_id": "SAME_PERIOD_SECTOR_CLASS",
+      "label": "Same period, sector and class",
+      "requires": [
+        "sector",
+        "entity_class"
+      ],
+      "selection_rule": [
+        "Scopes resolved to the same period label as the target, and whose",
+        "evidenced sector and entity class equal the target's. Size band is",
+        "not required here, so this tier is broader than tier 1."
+      ]
+    },
+    {
+      "tier": 3,
+      "tier_id": "SAME_PERIOD",
+      "label": "Same period",
+      "requires": [],
+      "selection_rule": [
+        "Scopes resolved to the same period label as the target, regardless",
+        "of sector, class or size. This is the widest cohort the tool will",
+        "build, because comparing scopes drawn from different periods would",
+        "compare different operating conditions rather than different",
+        "performance."
+      ]
+    }
+  ],
+
+  "entity_attributes": {
+    "_comment": [
+      "Sector, entity class and size band are read only from here.",
+      "",
+      "There is deliberately no inference from a dataset column, a name",
+      "pattern or a default. An attribute is used for cohort selection only",
+      "when a supervisory authority has supplied it here for that entity id,",
+      "and the resulting cohort reports which attributes were actually",
+      "evidenced. A tier that needs an attribute nobody supplied reports",
+      "itself unavailable with that reason, rather than quietly widening to",
+      "a tier that looks more precise than the evidence supports.",
+      "",
+      "Keys are entity ids as resolved by the assessment scope resolver."
+    ],
+    "entries": {}
+  }
+}

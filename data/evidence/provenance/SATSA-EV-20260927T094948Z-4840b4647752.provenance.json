@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "evidence_id": "SATSA-EV-20260927T094948Z-4840b4647752",
+  "received_at": "2026-09-27T09:49:48Z",
+  "status": "REGISTERED",
+  "original_filename": "test.csv",
+  "file_size": 334,
+  "sha256": "4840b4647752f4a510dc678d6573c7b74689b86b1740344172e6bbc6f2fb72af",
+  "package_type": "csv",
+  "source_identifier": null,
+  "assessment_period": null,
+  "submitted_by": null,
+  "received_channel": null,
+  "unavailable_fields": [
+    "source_identifier",
+    "submitted_by",
+    "assessment_period",
+    "received_channel"
+  ],
+  "custody_events": [
+    {
+      "action": "EVIDENCE_RECEIVED",
+      "actor": null,
+      "detail": "Registered 1 file(s) from test.csv",
+      "occurred_at": "2026-09-27T09:49:48Z"
+    },
+    {
+      "action": "ORIGINAL_PRESERVED",
+      "actor": null,
+      "detail": "Original preserved read-only: True",
+      "occurred_at": "2026-09-27T09:49:48Z"
+    },
+    {
+      "action": "ANALYSIS_COPY_CREATED",
+      "actor": null,
+      "detail": "Working copy available for the SAT-SA pipeline: data/evidence/working/SATSA-EV-20260927T094948Z-4840b4647752/dataset/test.csv",
+      "occurred_at": "2026-09-27T09:49:48Z"
+    }
+  ],
+  "metadata": {}
+}
