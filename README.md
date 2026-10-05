@@ -144,6 +144,4 @@ SAT-SA is a decision-support tool, not an autonomous decision-maker. A detected 
 - Keep credentials and configuration in environment variables or an untracked `.env` file.
 - After changing backend framework or benchmark configuration files, restart the backend so the new configuration is loaded.
 
-## License
 
-<LICENSE: to be specified by the team>
