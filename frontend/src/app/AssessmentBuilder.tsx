@@ -133,6 +133,15 @@ const AssessmentBuilderContext =
 
 const STEP_ORDER: BuilderStep[] = ["select", "roles", "run"];
 
+/**
+ * How many dataset previews may be in flight at once.
+ *
+ * A preview is a synchronous profile on the adapter, so this only decides how
+ * much of the package is asked for together. It is bounded because an
+ * unbounded fan-out would profile the whole package at once.
+ */
+const PREVIEW_CONCURRENCY = 4;
+
 function emptyEntry(): PreviewEntry {
   return { status: "loading", mappingOverrides: {}, mappingRecords: {} };
 }
@@ -281,33 +290,49 @@ export function AssessmentBuilderProvider({
     });
     setStatus("PREVIEW_LOADING");
 
-    try {
-      await fetchPreviews(missing);
-    } catch (error) {
-      setPreviews((current) => {
-        const next = { ...current };
+    // Each dataset is previewed in its own request, so a row settles the moment
+    // its own profile is back. The adapter profiles one dataset at a time and
+    // only answers when the whole package is done, so a single package-wide
+    // request held every row at "loading" for the sum of every file in the
+    // package and left `rolesContinue` disabled for all of it. Requests are
+    // bounded so a large package does not start one preview per file at once.
+    for (let index = 0; index < missing.length; index += PREVIEW_CONCURRENCY) {
+      await Promise.all(
+        missing
+          .slice(index, index + PREVIEW_CONCURRENCY)
+          .map(async (path) => {
+            try {
+              await fetchPreviews([path]);
+            } catch (error) {
+              setPreviews((current) => {
+                const next: Record<string, PreviewEntry> = {
+                  ...current,
+                  [path]: {
+                    ...(current[path] ?? emptyEntry()),
+                    status: "error",
+                    error:
+                      error instanceof Error
+                        ? error.message
+                        : "Preview request failed.",
+                  },
+                };
+                window.setTimeout(() => recomputeStatus(next, datasets), 0);
+                return next;
+              });
+            }
 
-        for (const path of missing) {
-          next[path] = {
-            ...(next[path] ?? emptyEntry()),
-            status: "error",
-            error:
-              error instanceof Error ? error.message : "Preview request failed.",
-          };
-        }
+            // Read the stored entries after the state commits above.
+            window.setTimeout(() => {
+              const latest = previewsRef.current;
 
-        return next;
-      });
+              // Entries that finished without a preview and without an error
+              // are still in flight; leave the status alone rather than
+              // guessing.
+              recomputeStatus(latest, datasets);
+            }, 0);
+          }),
+      );
     }
-
-    // Read the stored entries after the state commits above.
-    window.setTimeout(() => {
-      const latest = previewsRef.current;
-
-      // Entries that finished without a preview and without an error are
-      // still in flight; leave the status alone rather than guessing.
-      recomputeStatus(latest, datasets);
-    }, 0);
   }, [datasets, fetchPreviews, recomputeStatus]);
 
   const refreshPreview = useCallback(
