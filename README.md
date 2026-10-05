@@ -213,7 +213,7 @@ Recommended environment:
 ### Clone
 
 ``` bash
-git clone <REPOSITORY_URL>
+git clone (https://github.com/arunashivaniir/Supervisory-Analytics-Tool-for-SOC-Assessment)
 cd Supervisory-Analytics-Tool-for-SOC-Assessment
 ```
 
